@@ -7,7 +7,7 @@ import { SCP } from '../src/data/scp.js';
 import { ADMIN_PERSON, PERSONNEL } from '../src/data/personnel.js';
 import { REPORTS } from '../src/data/reports.js';
 
-const MODEL = process.env.AI_GATEWAY_MODEL ?? 'anthropic/claude-haiku-5.5';
+const MODEL = process.env.AI_GATEWAY_MODEL ?? 'google/gemini-2.5-flash-lite';
 const MAX_INPUT = 500;
 const MAX_HISTORY = 8;
 
