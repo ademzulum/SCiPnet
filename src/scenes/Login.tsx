@@ -60,7 +60,7 @@ export default function Login({ onSuccess }: { onSuccess: () => void }) {
       >
         <ScpLogo />
         <h1>SCP FOUNDATION</h1>
-        <p className="motto">SICHERN · EINDÄMMEN · BEWAHREN</p>
+        <p className="motto">SECURE · CONTAIN · PROTECT</p>
       </motion.div>
 
       <motion.form

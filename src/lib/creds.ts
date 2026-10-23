@@ -4,7 +4,8 @@ export const STOLEN = {
   name: 'Dr. Duncan Maynard',
   password: 'Ky7#vQ2!mN0x',
   clearance: 'RAISA',
-  site: 'Site-19',
+  site: 'Site-80',
+  personnelId: 'P-80-0117',
 };
 
 export const AGENT = 'Special Agent Corvus Finch';

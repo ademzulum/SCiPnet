@@ -4,7 +4,7 @@ import CRT from './components/CRT';
 import PowerOn from './scenes/PowerOn';
 import Breach from './scenes/Breach';
 import Login from './scenes/Login';
-import Session from './scenes/Session';
+import Shell from './scipnet/Shell';
 
 type Stage = 'off' | 'breach' | 'login' | 'session';
 
@@ -52,7 +52,7 @@ export default function App() {
         )}
         {stage === 'session' && (
           <motion.div key="session" className="fill" {...fade}>
-            <Session />
+            <Shell onLogout={() => setStage('off')} />
           </motion.div>
         )}
       </AnimatePresence>
