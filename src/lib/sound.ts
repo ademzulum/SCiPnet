@@ -14,8 +14,14 @@ import receivedMessage from '../../sounds/recieved_message.mp3';
 import sentMessage from '../../sounds/sent_message.mp3';
 import terminalNoise from '../../sounds/uiu_terminal_background_noise.mp3';
 import uiuSuccess from '../../sounds/uiu_success.wav';
+// Section sounds (files use an uppercase .MP3 extension, so import them as URLs).
+import tabArchive from '../../sounds/archive.MP3?url';
+import tabComms from '../../sounds/communications_hub.MP3?url';
+import tabOverview from '../../sounds/overview.MP3?url';
+import tabPersonnel from '../../sounds/personell_files.MP3?url';
+import tabReports from '../../sounds/field_reports.MP3?url';
 
-const URLS = { biometric, click, commsLogin, enter, error, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, terminalNoise, uiuSuccess };
+const URLS = { biometric, click, commsLogin, enter, error, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, tabArchive, tabComms, tabOverview, tabPersonnel, tabReports, terminalNoise, uiuSuccess };
 export type SoundName = keyof typeof URLS;
 
 let ctx: AudioContext | null = null;

@@ -17,17 +17,30 @@ import Archive, { ScpView } from './Archive';
 import { commsAuth } from './session';
 import { Bell, Toast, useNotifications } from './Notifications';
 import { initials } from './Comms';
+import { play, type SoundName } from '../lib/sound';
 
-type NavItem = { label: string; route?: Route; match?: Route['view'][] };
+type NavItem = { label: string; route?: Route; match?: Route['view'][]; sound?: SoundName };
 
 // Items without a route are shown as locked; add pages here later.
 const NAV: NavItem[] = [
-  { label: 'Übersicht', route: { view: 'overview' }, match: ['overview'] },
-  { label: 'Personalakten', route: { view: 'personnel' }, match: ['personnel', 'person', 'admin'] },
-  { label: 'Feldberichte', route: { view: 'reports' }, match: ['reports', 'report'] },
-  { label: 'Kommunikation', route: { view: 'comms' }, match: ['comms', 'thread'] },
-  { label: 'SCP-Archiv', route: { view: 'archive' }, match: ['archive', 'scp'] },
+  { label: 'Übersicht', route: { view: 'overview' }, match: ['overview'], sound: 'tabOverview' },
+  { label: 'Personalakten', route: { view: 'personnel' }, match: ['personnel', 'person', 'admin'], sound: 'tabPersonnel' },
+  { label: 'Feldberichte', route: { view: 'reports' }, match: ['reports', 'report'], sound: 'tabReports' },
+  { label: 'Kommunikation', route: { view: 'comms' }, match: ['comms', 'thread'], sound: 'tabComms' },
+  { label: 'SCP-Archiv', route: { view: 'archive' }, match: ['archive', 'scp'], sound: 'tabArchive' },
 ];
+
+// Section sound for sidebar tabs: one at a time (the previous one fades out)
+// and at most one every 300 ms, so fast clicking can't stack them up.
+let stopTabSound: (fadeMs?: number) => void = () => {};
+let lastTabSound = 0;
+function playTabSound(name: SoundName) {
+  const now = performance.now();
+  if (now - lastTabSound < 300) return;
+  lastTabSound = now;
+  stopTabSound(120);
+  stopTabSound = play(name, 0.55);
+}
 
 function Clock() {
   const [now, setNow] = useState(() => new Date());
@@ -143,7 +156,12 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
             <button
               key={n.label}
               className={n.match?.includes(route.view) ? 'active' : ''}
-              onClick={() => go(n.route!)}
+              data-sound="none"
+              onClick={() => {
+                // only when actually switching section
+                if (n.sound && !n.match?.includes(route.view)) playTabSound(n.sound);
+                go(n.route!);
+              }}
               disabled={locked}
             >
               {n.match?.includes(route.view) && (
