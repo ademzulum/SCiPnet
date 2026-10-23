@@ -289,7 +289,7 @@ export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestru
           <span className="scipa-core" />
         </div>
         <div>
-          <div className="label">KI-Assistent · Site-80</div>
+          <div className="label">Site-80 · Analyse-Einheit</div>
           <h2>S.C.I.P.A.</h2>
           <p className="dim">SCiPNet Intelligent Processing Assistant</p>
         </div>

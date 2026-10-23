@@ -25,19 +25,38 @@ import { savedSession, SESSION_MS } from '../lib/persist';
 
 const WARN_S = 30;
 
-type NavItem = { label: string; route?: Route; match?: Route['view'][]; sound?: SoundName };
+type NavItem = { label: string; icon: string; route?: Route; match?: Route['view'][]; sound?: SoundName };
 
 // Items without a route are shown as locked; add pages here later.
 const NAV: NavItem[] = [
-  { label: 'Übersicht', route: { view: 'overview' }, match: ['overview'] },
-  { label: 'Personalakten', route: { view: 'personnel' }, match: ['personnel', 'person', 'admin'], sound: 'tabPersonnel' },
-  { label: 'Feldberichte', route: { view: 'reports' }, match: ['reports', 'report'], sound: 'tabReports' },
-  { label: 'Kommunikation', route: { view: 'comms' }, match: ['comms', 'thread'], sound: 'tabComms' },
-  { label: 'SCP-Archiv', route: { view: 'archive' }, match: ['archive', 'scp'], sound: 'tabArchive' },
-  { label: 'KI-Assistent', route: { view: 'assistant' }, match: ['assistant'] },
+  // icon: SVG path data on a 24×24 grid, drawn as strokes
+  { label: 'Übersicht', icon: 'M4 4h7v7H4z M13 4h7v4h-7z M13 10h7v10h-7z M4 13h7v7H4z', route: { view: 'overview' }, match: ['overview'] },
+  {
+    label: 'Personal',
+    icon: 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6 M16 4.5a3.5 3.5 0 0 1 0 6.5 M18 14.5c1.8.8 3 2.6 3 5',
+    route: { view: 'personnel' },
+    match: ['personnel', 'person', 'admin'],
+    sound: 'tabPersonnel',
+  },
+  {
+    label: 'Berichte',
+    icon: 'M6 3h9l4 4v14H6z M15 3v4h4 M9 11h7 M9 15h7 M9 19h4',
+    route: { view: 'reports' },
+    match: ['reports', 'report'],
+    sound: 'tabReports',
+  },
+  { label: 'Kommunikation', icon: 'M4 5h16v11H9l-5 4z M8 9h8 M8 12h5', route: { view: 'comms' }, match: ['comms', 'thread'], sound: 'tabComms' },
+  {
+    label: 'Archiv',
+    icon: 'M3 4h18v4H3z M5 8v12h14V8 M10 12h4',
+    route: { view: 'archive' },
+    match: ['archive', 'scp'],
+    sound: 'tabArchive',
+  },
+  { label: 'S.C.I.P.A.', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M12 11v2', route: { view: 'assistant' }, match: ['assistant'] },
 ];
 
-// Section sound for sidebar tabs, played together with the click.
+// Section sound for dock items, played together with the click.
 // One at a time (the previous one fades out) and at most one every 300 ms,
 // so fast clicking can't stack them up.
 let stopTabSound: (fadeMs?: number) => void = () => {};
@@ -190,7 +209,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
         </div>
       </header>
 
-      <nav className="sidenav">
+      <nav className="dock" aria-label="Bereiche">
         {NAV.map((n) =>
           n.route ? (
             <button
@@ -202,6 +221,8 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
                 go(n.route!);
               }}
               disabled={locked}
+              aria-label={n.label}
+              title={n.label}
             >
               {n.match?.includes(route.view) && (
                 <motion.span
@@ -210,11 +231,17 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
                   transition={{ type: 'spring', stiffness: 500, damping: 40 }}
                 />
               )}
+              <svg className="dock-icon" viewBox="0 0 24 24" aria-hidden>
+                <path d={n.icon} />
+              </svg>
               <span className="nav-label">{n.label}</span>
             </button>
           ) : (
             <button key={n.label} disabled title="Zugriff verweigert">
-              {n.label} <span className="lock">GESPERRT</span>
+              <svg className="dock-icon" viewBox="0 0 24 24" aria-hidden>
+                <path d={n.icon} />
+              </svg>
+              <span className="lock">GESPERRT</span>
             </button>
           ),
         )}
