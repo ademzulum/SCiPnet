@@ -21,15 +21,32 @@ const stepOf = (p: Phase) => (p === 'face' ? 1 : p === 'match' ? 2 : p === 'gran
 
 const RING = 2 * Math.PI * 46;
 
-// Fingerprint: nested arches with gaps so it reads as ridges.
+// Fingerprint: a whorl of nested ovals broken by gaps, cropped to a fingertip outline.
 const RIDGES = Array.from({ length: 9 }, (_, i) => {
-  const r = 6 + i * 4.6;
-  const top = 56 - r * 1.3;
+  const rx = 4 + i * 4;
+  const ry = rx * 1.18 + 2;
   return {
-    d: `M ${50 - r} 84 C ${50 - r} ${top}, ${50 + r} ${top}, ${50 + r} 84`,
-    dash: i % 3 === 0 ? '50 7 26 5' : i % 2 ? '34 5 70 9' : undefined,
+    rx,
+    ry,
+    dash: i % 3 === 0 ? `${rx * 2.2} ${2 + i} ${rx * 1.4} 3` : i % 2 ? `${rx * 3} 4 ${rx} 5` : undefined,
+    rot: (i % 2 ? 1 : -1) * (i * 6),
   };
 });
+const RidgePaths = () => (
+  <>
+    {RIDGES.map((r, i) => (
+      <ellipse
+        key={i}
+        cx="50"
+        cy="52"
+        rx={r.rx}
+        ry={r.ry}
+        strokeDasharray={r.dash}
+        transform={`rotate(${r.rot} 50 52)`}
+      />
+    ))}
+  </>
+);
 
 // Stylised face landmarks (viewBox 100x120), each linked to its 3 nearest neighbours.
 const POINTS: [number, number][] = [
@@ -221,6 +238,9 @@ export default function BiometricGate({
                   <clipPath id="bio-fill">
                     <rect ref={clip} x="0" y="100" width="100" height="100" />
                   </clipPath>
+                  <clipPath id="bio-finger">
+                    <ellipse cx="50" cy="52" rx="33" ry="40" />
+                  </clipPath>
                 </defs>
                 <circle cx="50" cy="50" r="46" className="bio-ring-bg" />
                 <circle
@@ -232,16 +252,15 @@ export default function BiometricGate({
                   strokeDasharray={RING}
                   strokeDashoffset={RING}
                 />
-                <g className="bio-ridges">
-                  {RIDGES.map((r, i) => (
-                    <path key={i} d={r.d} strokeDasharray={r.dash} />
-                  ))}
+                <g clipPath="url(#bio-finger)">
+                  <g className="bio-ridges">
+                    <RidgePaths />
+                  </g>
+                  <g className="bio-ridges lit" clipPath="url(#bio-fill)">
+                    <RidgePaths />
+                  </g>
                 </g>
-                <g className="bio-ridges lit" clipPath="url(#bio-fill)">
-                  {RIDGES.map((r, i) => (
-                    <path key={i} d={r.d} strokeDasharray={r.dash} />
-                  ))}
-                </g>
+                <ellipse cx="50" cy="52" rx="33" ry="40" className="bio-finger" />
               </svg>
             )}
 

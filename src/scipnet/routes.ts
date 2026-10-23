@@ -5,6 +5,8 @@ export type Route =
   | { view: 'admin' }
   | { view: 'reports' }
   | { view: 'report'; id: string }
+  | { view: 'archive' }
+  | { view: 'scp'; id: string }
   | { view: 'comms' }
   | { view: 'thread'; id: string };
 

@@ -35,10 +35,10 @@ export const BREACH_SCRIPT: Step[] = [
   { t: 'line', text: `AGENT: ${AGENT.toUpperCase()}     FALLAKTE: UIU-2026-0419`, cls: 'dim', delay: 600 },
   { t: 'line', text: '' },
 
-  // the "operation" — the player types the commands (any keys) and runs them with Enter
-  { t: 'line', text: 'HINWEIS: Befehle eintippen, mit [ENTER] ausführen. [ESC] überspringt.', cls: 'dim', delay: 300 },
+  // the "operation"
+  { t: 'line', text: 'HINWEIS: Auswahl mit den angezeigten Tasten. [ESC] überspringt.', cls: 'dim', delay: 300 },
   { t: 'line', text: '' },
-  { t: 'input', text: 'öffne fallakte "DIE FOUNDATION"' },
+  { t: 'cmd', text: 'öffne fallakte "DIE FOUNDATION"' },
   { t: 'line', text: '> Zielnetzwerk: SCiPnet', delay: 200 },
   { t: 'line', text: '> Status: MIT STANDARDMITTELN NICHT ERREICHBAR', cls: 'dim', delay: 500 },
   { t: 'line', text: '' },
@@ -66,7 +66,7 @@ export const BREACH_SCRIPT: Step[] = [
     ],
   },
   { t: 'line', text: '' },
-  { t: 'input', text: 'starte ghostline' },
+  { t: 'cmd', text: 'starte ghostline' },
   { t: 'line', text: '> Trägerfrequenz suchen: [←] [→] abstimmen, bei vollem Signal [ENTER].', cls: 'dim', delay: 200 },
   { t: 'tune', label: 'Phantom-Uplink' },
   { t: 'line', text: '> Trägersignal gefunden. Ursprung: [REDACTED]', cls: 'hi', delay: 500 },
@@ -87,7 +87,7 @@ export const BREACH_SCRIPT: Step[] = [
         key: '1',
         label: 'Anti-Memetik-Filter',
         steps: [
-          { t: 'input', text: 'aktiviere filter --anti-memetisch' },
+          { t: 'cmd', text: 'aktiviere filter --anti-memetisch' },
           { t: 'progress', label: 'Filtern', ms: 1500, cls: 'warn' },
         ],
       },
@@ -106,7 +106,7 @@ export const BREACH_SCRIPT: Step[] = [
   { t: 'line', text: '' },
 
   // payoff
-  { t: 'input', text: 'rekonstruiere identität aus abgefangenem verkehr' },
+  { t: 'cmd', text: 'rekonstruiere identität aus abgefangenem verkehr' },
   { t: 'scramble', label: '  KENNUNG  : ', value: STOLEN.user, ms: 1400, cls: 'hi' },
   { t: 'scramble', label: '  NAME     : ', value: STOLEN.name, ms: 1200, cls: 'hi' },
   { t: 'scramble', label: '  FREIGABE : ', value: STOLEN.clearance, ms: 900, cls: 'hi' },

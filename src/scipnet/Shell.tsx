@@ -13,6 +13,7 @@ import ThreadView from './ThreadView';
 import GlitchLayer from './GlitchLayer';
 import { AdminFile, SelfDestruct } from './Admin';
 import CommsGate from './CommsGate';
+import Archive, { ScpView } from './Archive';
 import { commsAuth } from './session';
 
 type NavItem = { label: string; route?: Route; match?: Route['view'][] };
@@ -23,7 +24,7 @@ const NAV: NavItem[] = [
   { label: 'Personalakten', route: { view: 'personnel' }, match: ['personnel', 'person', 'admin'] },
   { label: 'Feldberichte', route: { view: 'reports' }, match: ['reports', 'report'] },
   { label: 'Kommunikation', route: { view: 'comms' }, match: ['comms', 'thread'] },
-  { label: 'SCP-Archiv' },
+  { label: 'SCP-Archiv', route: { view: 'archive' }, match: ['archive', 'scp'] },
 ];
 
 function Clock() {
@@ -70,6 +71,10 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
         return <ReportList go={go} />;
       case 'report':
         return <ReportView id={route.id} go={go} />;
+      case 'archive':
+        return <Archive go={go} />;
+      case 'scp':
+        return <ScpView id={route.id} go={go} />;
       case 'comms':
         return <Comms go={go} />;
       case 'thread':

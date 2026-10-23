@@ -16,7 +16,6 @@ export type Step =
   | { t: 'sound'; name: SoundName; volume?: number }
   | { t: 'clear' }
   // Interactive steps (wait for the player):
-  | { t: 'input'; text: string; prompt?: string } // any key types the next chars, Enter runs it
   | { t: 'tune'; label: string } // find the signal with ←/→, lock with Enter
   | { t: 'choice'; options: ChoiceOption[] }; // pick by key; `retry` options ask again afterwards
 
@@ -126,28 +125,6 @@ export async function run(steps: Step[], ctx: Ctx) {
         ctx.clear();
         await ctx.sleep(60);
         break;
-      case 'input': {
-        const prompt = s.prompt ?? DEFAULT_PROMPT;
-        let n = 0;
-        const render = () =>
-          ctx.set({ text: s.text.slice(0, n) + (n >= s.text.length ? '   ⏎' : ''), prompt, cls: 'cmd' });
-        ctx.push({ text: '', prompt, cls: 'cmd' });
-        await ctx.key((e) => {
-          if (e.key === 'Enter') {
-            if (n < s.text.length) return false;
-            ctx.sound('enter', 0.8);
-            return true;
-          }
-          if (e.key === 'Backspace') n = Math.max(0, n - 1);
-          else if (e.key.length === 1) n = Math.min(s.text.length, n + 1 + ((Math.random() * 2) | 0));
-          else return false;
-          render();
-          return false;
-        });
-        ctx.set({ text: s.text, prompt, cls: 'cmd' });
-        await ctx.sleep(250);
-        break;
-      }
       case 'tune': {
         const W = 33;
         const target = 4 + ((Math.random() * (W - 8)) | 0);
