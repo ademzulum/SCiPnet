@@ -22,6 +22,15 @@ const buffers = new Map<SoundName, AudioBuffer>();
 
 let loading: Promise<void> = Promise.resolve();
 
+// Browsers (Safari especially) keep audio suspended until a gesture they
+// accept. Retry on every click, tap and key press so audio always unlocks.
+const unlock = () => {
+  if (ctx && ctx.state !== 'running') ctx.resume().catch(() => {});
+};
+for (const ev of ['pointerdown', 'touchend', 'click', 'keydown']) {
+  window.addEventListener(ev, unlock, { capture: true, passive: true });
+}
+
 // Resolves once every sound is decoded (or failed to load).
 export function initAudio(): Promise<void> {
   if (ctx) {
@@ -45,6 +54,7 @@ export function initAudio(): Promise<void> {
 export function play(name: SoundName, volume = 1, loop = false): (fadeMs?: number) => void {
   const buf = buffers.get(name);
   if (!ctx || !buf) return () => {};
+  if (ctx.state !== 'running') ctx.resume().catch(() => {});
   const audio = ctx;
   const src = audio.createBufferSource();
   const gain = audio.createGain();
