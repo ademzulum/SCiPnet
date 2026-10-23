@@ -14,8 +14,14 @@ import { Corrupt } from './Admin';
 const WORD = 'OVERSEER';
 const LIVES = 3;
 const TIME_S = 90;
-const W = 28;
-const H = 18;
+// Board size in cells: landscape on desktop, portrait on phones so the board
+// fills the screen. Set once per game when the overlay mounts.
+let W = 28;
+let H = 18;
+const pickBoard = () => {
+  const portrait = window.innerHeight > window.innerWidth;
+  [W, H] = portrait ? [14, 22] : [28, 18];
+};
 const START_STEP = 150; // ms per move
 const MIN_STEP = 80;
 const DECOYS = 3;
@@ -40,9 +46,9 @@ function freshSnake(): P[] {
 
 function makeSentinels(): Sentinel[] {
   return [
-    { x: 9, y: 2, dx: 0, dy: 1, every: 2, wait: 0 },
-    { x: 18, y: H - 3, dx: 0, dy: -1, every: 2, wait: 1 },
-    { x: W - 4, y: 5, dx: -1, dy: 0, every: 3, wait: 0 },
+    { x: Math.round(W * 0.33), y: 2, dx: 0, dy: 1, every: 2, wait: 0 },
+    { x: Math.round(W * 0.65), y: H - 3, dx: 0, dy: -1, every: 2, wait: 1 },
+    { x: W - 4, y: Math.round(H * 0.28), dx: -1, dy: 0, every: 3, wait: 0 },
   ];
 }
 
@@ -57,6 +63,7 @@ export default function Hack({
   onActive: (playing: boolean) => void;
   onOpen: () => void;
 }) {
+  useState(pickBoard); // before the game state below reads W and H
   const [phase, setPhase] = useState<'intro' | 'play' | 'won'>('intro');
   const [got, setGot] = useState(0);
   const [lives, setLives] = useState(LIVES);
@@ -374,14 +381,19 @@ export default function Hack({
     if (phase === 'intro') return setPhase('play');
     touch.current = { x: e.clientX, y: e.clientY };
   };
-  const onPointerUp = (e: React.PointerEvent) => {
+  // Steer as soon as the finger has moved 20px, then measure from there, so
+  // one continuous drag can make several turns.
+  const onPointerMove = (e: React.PointerEvent) => {
     const t0 = touch.current;
-    touch.current = null;
     if (!t0 || phase !== 'play') return;
     const dx = e.clientX - t0.x;
     const dy = e.clientY - t0.y;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
     steer(Math.abs(dx) > Math.abs(dy) ? { x: Math.sign(dx), y: 0 } : { x: 0, y: Math.sign(dy) });
+    touch.current = { x: e.clientX, y: e.clientY };
+  };
+  const onPointerUp = () => {
+    touch.current = null;
   };
 
   return (
@@ -415,7 +427,7 @@ export default function Hack({
         </div>
       </header>
 
-      <div className="hack-board" onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
+      <div className="hack-board" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}>
         <canvas ref={canvas} />
 
         <AnimatePresence>
@@ -429,7 +441,7 @@ export default function Hack({
               <span className="dim">Falsche Zeichen kürzen das Signal. Wände, Firewall-Blöcke, ICE-Wächter ◇ und das eigene Signal kosten einen Versuch.</span>
               <span className="dim small">
                 <span className="key-hint">[PFEILTASTEN] / [WASD] · </span>
-                <span className="touch-hint">Wischen oder Steuerkreuz · </span>
+                <span className="touch-hint">Wischen zum Steuern · </span>
                 {LIVES} Versuche · {TIME_S} Sekunden
               </span>
               <span className="hack-start">
@@ -452,22 +464,6 @@ export default function Hack({
           )}
         </AnimatePresence>
       </div>
-      {phase === 'play' && (
-        <div className="hack-dpad touch-only" data-sound="none">
-          {(
-            [
-              ['▲', { x: 0, y: -1 }],
-              ['◀', { x: -1, y: 0 }],
-              ['▼', { x: 0, y: 1 }],
-              ['▶', { x: 1, y: 0 }],
-            ] as const
-          ).map(([label, d]) => (
-            <button key={label} type="button" onPointerDown={() => steer(d)} aria-label={label}>
-              {label}
-            </button>
-          ))}
-        </div>
-      )}
     </motion.div>
   );
 }
