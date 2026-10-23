@@ -64,18 +64,18 @@ export function AdminFile({ onDone }: { onDone: () => void }) {
     <div className="page admin">
       <div className="dossier">
         <div className="photo admin-photo">
-          <Corrupt text="▓▓▓▓" amount={0.9} every={60} />
+          <Corrupt text="▓▓▓▓" amount={0.9} every={140} />
         </div>
         <div className="dossier-main">
           <h2>
-            <Corrupt text={NAMES[name]} amount={0.25} />
+            <Corrupt text={NAMES[name]} amount={0.25} every={120} />
           </h2>
           <dl className="fields">
             {fields.map(([k, v]) => (
               <div key={k}>
                 <dt>{k}</dt>
                 <dd>
-                  <Corrupt text={v} amount={0.5} every={70} />
+                  <Corrupt text={v} amount={0.5} every={140} />
                 </dd>
               </div>
             ))}

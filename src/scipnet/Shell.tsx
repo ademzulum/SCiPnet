@@ -12,6 +12,8 @@ import Comms from './Comms';
 import ThreadView from './ThreadView';
 import GlitchLayer from './GlitchLayer';
 import { AdminFile, SelfDestruct } from './Admin';
+import CommsGate from './CommsGate';
+import { commsAuth } from './session';
 
 type NavItem = { label: string; route?: Route; match?: Route['view'][] };
 
@@ -36,6 +38,7 @@ function Clock() {
 export default function Shell({ onLogout }: { onLogout: () => void }) {
   const [route, setRoute] = useState<Route>({ view: 'overview' });
   const [destruct, setDestruct] = useState<'none' | 'countdown' | 'collapse'>('none');
+  const [commsOk, setCommsOk] = useState(commsAuth.has);
   // Once the Administrator file is opened there is no way out.
   const locked = route.view === 'admin' || destruct !== 'none';
   const go = (r: Route) => {
@@ -45,6 +48,15 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
   };
 
   const page = (() => {
+    if ((route.view === 'comms' || route.view === 'thread') && !commsOk)
+      return (
+        <CommsGate
+          onDone={() => {
+            commsAuth.grant();
+            setCommsOk(true);
+          }}
+        />
+      );
     switch (route.view) {
       case 'overview':
         return <Overview go={go} />;
@@ -70,7 +82,7 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
       className={locked && destruct !== 'collapse' ? 'shell meltdown' : 'shell'}
       animate={
         destruct === 'collapse'
-          ? { scaleY: [1, 0.004, 0.004], scaleX: [1, 1, 0], filter: ['brightness(1)', 'brightness(3)', 'brightness(5)'] }
+          ? { scaleY: [1, 0.004, 0.004], scaleX: [1, 1, 0], opacity: [1, 1, 0] }
           : undefined
       }
       transition={{ duration: 0.7, times: [0, 0.55, 1], ease: 'easeIn' }}
@@ -121,7 +133,7 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
       <main className="shell-main">
         <AnimatePresence mode="wait">
           <motion.div
-            key={JSON.stringify(route)}
+            key={JSON.stringify(route) + commsOk}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}

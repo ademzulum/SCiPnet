@@ -22,7 +22,7 @@ function makeBands(): Band[] {
 
 // Heavy interference used while the Administrator file is open.
 function makeStorm(): Band[] {
-  const n = 6 + ((Math.random() * 8) | 0);
+  const n = 4 + ((Math.random() * 5) | 0);
   return Array.from({ length: n }, () => ({
     y: Math.random() * 100,
     h: 2 + Math.random() * 45,
@@ -67,7 +67,7 @@ export default function GlitchLayer({ pulse, storm = false }: { pulse: unknown; 
 
   useEffect(() => {
     if (!storm || reduced()) return;
-    const t = setInterval(() => setBands(Math.random() < 0.15 ? [] : makeStorm()), 55);
+    const t = setInterval(() => setBands(Math.random() < 0.15 ? [] : makeStorm()), 90);
     return () => {
       clearInterval(t);
       setBands([]);

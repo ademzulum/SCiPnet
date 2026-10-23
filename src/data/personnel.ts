@@ -8,6 +8,7 @@ export type Person = {
   clearance: string;
   status: 'Aktiv' | 'Beurlaubt' | 'Vermisst' | 'Beobachtung';
   since: string;
+  photo?: string; // optional image URL; a generated portrait is shown otherwise
   quote?: string;
   summary: string;
   notes: string[];

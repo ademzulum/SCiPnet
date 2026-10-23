@@ -6,9 +6,10 @@ import { threadForContact } from '../data/threads';
 import type { Go } from './routes';
 import Redacted from './Redacted';
 import { ReportRow } from './ReportList';
-import { psychAccess } from './session';
+import { biometric, psychAccess } from './session';
 import Tabs from './Tabs';
-import Biometric from './Biometric';
+import BiometricGate from './BiometricGate';
+import Portrait from './Portrait';
 import { play } from '../lib/sound';
 
 const TABS = ['Akte', 'Werdegang', 'Psychologie', 'Vorfälle', 'Berichte'] as const;
@@ -20,7 +21,20 @@ const fmtDate = (d: string) => new Date(d).toLocaleDateString('de-DE');
 export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
   const p = personById(id);
   const [tab, setTab] = useState<Tab>('Akte');
+  const [verified, setVerified] = useState(() => biometric.has(id));
   if (!p) return <p className="page">Akte nicht gefunden.</p>;
+  if (!verified)
+    return (
+      <BiometricGate
+        key={p.id}
+        person={p}
+        onCancel={() => go({ view: 'personnel' })}
+        onVerified={() => {
+          biometric.grant(p.id);
+          setVerified(true);
+        }}
+      />
+    );
   const thread = threadForContact(p.id);
 
   const fields: [string, string][] = [
@@ -39,7 +53,7 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
       </button>
 
       <div className="dossier box">
-        <Biometric key={p.id} id={p.id} name={p.name} />
+        <Portrait person={p} />
         <div className="dossier-main">
           <div className="dossier-title">
             <h2>{p.name}</h2>
@@ -79,12 +93,23 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
           {tab === 'Akte' && <FileTab p={p} />}
           {tab === 'Werdegang' && (
             <ol className="timeline">
-              {p.timeline.map((e) => (
-                <li key={e.year + e.text}>
-                  <span className="year">{e.year}</span>
-                  <Redacted text={e.text} />
-                </li>
-              ))}
+              {p.timeline.map((e, i) => {
+                const latest = i === p.timeline.length - 1;
+                return (
+                  <li
+                    key={e.year + e.text}
+                    className={latest ? 'latest' : ''}
+                    style={{ animationDelay: `${i * 70}ms` }}
+                  >
+                    <span className="tl-year">{e.year}</span>
+                    <span className="tl-node" />
+                    <div className="tl-card">
+                      {latest && <span className="tl-tag">Aktuell</span>}
+                      <Redacted text={e.text} />
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           )}
           {tab === 'Psychologie' && <PsychTab key={p.id} p={p} />}

@@ -7,7 +7,12 @@
       "Bash(git commit -q -m 'Add sound effects and the official Foundation logo *)",
       "Bash(git commit -q -m 'Interactive biometric scanner and new sound effects *)",
       "Bash(npx prettier *)",
-      "Bash(git commit -q -m 'Add SCiPnet startup sequence after login *)"
+      "Bash(git commit -q -m 'Add SCiPnet startup sequence after login *)",
+      "Bash(ffmpeg -loglevel error -y -i sounds/self_destruct.mp3 -t 7.2 -af \"afade=t=out:st=6.4:d=0.8\" -q:a 2 /private/tmp/claude-501/-Users-adem-Documents-Coding-SCiPnet/339ed89f-41cb-4610-8ac0-01bc42f0b4d5/scratchpad/sd.mp3)",
+      "Bash(afinfo sounds/self_destruct.mp3)",
+      "Bash(git rm *)",
+      "Bash(npx tsc *)",
+      "Bash(git commit -q -m 'Biometric gate, comms hub login, timeline restyle, perf and sound fixes *)"
     ]
   }
 }

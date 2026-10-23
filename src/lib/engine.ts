@@ -51,7 +51,6 @@ export async function run(steps: Step[], ctx: Ctx) {
           await ctx.sleep(rand(18, 60) * (s.speed ?? 1));
         }
         await ctx.sleep(rand(200, 380));
-        ctx.sound('enter', 0.6);
         break;
       }
       case 'line':
