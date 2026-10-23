@@ -22,11 +22,14 @@ export default function PowerOn({ onStart }: { onStart: () => void }) {
   }, []);
 
   return (
-    <div className="power">
+    <div className="power" onClick={() => startRef.current()}>
       <UiuLogo className="seal-intro" />
       <span className="power-title power-late">UIU FELDTERMINAL WS-07</span>
       <span className="power-late">
-        <span className="blink">[ENTER] ZUM EINSCHALTEN</span>
+        <span className="blink">
+          <span className="key-hint">[ENTER] ZUM EINSCHALTEN</span>
+          <span className="touch-hint">[ TIPPEN ZUM EINSCHALTEN ]</span>
+        </span>
       </span>
     </div>
   );

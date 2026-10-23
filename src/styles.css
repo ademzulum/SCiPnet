@@ -295,6 +295,67 @@ body,
   font-size: 18px;
 }
 
+.touch-pads {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 9vh;
+  display: none;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0 16px;
+}
+.touch-pads button {
+  all: unset;
+  min-width: 56px;
+  padding: 0.8rem 1rem;
+  text-align: center;
+  font-size: 18px;
+  border: 1px solid var(--fg);
+  box-shadow: 0 0 10px var(--glow);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.touch-pads button:active {
+  background: color-mix(in srgb, var(--fg) 25%, transparent);
+}
+button.skip {
+  all: unset;
+  position: absolute;
+  right: 5vw;
+  bottom: 3vh;
+  opacity: 0.4;
+  font-size: 18px;
+  cursor: pointer;
+}
+.touch-hint {
+  display: none;
+}
+/* Touch screens: on-screen keys instead of the keyboard hints. */
+@media (hover: none), (max-width: 720px) {
+  .touch-pads {
+    display: flex;
+  }
+  .key-hint {
+    display: none;
+  }
+  .touch-hint {
+    display: inline;
+  }
+  button.skip {
+    font-size: 14px;
+    opacity: 0.6;
+  }
+}
+@media (max-width: 720px) {
+  .term {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    padding-bottom: 22vh; /* room above the touch keys */
+  }
+}
+
 .blink {
   animation: blink 1.1s steps(1) infinite;
 }

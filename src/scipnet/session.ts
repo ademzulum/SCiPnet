@@ -103,6 +103,8 @@ export const adminAccess = {
   },
 };
 
+export const currentAccount = () => account;
+
 export function switchAccount(a: Account) {
   if (a === 'admin' && !adminUnlocked) return;
   account = a;

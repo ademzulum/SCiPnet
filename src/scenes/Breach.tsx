@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { CANCEL, run, type Ctx, type Line } from '../lib/engine';
+import { CANCEL, run, type Ctx, type Line, type Pad } from '../lib/engine';
 import { BREACH_SCRIPT } from '../lib/breachScript';
 import { initAudio, play } from '../lib/sound';
 
@@ -9,6 +9,8 @@ const GLITCH_MS = 900;
 export default function Breach({ onDone, onAlert }: { onDone: () => void; onAlert: (on: boolean) => void }) {
   const [lines, setLines] = useState<Line[]>([]);
   const [glitch, setGlitch] = useState(false);
+  const [pads, setPads] = useState<Pad[]>([]);
+  const skipRef = useRef<() => void>(() => {});
   const termRef = useRef<HTMLDivElement>(null);
   const cb = useRef({ onDone, onAlert });
   cb.current = { onDone, onAlert };
@@ -31,8 +33,9 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
       alert: (on) => cb.current.onAlert(on),
       sound: (name, volume) => play(name, volume),
       sleep: (ms) => new Promise((res, rej) => setTimeout(() => (dead ? rej(CANCEL) : res()), ms)),
-      key: (handler) =>
+      key: (handler, keyPads = []) =>
         new Promise((res, rej) => {
+          setPads(keyPads);
           const onKey = (e: KeyboardEvent) => {
             if (dead || e.key === 'Escape' || e.metaKey || e.ctrlKey || e.altKey) return;
             e.preventDefault();
@@ -42,6 +45,7 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
             }
           };
           const stop = () => {
+            setPads([]);
             window.removeEventListener('keydown', onKey);
             waiters.delete(cancel);
           };
@@ -65,6 +69,7 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
       if (e !== CANCEL) throw e;
     });
 
+    skipRef.current = finish;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && finish();
     window.addEventListener('keydown', onKey);
     return () => {
@@ -91,7 +96,23 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
           </div>
         ))}
       </div>
-      <div className="skip">[ESC] ÜBERSPRINGEN</div>
+      {pads.length > 0 && (
+        <div className="touch-pads">
+          {pads.map((p) => (
+            <button
+              key={p.key}
+              type="button"
+              data-sound="none"
+              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: p.key }))}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      )}
+      <button type="button" className="skip" data-sound="none" onClick={() => skipRef.current()}>
+        [ESC] ÜBERSPRINGEN
+      </button>
     </div>
   );
 }

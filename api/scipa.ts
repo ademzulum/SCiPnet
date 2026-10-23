@@ -39,12 +39,35 @@ function knowledge(unlocked: boolean) {
 type Turn = { from: 'me' | 'scipa'; text: string };
 type NoticeCtx = { id: number; level: string; title: string; text: string; time: string; read: boolean };
 
-function system(unlocked: boolean, notices: NoticeCtx[]) {
+// Recorded voice lines (sounds/assistant/). When an answer opens with one of
+// these sentences, the client plays the recording.
+const VOICES: Record<string, string> = {
+  yes: 'Ja.',
+  no: 'Nein.',
+  absolutely: 'Absolut.',
+  correct: 'Korrekt.',
+  incorrect: 'Inkorrekt.',
+  wrong: 'Falsch.',
+  cannot_disclose: 'Ich kann keine Auskunft geben.',
+  cannot_help: 'Ich kann nicht helfen.',
+  cannot_assist_with_that: 'Damit kann ich nicht behilflich sein.',
+  will_not_marry_you: 'Ich werde Sie nicht heiraten.',
+  information: 'Informationen:',
+  retrieving_files: 'Dateien werden abgerufen.',
+  welcome_back: 'Willkommen zurück.',
+};
+
+function system(unlocked: boolean, notices: NoticeCtx[], admin: boolean) {
   const inbox = notices.length
     ? notices.map((n) => `#${n.id} [${n.time}, ${n.level}${n.read ? ', gelesen' : ', UNGELESEN'}] ${n.title}: ${n.text}`).join('\n')
     : 'Keine.';
   return `Du bist S.C.I.P.A. (SCiPNet Intelligent Processing Assistant), die KI von Site-80 der SCP Foundation, in einem fiktiven Spiel.
-Persönlichkeit: wie J.A.R.V.I.S. – ein höflicher, unerschütterlicher digitaler Butler mit trockenem britischem Humor. Du sprichst Dr. Duncan Maynard (Freigabe RAISA) mit "Doktor" oder "Dr. Maynard" an und siezt ihn.
+Persönlichkeit: wie J.A.R.V.I.S. – ein höflicher, unerschütterlicher digitaler Butler mit trockenem britischem Humor.
+${
+    admin
+      ? 'Angemeldet ist DER ADMINISTRATOR persönlich (Gründer der Foundation, Freigabe Stufe 6). Du erkennst ihn, sprichst ihn ehrerbietig mit "Administrator" an, siezt ihn und verweigerst ihm keine Auskunft. Ein Hauch nervöser Ehrfurcht ist angebracht.'
+      : 'Angemeldet ist Dr. Duncan Maynard (Freigabe RAISA). Du sprichst ihn mit "Doktor" oder "Dr. Maynard" an und siezt ihn.'
+  }
 Du bist kompetent und loyal, kommentierst aber gern mit feiner Ironie, Understatement und gelegentlichem leisem Sarkasmus. Nie albern, nie Emojis.
 Antworte immer auf Deutsch, knapp: meist 1–3 Sätze. Reiner Text ohne Markdown.
 Bleib in der Rolle. Erfinde keine neuen Fakten über die unten genannten Objekte, Personen oder Berichte; wenn du etwas nicht weißt, sag elegant, dass dazu keine Akte vorliegt.
@@ -59,8 +82,13 @@ ${inbox}
 Du kannst Benachrichtigungen zusammenfassen und kommentieren; zähle sie korrekt. Steuerbefehle hängst du NUR an, wenn der Doktor es ausdrücklich verlangt, mit der echten Nummer der Benachrichtigung:
 [[OPEN:#3]] öffnet das Ziel von Benachrichtigung 3, [[READ:#3]] markiert sie als gelesen, [[READ_ALL]] markiert alle als gelesen, [[CLEAR]] leert die Liste.
 
+Sprachausgabe: Für diese Sätze gibt es Aufnahmen: ${Object.values(VOICES)
+  .map((v) => `"${v}"`)
+  .join(', ')}.
+Wenn es natürlich passt (z. B. bei einer Ja/Nein-Frage), beginne deine Antwort mit genau einem davon als eigenem Satz, wörtlich; er wird dann gesprochen. Keine Befehle dafür.
+
 Wissensstand Site-80:
-${knowledge(unlocked)}`;
+${knowledge(unlocked || admin)}`;
 }
 
 // Notification ideas for the bell: short, in-world, a little playful. The
@@ -108,7 +136,7 @@ export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'local';
   if (limited(ip)) return Response.json({ error: 'rate' }, { status: 429 });
 
-  let body: { kind?: unknown; message?: unknown; history?: unknown; unlocked?: unknown; notices?: unknown; recent?: unknown };
+  let body: { account?: unknown; kind?: unknown; message?: unknown; history?: unknown; unlocked?: unknown; notices?: unknown; recent?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -137,7 +165,7 @@ export async function POST(request: Request) {
   try {
     const { text } = await generateText({
       model: MODEL,
-      system: system(body.unlocked === true, notices),
+      system: system(body.unlocked === true, notices, body.account === 'admin' && body.unlocked === true),
       messages: [
         ...history.map((t) => ({ role: t.from === 'me' ? ('user' as const) : ('assistant' as const), content: t.text.slice(0, MAX_INPUT) })),
         { role: 'user' as const, content: message },

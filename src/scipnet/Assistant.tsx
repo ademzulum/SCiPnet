@@ -13,7 +13,7 @@ import {
   type Answer,
   type Intent,
 } from '../data/assistant';
-import { adminAccess } from './session';
+import { adminAccess, currentAccount } from './session';
 import { SCP } from '../data/scp';
 import { PERSONNEL } from '../data/personnel';
 import { REPORTS } from '../data/reports';
@@ -43,6 +43,8 @@ const norm = (s: string) =>
 
 const pick = <T,>(list: T[]) => list[(Math.random() * list.length) | 0];
 let lastUnknown = -1;
+// Recorded lines the model's answers can reuse (matched by their opening sentence).
+const SPOKEN: Answer[] = [...YES_NO, ...UNKNOWN, REFUSE, ...RETRIEVING, WELCOME_BACK, { text: 'Ich werde Sie nicht heiraten.', audio: 'will_not_marry_you.mp3' }];
 let visited = false; // later visits in the same page load greet with WELCOME_BACK
 
 // Answers built from the site data: SCP numbers, report ids, people, time.
@@ -136,6 +138,7 @@ async function ask(message: string, history: Msg[], notes: Notices): Promise<str
         message,
         history: history.slice(-8).map(({ from, text }) => ({ from, text })),
         unlocked: adminAccess.has(),
+        account: currentAccount(),
         notices: notes.items.slice(0, 10).map(({ id, level, title, text, time, read }) => ({ id, level, title, text, time, read })),
       }),
     });
@@ -218,11 +221,13 @@ function useDictation(setText: (t: string) => void) {
 }
 
 // The model can end an answer with [[OPEN:#id]], [[READ:#id]], [[READ_ALL]]
-// or [[CLEAR]] to act on the notifications. Strip them from the text, apply the
+// or [[CLEAR]] to act on the notifications, and add [[VOICE:name]] to have the
+// matching voice line from sounds/assistant/ spoken. Strip them from the text, apply the
 // read/clear ones right away and turn OPEN into the usual action button.
 function applyCommands(text: string, notes: Notices): Reply {
   let action: Intent['action'];
   const clean = text
+    .replace(/\[\[VOICE:[a-z_]+\]\]/g, '') // the voice is picked from the text itself, below
     .replace(/\[\[(OPEN|READ):#?(\d+)\]\]|\[\[(READ_ALL|CLEAR)\]\]/g, (_, cmd: string, id: string, all: string) => {
       const n = id ? notes.items.find((x) => x.id === Number(id)) : undefined;
       if (cmd === 'READ' && n) notes.markRead(n.id);
@@ -236,7 +241,11 @@ function applyCommands(text: string, notes: Notices): Reply {
     })
     .replace(/\[\[[^\]]*\]\]/g, '') // anything malformed
     .trim();
-  return { text: clean || 'Sehr wohl, Doktor.', action };
+  const final = clean || 'Sehr wohl.';
+  // Speak a recorded line when the answer opens with exactly its sentence.
+  const first = norm(final.split(/(?<=[.:!?])\s/)[0]);
+  const audio = SPOKEN.find((a) => norm(a.text) === first)?.audio;
+  return { text: final, action, audio };
 }
 
 export default function Assistant({ go, onSelfDestruct, notes }: { go: Go; onSelfDestruct: () => void; notes: Notices }) {

@@ -28,9 +28,12 @@ export interface Ctx {
   alert(on: boolean): void;
   sound(name: SoundName, volume?: number): void;
   sleep(ms: number): Promise<void>;
-  // Resolves once `handler` returns true for a key press.
-  key(handler: (e: KeyboardEvent) => boolean): Promise<void>;
+  // Resolves once `handler` returns true for a key press. `pads` are offered
+  // as on-screen buttons for touch screens; each sends its key.
+  key(handler: (e: KeyboardEvent) => boolean, pads?: Pad[]): Promise<void>;
 }
+
+export type Pad = { key: string; label: string };
 
 export const CANCEL = Symbol('cancel');
 
@@ -156,7 +159,11 @@ export async function run(steps: Step[], ctx: Ctx) {
           if (pos === target) ctx.sound('frequencyFound', 0.8);
           render();
           return false;
-        });
+        }, [
+          { key: 'ArrowLeft', label: '◀' },
+          { key: 'ArrowRight', label: '▶' },
+          { key: 'Enter', label: 'FIXIEREN' },
+        ]);
         render('  FIXIERT');
         await ctx.sleep(400);
         break;
@@ -168,7 +175,7 @@ export async function run(steps: Step[], ctx: Ctx) {
           await ctx.key((e) => {
             picked.o = s.options.find((o) => o.key.toLowerCase() === e.key.toLowerCase());
             return !!picked.o;
-          });
+          }, s.options.map((o) => ({ key: o.key, label: `[${o.key.toUpperCase()}] ${o.label}` })));
           ctx.sound('click', 0.6);
           ctx.push({ text: `> ${picked.o!.label}`, cls: 'dim' });
           await run(picked.o!.steps, ctx);
