@@ -2,6 +2,7 @@ export type Route =
   | { view: 'overview' }
   | { view: 'personnel' }
   | { view: 'person'; id: string }
+  | { view: 'admin' }
   | { view: 'reports' }
   | { view: 'report'; id: string }
   | { view: 'comms' }

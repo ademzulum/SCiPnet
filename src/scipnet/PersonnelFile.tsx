@@ -7,12 +7,13 @@ import type { Go } from './routes';
 import Redacted from './Redacted';
 import { ReportRow } from './ReportList';
 import { initials } from './Comms';
-import { personNotes, psychAccess } from './session';
+import { psychAccess } from './session';
 
 const TABS = ['Akte', 'Werdegang', 'Psychologie', 'Vorfälle', 'Berichte'] as const;
 type Tab = (typeof TABS)[number];
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const fmtDate = (d: string) => new Date(d).toLocaleDateString('de-DE');
 
 export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
   const p = personById(id);
@@ -35,10 +36,13 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
         ← Personalakten
       </button>
 
-      <div className="dossier">
+      <div className="dossier box">
         <Biometric key={p.id} name={p.name} />
         <div className="dossier-main">
-          <h2>{p.name}</h2>
+          <div className="dossier-title">
+            <h2>{p.name}</h2>
+            <span className={`status status-${p.status}`}>{p.status}</span>
+          </div>
           {p.quote && <p className="quote">„{p.quote}“</p>}
           <dl className="fields">
             {fields.map(([k, v]) => (
@@ -71,9 +75,9 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
       <AnimatePresence mode="wait">
         <motion.div
           key={tab}
-          initial={{ opacity: 0, x: 8 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -8 }}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.15 }}
         >
           {tab === 'Akte' && <FileTab p={p} />}
@@ -89,13 +93,13 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
           )}
           {tab === 'Psychologie' && <PsychTab key={p.id} p={p} />}
           {tab === 'Vorfälle' && (
-            <ul className="notices">
+            <div className="incidents">
               {p.incidents.map((n) => (
-                <li key={n}>
+                <div key={n} className={/^Keine/.test(n) ? 'incident none' : 'incident'}>
                   <Redacted text={n} />
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
           {tab === 'Berichte' && <ReportsTab p={p} go={go} />}
         </motion.div>
@@ -127,24 +131,15 @@ function Biometric({ name }: { name: string }) {
 }
 
 function FileTab({ p }: { p: Person }) {
-  const [notes, setNotes] = useState(() => personNotes.get(p.id));
-  const [draft, setDraft] = useState('');
-  const add = () => {
-    const text = draft.trim();
-    if (!text) return;
-    personNotes.add(p.id, text);
-    setNotes(personNotes.get(p.id));
-    setDraft('');
-  };
   return (
-    <>
-      <section>
+    <div className="stack">
+      <section className="box">
         <h3>Zusammenfassung</h3>
         <p>
           <Redacted text={p.summary} />
         </p>
       </section>
-      <section>
+      <section className="box">
         <h3>Vermerke</h3>
         <ul className="notices">
           {p.notes.map((n) => (
@@ -152,26 +147,9 @@ function FileTab({ p }: { p: Person }) {
               <Redacted text={n} />
             </li>
           ))}
-          {notes.map((n, i) => (
-            <li key={i} className="own-note">
-              {n} <span className="dim small">· eigener Vermerk</span>
-            </li>
-          ))}
         </ul>
-        <form
-          className="note-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            add();
-          }}
-        >
-          <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Vermerk hinzufügen…" maxLength={200} />
-          <button className="card action" type="submit" disabled={!draft.trim()}>
-            SPEICHERN
-          </button>
-        </form>
       </section>
-    </>
+    </div>
   );
 }
 
@@ -186,23 +164,71 @@ function PsychTab({ p }: { p: Person }) {
     setPhase(p.psych.access);
   };
 
-  if (phase === 'granted')
+  if (phase === 'granted') {
+    const { verdict, date, metrics = [], text } = p.psych;
     return (
-      <ul className="notices">
-        {p.psych.text.map((n) => (
-          <li key={n}>
-            <Redacted text={n} />
-          </li>
-        ))}
-      </ul>
+      <div className="stack">
+        <div className="box psych-head">
+          <div>
+            <div className="label">Gesamtbeurteilung</div>
+            {verdict && <span className={`verdict verdict-${verdict.tone}`}>{verdict.label}</span>}
+          </div>
+          {date && (
+            <div className="psych-date">
+              <div className="label">Letzte Beurteilung</div>
+              {fmtDate(date)}
+            </div>
+          )}
+        </div>
+
+        {metrics.length > 0 && (
+          <div className="metrics">
+            {metrics.map((m, i) => (
+              <div key={m.label} className="box metric">
+                <div className="metric-top">
+                  <span className="label">{m.label}</span>
+                  <span className="metric-value">{m.value}</span>
+                </div>
+                <div className="meter">
+                  <motion.div
+                    className={m.value < 40 ? 'meter-fill low' : 'meter-fill'}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${m.value}%` }}
+                    transition={{ duration: 0.8, delay: 0.1 + i * 0.1, ease: 'easeOut' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <section className="box">
+          <h3>Beobachtungen</h3>
+          <ol className="observations">
+            {text.map((n, i) => (
+              <li key={n}>
+                <span className="obs-index">{String(i + 1).padStart(2, '0')}</span>
+                <span>
+                  <Redacted text={n} />
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </div>
     );
+  }
 
   return (
-    <div className={phase === 'denied' ? 'locked-box denied' : 'locked-box'}>
-      <p className="classified">PSYCHOLOGISCHES PROFIL · GESCHÜTZT</p>
-      {phase === 'denied' ? (
-        <p>ZUGRIFF VERWEIGERT. Erforderlich: {p.psych.required}.</p>
-      ) : (
+    <div className={phase === 'denied' ? 'box locked-box denied' : 'box locked-box'}>
+      <span className="lock-icon" aria-hidden>
+        ⬢
+      </span>
+      <div>
+        <div className="label">Psychologisches Profil</div>
+        <p>{phase === 'denied' ? `Zugriff verweigert. Erforderlich: ${p.psych.required}.` : 'Diese Akte ist geschützt.'}</p>
+      </div>
+      {phase !== 'denied' && (
         <button className="card action" onClick={request} disabled={phase === 'asking'}>
           {phase === 'asking' ? <span className="dots">ANFRAGE LÄUFT</span> : 'ZUGRIFF ANFORDERN'}
         </button>
@@ -215,7 +241,7 @@ function ReportsTab({ p, go }: { p: Person; go: Go }) {
   const reports = REPORTS.filter((r) => r.author === p.id);
   if (!reports.length) return <p className="dim">Keine Feldberichte verfasst.</p>;
   return (
-    <div className="rows">
+    <div className="rows box">
       {reports.map((r) => (
         <ReportRow key={r.id} report={r} go={go} />
       ))}

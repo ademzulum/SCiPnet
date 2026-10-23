@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -q -m 'Refine glitch, restyle dossiers, add the Administrator file *)"
+    ]
+  }
+}

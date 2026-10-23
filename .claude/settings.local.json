@@ -7,7 +7,8 @@
       "Bash(git commit -q -m 'Add intro sequence, CRT shell and SCiPnet login *)",
       "Bash(git commit -q -m 'Translate UI to German and rename characters *)",
       "Bash(git commit -q -m 'Add SCiPnet overview with personnel files and field reports *)",
-      "Bash(git commit -q -m 'Add comms hub, expanded personnel files and signal glitch *)"
+      "Bash(git commit -q -m 'Add comms hub, expanded personnel files and signal glitch *)",
+      "Bash(python3 -)"
     ]
   }
 }

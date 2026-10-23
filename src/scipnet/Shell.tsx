@@ -10,42 +10,19 @@ import ReportList from './ReportList';
 import ReportView from './ReportView';
 import Comms from './Comms';
 import ThreadView from './ThreadView';
+import GlitchLayer from './GlitchLayer';
+import { AdminFile, SelfDestruct } from './Admin';
 
 type NavItem = { label: string; route?: Route; match?: Route['view'][] };
 
 // Items without a route are shown as locked; add pages here later.
 const NAV: NavItem[] = [
   { label: 'Übersicht', route: { view: 'overview' }, match: ['overview'] },
-  { label: 'Personalakten', route: { view: 'personnel' }, match: ['personnel', 'person'] },
+  { label: 'Personalakten', route: { view: 'personnel' }, match: ['personnel', 'person', 'admin'] },
   { label: 'Feldberichte', route: { view: 'reports' }, match: ['reports', 'report'] },
   { label: 'Kommunikation', route: { view: 'comms' }, match: ['comms', 'thread'] },
   { label: 'SCP-Archiv' },
 ];
-
-// Brief random signal glitch every 8-20s, plus one on each page change.
-function useGlitch(trigger: unknown) {
-  const [g, setG] = useState<{ on: boolean; y: number }>({ on: false, y: 50 });
-  const fire = () => {
-    setG({ on: true, y: 10 + Math.random() * 80 });
-    setTimeout(() => setG((s) => ({ ...s, on: false })), 220);
-  };
-  useEffect(() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    let t: ReturnType<typeof setTimeout>;
-    const loop = () => {
-      t = setTimeout(() => {
-        fire();
-        loop();
-      }, 8000 + Math.random() * 12000);
-    };
-    loop();
-    return () => clearTimeout(t);
-  }, []);
-  useEffect(() => {
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) fire();
-  }, [trigger]);
-  return g;
-}
 
 function Clock() {
   const [now, setNow] = useState(() => new Date());
@@ -58,7 +35,7 @@ function Clock() {
 
 export default function Shell({ onLogout }: { onLogout: () => void }) {
   const [route, setRoute] = useState<Route>({ view: 'overview' });
-  const glitch = useGlitch(route);
+  const [destruct, setDestruct] = useState<'none' | 'countdown' | 'collapse'>('none');
   const go = (r: Route) => {
     setRoute(r);
     document.querySelector('.shell-main')?.scrollTo({ top: 0 });
@@ -72,6 +49,8 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
         return <PersonnelList go={go} />;
       case 'person':
         return <PersonnelFile id={route.id} go={go} />;
+      case 'admin':
+        return <AdminFile onDone={() => setDestruct('countdown')} />;
       case 'reports':
         return <ReportList go={go} />;
       case 'report':
@@ -84,9 +63,15 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
   })();
 
   return (
-    <div
-      className={glitch.on ? 'shell glitching' : 'shell'}
-      style={{ '--gy': `${glitch.y}%` } as React.CSSProperties}
+    <motion.div
+      className="shell"
+      animate={
+        destruct === 'collapse'
+          ? { scaleY: [1, 0.004, 0.004], scaleX: [1, 1, 0], filter: ['brightness(1)', 'brightness(3)', 'brightness(5)'] }
+          : undefined
+      }
+      transition={{ duration: 0.7, times: [0, 0.55, 1], ease: 'easeIn' }}
+      onAnimationComplete={() => destruct === 'collapse' && onLogout()}
     >
       <header className="topbar">
         <div className="brand">
@@ -135,6 +120,9 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
           </motion.div>
         </AnimatePresence>
       </main>
-    </div>
+
+      <GlitchLayer pulse={route} />
+      {destruct !== 'none' && <SelfDestruct onDone={() => setDestruct('collapse')} />}
+    </motion.div>
   );
 }

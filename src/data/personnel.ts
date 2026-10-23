@@ -13,7 +13,14 @@ export type Person = {
   notes: string[];
   timeline: { year: string; text: string }[];
   // Psych profile behind an access request; 'denied' shows `required`.
-  psych: { access: 'granted' | 'denied'; required?: string; text: string[] };
+  psych: {
+    access: 'granted' | 'denied';
+    required?: string;
+    verdict?: { label: string; tone: 'ok' | 'warn' | 'bad' };
+    date?: string;
+    metrics?: { label: string; value: number }[]; // 0-100
+    text: string[];
+  };
   incidents: string[];
 };
 
@@ -69,6 +76,9 @@ export const PERSONNEL: Person[] = [
     ],
     psych: {
       access: 'granted',
+      verdict: { label: 'Einsatzfähig', tone: 'ok' },
+      date: '2026-04-11',
+      metrics: [{ label: 'Belastbarkeit', value: 78 }, { label: 'Kooperation', value: 64 }, { label: 'Kognitive Integrität', value: 91 }],
       text: [
         'Ruhig, methodisch, neigt zu übermäßiger Dokumentation.',
         'Zeigt geringe Toleranz gegenüber unvollständigen Akten.',
@@ -96,6 +106,9 @@ export const PERSONNEL: Person[] = [
     ],
     psych: {
       access: 'granted',
+      verdict: { label: 'Einsatzfähig', tone: 'ok' },
+      date: '2026-02-02',
+      metrics: [{ label: 'Belastbarkeit', value: 94 }, { label: 'Kooperation', value: 58 }, { label: 'Kognitive Integrität', value: 88 }],
       text: [
         'Hohe Stressresistenz. Entscheidet schnell und konsequent.',
         'Tendenz, Risiken für das eigene Team zu unterschätzen.',
@@ -121,6 +134,9 @@ export const PERSONNEL: Person[] = [
     ],
     psych: {
       access: 'granted',
+      verdict: { label: 'Eingeschränkt', tone: 'bad' },
+      date: '2026-09-20',
+      metrics: [{ label: 'Belastbarkeit', value: 41 }, { label: 'Kooperation', value: 72 }, { label: 'Kognitive Integrität', value: 23 }],
       text: [
         'Seit Archiv 7: wiederholte Fragen nach Personen, die nicht existieren.',
         'Schreibt Notizen an sich selbst, die er später nicht erkennt.',
@@ -147,6 +163,9 @@ export const PERSONNEL: Person[] = [
     ],
     psych: {
       access: 'granted',
+      verdict: { label: 'Einsatzfähig', tone: 'ok' },
+      date: '2026-01-15',
+      metrics: [{ label: 'Belastbarkeit', value: 70 }, { label: 'Kooperation', value: 86 }, { label: 'Kognitive Integrität', value: 82 }],
       text: ['Gewissenhaft und neugierig. Neugier wurde als Risiko vermerkt.'],
     },
     incidents: ['Keine disziplinarischen Vermerke.'],
@@ -168,6 +187,9 @@ export const PERSONNEL: Person[] = [
     ],
     psych: {
       access: 'granted',
+      verdict: { label: 'Risiko', tone: 'warn' },
+      date: '2026-10-01',
+      metrics: [{ label: 'Hartnäckigkeit', value: 97 }, { label: 'Kooperation', value: 12 }, { label: 'Bedrohungsgrad', value: 74 }],
       text: [
         'RAISA-Einschätzung: hartnäckig, einfallsreich, schwer abzuschrecken.',
         'Wahrscheinlichkeit eines Zugriffsversuchs auf SCiPnet: hoch.',
