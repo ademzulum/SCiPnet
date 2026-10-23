@@ -135,7 +135,7 @@ function PsychTab({ p }: { p: Person }) {
     setPhase('asking');
     await wait(1500);
     if (p.psych.access === 'granted') psychAccess.grant(p.id);
-    else play('error', 0.7);
+    else play('negative', 0.8);
     setPhase(p.psych.access);
   };
 

@@ -7,9 +7,11 @@ import error from '../../sounds/error.wav';
 import loginSuccess from '../../sounds/login_success.wav';
 import memetic from '../../sounds/memetic_agent_detected.wav';
 import selfDestruct from '../../sounds/self_destruct.mp3';
+import startup from '../../sounds/scipnet_startup.mp3';
+import negative from '../../sounds/ui_negative.mp3';
 import uiuSuccess from '../../sounds/uiu_success.wav';
 
-const URLS = { biometric, click, enter, error, loginSuccess, memetic, selfDestruct, uiuSuccess };
+const URLS = { biometric, click, enter, error, loginSuccess, memetic, negative, selfDestruct, startup, uiuSuccess };
 export type SoundName = keyof typeof URLS;
 
 let ctx: AudioContext | null = null;

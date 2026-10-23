@@ -88,7 +88,7 @@ export default function Biometric({ id, name }: { id: string; name: string }) {
     if (phase !== 'hold') return;
     cancelAnimationFrame(raf.current);
     stopSound.current();
-    play('error', 0.6);
+    play('negative', 0.8);
     setPhase('abort');
     later(() => {
       setProgress(0);

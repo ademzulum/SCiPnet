@@ -5,9 +5,10 @@ import CRT from './components/CRT';
 import PowerOn from './scenes/PowerOn';
 import Breach from './scenes/Breach';
 import Login from './scenes/Login';
+import Startup from './scenes/Startup';
 import Shell from './scipnet/Shell';
 
-type Stage = 'off' | 'breach' | 'login' | 'session';
+type Stage = 'off' | 'breach' | 'login' | 'startup' | 'session';
 
 const fade = {
   initial: { opacity: 0 },
@@ -31,7 +32,7 @@ export default function App() {
   }, []);
 
   return (
-    <CRT theme={stage === 'login' || stage === 'session' ? 'scip' : 'uiu'} alert={alert}>
+    <CRT theme={stage === 'login' || stage === 'startup' || stage === 'session' ? 'scip' : 'uiu'} alert={alert}>
       <AnimatePresence mode="wait">
         {stage === 'off' && (
           <motion.div key="off" className="fill" {...fade}>
@@ -58,7 +59,12 @@ export default function App() {
         )}
         {stage === 'login' && (
           <motion.div key="login" className="fill" {...fade}>
-            <Login onSuccess={() => setStage('session')} />
+            <Login onSuccess={() => setStage('startup')} />
+          </motion.div>
+        )}
+        {stage === 'startup' && (
+          <motion.div key="startup" className="fill" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <Startup onDone={() => setStage('session')} />
           </motion.div>
         )}
         {stage === 'session' && (

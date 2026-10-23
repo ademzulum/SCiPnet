@@ -1901,3 +1901,134 @@ body,
     animation: none !important;
   }
 }
+
+/* ---- SCiPnet startup ------------------------------------------------- */
+
+.startup {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 16px;
+  background: radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 60%);
+}
+.startup-emblem {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: grid;
+  place-items: center;
+}
+.startup-pulse {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 1px solid var(--hi);
+  box-shadow: 0 0 40px var(--glow);
+}
+.startup-orbit {
+  position: absolute;
+  inset: 0;
+  animation: orbit 2.4s linear infinite;
+}
+.startup-orbit circle {
+  fill: none;
+  stroke-width: 1.5;
+}
+.orbit-track {
+  stroke: var(--line);
+}
+.orbit-arc {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px var(--accent));
+}
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.startup-title {
+  display: flex;
+  font-size: clamp(30px, 5vw, 48px);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+.startup-title span {
+  display: inline-block;
+}
+.startup-motto {
+  font-size: 12px;
+}
+.startup-load {
+  width: min(360px, 100%);
+  margin-top: 1rem;
+}
+.startup-bar {
+  height: 3px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--line);
+}
+.startup-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 60%, transparent), var(--hi));
+  box-shadow: 0 0 10px var(--accent);
+}
+.startup-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  opacity: 0.75;
+}
+.startup-modules {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 0.9rem;
+  margin-top: 0.9rem;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.startup-modules li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  opacity: 0.3;
+  transition: opacity 0.3s;
+}
+.startup-modules li.busy {
+  opacity: 0.8;
+}
+.startup-modules li.ok {
+  opacity: 0.9;
+}
+.mod-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.busy .mod-dot {
+  background: var(--accent);
+  animation: blink 0.6s steps(1) infinite;
+}
+.ok .mod-dot {
+  background: #7fe0a8;
+  box-shadow: 0 0 6px #7fe0a8;
+}
+@media (prefers-reduced-motion: reduce) {
+  .startup-orbit,
+  .busy .mod-dot {
+    animation: none !important;
+  }
+}
