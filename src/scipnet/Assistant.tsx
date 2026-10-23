@@ -27,7 +27,7 @@ const VOICES = Object.fromEntries(
   ).map(([path, url]) => [path.split('/').pop()!, url]),
 );
 
-type Reply = Answer & { action?: Intent['action']; destruct?: boolean };
+type Reply = Answer & { action?: Intent['action']; destruct?: boolean; ai?: boolean }; // ai: ask the model, this reply is the fallback
 type Msg = { from: 'me' | 'scipa'; text: string; action?: Intent['action'] };
 
 const norm = (s: string) =>
@@ -112,14 +112,37 @@ export function respond(input: string): Reply {
     };
   if (best) return { ...pick(best.answers), action: best.action, destruct: best.destruct };
 
+  // Nothing scripted matched: the model answers (see ask()); the lines below
+  // are only used if that fails.
   // Unmatched yes/no question (starts with a verb): a short spoken verdict.
   if (/^ (ist|sind|bin|bist|kann|kannst|konnen|soll|sollte|darf|wird|werden|hat|hast|gibt|existiert|lebt|stimmt|weisst|magst) /.test(q))
-    return pick(YES_NO);
+    return { ...pick(YES_NO), ai: true };
 
   let i = (Math.random() * UNKNOWN.length) | 0;
   if (UNKNOWN.length > 1 && i === lastUnknown) i = (i + 1) % UNKNOWN.length;
   lastUnknown = i;
-  return UNKNOWN[i];
+  return { ...UNKNOWN[i], ai: true };
+}
+
+// Free-form answer from the model behind /api/scipa. Resolves to null when the
+// function is unavailable (local dev without `vercel dev`, rate limit, errors).
+async function ask(message: string, history: Msg[]): Promise<string | null> {
+  try {
+    const res = await fetch('/api/scipa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message,
+        history: history.slice(-8).map(({ from, text }) => ({ from, text })),
+        unlocked: adminAccess.has(),
+      }),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { text?: string };
+    return data.text || null;
+  } catch {
+    return null;
+  }
 }
 
 // One voice at a time.
@@ -232,9 +255,13 @@ export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestru
     setLog((l) => [...l, { from: 'me', text: t }]);
     setInput('');
     setThinking(true);
-    const reply = respond(t);
-    timer.current = setTimeout(
-      () => {
+    const scripted = respond(t);
+    const started = Date.now();
+    const answer = scripted.ai ? ask(t, log).then((text) => (text ? ({ text } as Reply) : scripted)) : Promise.resolve(scripted);
+    void answer.then((reply) => {
+      // keep a short "thinking" pause even when the answer is instant
+      const wait = Math.max(0, 600 + Math.min(1200, reply.text.length * 8) - (Date.now() - started));
+      timer.current = setTimeout(() => {
         setThinking(false);
         setLog((l) => [...l, { from: 'scipa', text: reply.text, action: reply.action }]);
         if (reply.destruct) {
@@ -244,9 +271,8 @@ export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestru
         }
         if (speak(reply.audio, () => setSpeaking(false))) setSpeaking(true);
         else play('receivedMessage', 0.6);
-      },
-      600 + Math.min(1200, reply.text.length * 8),
-    );
+      }, wait);
+    });
   };
 
   const open = (route: Route) => {
