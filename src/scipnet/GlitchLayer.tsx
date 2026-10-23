@@ -20,7 +20,18 @@ function makeBands(): Band[] {
   }));
 }
 
-export default function GlitchLayer({ pulse }: { pulse: unknown }) {
+// Heavy interference used while the Administrator file is open.
+function makeStorm(): Band[] {
+  const n = 6 + ((Math.random() * 8) | 0);
+  return Array.from({ length: n }, () => ({
+    y: Math.random() * 100,
+    h: 2 + Math.random() * 45,
+    dx: (Math.random() - 0.5) * 160,
+    tone: TONES[(Math.random() * TONES.length) | 0],
+  }));
+}
+
+export default function GlitchLayer({ pulse, storm = false }: { pulse: unknown; storm?: boolean }) {
   const [bands, setBands] = useState<Band[]>([]);
   const alive = useRef(true);
 
@@ -54,8 +65,17 @@ export default function GlitchLayer({ pulse }: { pulse: unknown }) {
     burst();
   }, [pulse]);
 
+  useEffect(() => {
+    if (!storm || reduced()) return;
+    const t = setInterval(() => setBands(Math.random() < 0.15 ? [] : makeStorm()), 55);
+    return () => {
+      clearInterval(t);
+      setBands([]);
+    };
+  }, [storm]);
+
   return (
-    <div className="glitch-layer" aria-hidden>
+    <div className={storm ? 'glitch-layer storm' : 'glitch-layer'} aria-hidden>
       {bands.map((b, i) => (
         <span
           key={i}

@@ -36,7 +36,10 @@ function Clock() {
 export default function Shell({ onLogout }: { onLogout: () => void }) {
   const [route, setRoute] = useState<Route>({ view: 'overview' });
   const [destruct, setDestruct] = useState<'none' | 'countdown' | 'collapse'>('none');
+  // Once the Administrator file is opened there is no way out.
+  const locked = route.view === 'admin' || destruct !== 'none';
   const go = (r: Route) => {
+    if (locked) return;
     setRoute(r);
     document.querySelector('.shell-main')?.scrollTo({ top: 0 });
   };
@@ -64,7 +67,7 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
 
   return (
     <motion.div
-      className="shell"
+      className={locked && destruct !== 'collapse' ? 'shell meltdown' : 'shell'}
       animate={
         destruct === 'collapse'
           ? { scaleY: [1, 0.004, 0.004], scaleX: [1, 1, 0], filter: ['brightness(1)', 'brightness(3)', 'brightness(5)'] }
@@ -83,7 +86,7 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
           <span className="dim">{STOLEN.name}</span>
           <span className="badge">{STOLEN.clearance}</span>
           <Clock />
-          <button className="link" onClick={onLogout}>
+          <button className="link" onClick={onLogout} disabled={locked}>
             ABMELDEN
           </button>
         </div>
@@ -96,6 +99,7 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
               key={n.label}
               className={n.match?.includes(route.view) ? 'active' : ''}
               onClick={() => go(n.route!)}
+              disabled={locked}
             >
               {n.label}
             </button>
@@ -121,7 +125,7 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
         </AnimatePresence>
       </main>
 
-      <GlitchLayer pulse={route} />
+      <GlitchLayer pulse={route} storm={locked && destruct !== 'collapse'} />
       {destruct !== 'none' && <SelfDestruct onDone={() => setDestruct('collapse')} />}
     </motion.div>
   );

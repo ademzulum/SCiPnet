@@ -1188,3 +1188,59 @@ body,
     animation: none !important;
   }
 }
+
+/* ---- administrator meltdown ------------------------------------------ */
+
+.shell.meltdown {
+  animation: meltdown 0.18s steps(2) infinite;
+}
+.shell.meltdown .topbar,
+.shell.meltdown .sidenav {
+  animation: tear 0.33s steps(3) infinite;
+}
+.shell.meltdown::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 3px);
+  animation: noise 0.12s steps(2) infinite, flash 1.3s steps(1) infinite;
+}
+.storm .gband {
+  backdrop-filter: hue-rotate(160deg) saturate(3) contrast(1.8) brightness(1.4) invert(0.2);
+  -webkit-backdrop-filter: hue-rotate(160deg) saturate(3) contrast(1.8) brightness(1.4) invert(0.2);
+  opacity: 1;
+}
+.sidenav button:disabled {
+  cursor: not-allowed;
+}
+@keyframes meltdown {
+  0% { transform: translate(0); filter: none; }
+  25% { transform: translate(-9px, 3px) skewX(-3deg); filter: hue-rotate(90deg) saturate(2); }
+  50% { transform: translate(7px, -4px) scale(1.01); filter: contrast(1.8) brightness(1.3); }
+  75% { transform: translate(-4px, 6px) skewY(1deg); filter: invert(0.12) hue-rotate(-60deg); }
+  100% { transform: translate(5px, -2px); filter: none; }
+}
+@keyframes tear {
+  0% { clip-path: none; transform: none; }
+  33% { clip-path: inset(0 0 40% 0); transform: translateX(-14px); }
+  66% { clip-path: inset(30% 0 0 0); transform: translateX(18px); }
+  100% { clip-path: none; transform: none; }
+}
+@keyframes noise {
+  50% { transform: translateY(2px); opacity: 0.6; }
+}
+@keyframes flash {
+  0%, 85% { background-color: transparent; }
+  88% { background-color: rgba(255, 255, 255, 0.35); }
+  92% { background-color: rgba(255, 0, 40, 0.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shell.meltdown,
+  .shell.meltdown .topbar,
+  .shell.meltdown .sidenav,
+  .shell.meltdown::before {
+    animation: none !important;
+  }
+}
