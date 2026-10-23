@@ -226,9 +226,10 @@ body,
 @keyframes seal-flash {
   50% { filter: brightness(2.2) drop-shadow(0 0 4px currentColor); }
 }
-/* starts on the outer ring, along the line from the centre, and slides in */
+/* slides in from beyond the inner ring along the line from the centre; the
+   clip on its parent group (UiuLogo.tsx) hides it until it crosses the ring */
 @keyframes seal-slide {
-  from { opacity: 0.15; transform: translate(-18px, 32px); }
+  from { transform: translate(-30px, 54px); }
 }
 @keyframes seal-shine {
   from { background-position: 150% 0; }
