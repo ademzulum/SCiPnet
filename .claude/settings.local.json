@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(git add *)",
-      "Bash(git commit -q -m 'Scaffold Vite + React + TypeScript project *)"
+      "Bash(git commit -q -m 'Scaffold Vite + React + TypeScript project *)",
+      "Bash(npm run *)",
+      "Bash(git commit -q -m 'Add intro sequence, CRT shell and SCiPnet login *)"
     ]
   }
 }
