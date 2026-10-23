@@ -12,7 +12,18 @@
       "Bash(afinfo sounds/self_destruct.mp3)",
       "Bash(git rm *)",
       "Bash(npx tsc *)",
-      "Bash(git commit -q -m 'Biometric gate, comms hub login, timeline restyle, perf and sound fixes *)"
+      "Bash(git commit -q -m 'Biometric gate, comms hub login, timeline restyle, perf and sound fixes *)",
+      "Read(//Applications/**)",
+      "Read(//Users/adem/Library/Caches/**)",
+      "Bash(npm ls *)",
+      "Bash(mkdir -p /private/tmp/claude-501/-Users-adem-Documents-Coding-SCiPnet/339ed89f-41cb-4610-8ac0-01bc42f0b4d5/scratchpad/pt)",
+      "Bash(npm init *)",
+      "Bash(npm i *)",
+      "Bash(sed -i '' \"s#^const pad = .*#console.log\\(\\(await p.evaluate\\(\\(\\) => document.body.innerText\\)\\).slice\\(0, 400\\)\\);\\\\nconst pad = await p.\\\\$\\('.bio-pad'\\); const box = await pad.boundingBox\\(\\);#\" test.mjs)",
+      "Bash(node test.mjs)",
+      "Bash(pkill -f \"vite --port 5179\")",
+      "Bash(node intro.mjs)",
+      "Bash(git commit -q -m 'Interactive UIU terminal and Enter-only power-on *)"
     ]
   }
 }

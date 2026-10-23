@@ -16,9 +16,11 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
   useEffect(() => {
     let dead = false;
     let id = 0;
+    const waiters = new Set<() => void>();
     const finish = () => {
       if (dead) return;
       dead = true;
+      waiters.forEach((cancel) => cancel());
       setGlitch(true);
       setTimeout(() => cb.current.onDone(), GLITCH_MS);
     };
@@ -29,6 +31,27 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
       alert: (on) => cb.current.onAlert(on),
       sound: (name, volume) => play(name, volume),
       sleep: (ms) => new Promise((res, rej) => setTimeout(() => (dead ? rej(CANCEL) : res()), ms)),
+      key: (handler) =>
+        new Promise((res, rej) => {
+          const onKey = (e: KeyboardEvent) => {
+            if (dead || e.key === 'Escape' || e.metaKey || e.ctrlKey || e.altKey) return;
+            e.preventDefault();
+            if (handler(e)) {
+              stop();
+              res();
+            }
+          };
+          const stop = () => {
+            window.removeEventListener('keydown', onKey);
+            waiters.delete(cancel);
+          };
+          const cancel = () => {
+            stop();
+            rej(CANCEL);
+          };
+          waiters.add(cancel);
+          window.addEventListener('keydown', onKey);
+        }),
     };
 
     setLines([]);
@@ -40,6 +63,7 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
     window.addEventListener('keydown', onKey);
     return () => {
       dead = true;
+      waiters.forEach((cancel) => cancel());
       window.removeEventListener('keydown', onKey);
     };
   }, []);

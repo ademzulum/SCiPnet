@@ -14,7 +14,13 @@ export type Step =
   | { t: 'hex'; rows: number; gap?: number }
   | { t: 'alert'; on: boolean }
   | { t: 'sound'; name: SoundName; volume?: number }
-  | { t: 'clear' };
+  | { t: 'clear' }
+  // Interactive steps (wait for the player):
+  | { t: 'input'; text: string; prompt?: string } // any key types the next chars, Enter runs it
+  | { t: 'tune'; label: string } // find the signal with ←/→, lock with Enter
+  | { t: 'choice'; options: ChoiceOption[] }; // pick by key; `retry` options ask again afterwards
+
+export type ChoiceOption = { key: string; label: string; steps: Step[]; retry?: boolean };
 
 export interface Ctx {
   push(line: Omit<Line, 'id'>): void;
@@ -23,6 +29,8 @@ export interface Ctx {
   alert(on: boolean): void;
   sound(name: SoundName, volume?: number): void;
   sleep(ms: number): Promise<void>;
+  // Resolves once `handler` returns true for a key press.
+  key(handler: (e: KeyboardEvent) => boolean): Promise<void>;
 }
 
 export const CANCEL = Symbol('cancel');
@@ -118,6 +126,78 @@ export async function run(steps: Step[], ctx: Ctx) {
         ctx.clear();
         await ctx.sleep(60);
         break;
+      case 'input': {
+        const prompt = s.prompt ?? DEFAULT_PROMPT;
+        let n = 0;
+        const render = () =>
+          ctx.set({ text: s.text.slice(0, n) + (n >= s.text.length ? '   ⏎' : ''), prompt, cls: 'cmd' });
+        ctx.push({ text: '', prompt, cls: 'cmd' });
+        await ctx.key((e) => {
+          if (e.key === 'Enter') {
+            if (n < s.text.length) return false;
+            ctx.sound('enter', 0.8);
+            return true;
+          }
+          if (e.key === 'Backspace') n = Math.max(0, n - 1);
+          else if (e.key.length === 1) n = Math.min(s.text.length, n + 1 + ((Math.random() * 2) | 0));
+          else return false;
+          render();
+          return false;
+        });
+        ctx.set({ text: s.text, prompt, cls: 'cmd' });
+        await ctx.sleep(250);
+        break;
+      }
+      case 'tune': {
+        const W = 33;
+        const target = 4 + ((Math.random() * (W - 8)) | 0);
+        let pos = target > W / 2 ? 1 : W - 2;
+        const render = (msg = '') => {
+          const dist = Math.abs(pos - target);
+          const strength = Math.max(0, 6 - dist);
+          const scale = Array.from({ length: W }, (_, i) => (i === pos ? '▲' : i % 4 === 0 ? '┼' : '─')).join('');
+          const meter = '▮'.repeat(strength) + '▯'.repeat(6 - strength);
+          ctx.set({
+            text: `${s.label.padEnd(18)}${scale}  ${(400 + pos * 1.37).toFixed(1)} MHz  ${meter}${msg}`,
+            cls: dist === 0 ? 'hi' : undefined,
+          });
+        };
+        ctx.push({ text: '' });
+        render();
+        await ctx.key((e) => {
+          if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') pos = Math.max(0, pos - 1);
+          else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') pos = Math.min(W - 1, pos + 1);
+          else if (e.key === 'Enter') {
+            if (pos === target) {
+              ctx.sound('enter', 0.8);
+              return true;
+            }
+            ctx.sound('negative', 0.7);
+            render('  SIGNAL ZU SCHWACH');
+            return false;
+          } else return false;
+          render();
+          return false;
+        });
+        render('  FIXIERT');
+        await ctx.sleep(400);
+        break;
+      }
+      case 'choice': {
+        ctx.push({ text: s.options.map((o) => `[${o.key.toUpperCase()}] ${o.label}`).join('     '), cls: 'hi' });
+        for (;;) {
+          const picked: { o?: ChoiceOption } = {};
+          await ctx.key((e) => {
+            picked.o = s.options.find((o) => o.key.toLowerCase() === e.key.toLowerCase());
+            return !!picked.o;
+          });
+          ctx.sound('click', 0.6);
+          ctx.push({ text: `> ${picked.o!.label}`, cls: 'dim' });
+          await run(picked.o!.steps, ctx);
+          if (!picked.o!.retry) break;
+        }
+        break;
+      }
     }
   }
 }
