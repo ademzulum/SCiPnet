@@ -5,7 +5,7 @@
 const KEY = 'scipnet.session';
 export const SESSION_MS = 15 * 60 * 1000;
 
-type Saved = { expiresAt: number; route?: unknown };
+type Saved = { expiresAt: number; route?: unknown; state?: unknown };
 
 function read(): Saved | null {
   try {
@@ -32,6 +32,12 @@ export const savedSession = {
   setRoute: (route: unknown) => {
     const s = read();
     if (s) write({ ...s, route });
+  },
+  // Progress inside SCiPnet (scans, comms login, chats); only kept while the session lives.
+  state: () => read()?.state,
+  setState: (state: unknown) => {
+    const s = read();
+    if (s) write({ ...s, state });
   },
   end: () => {
     try {

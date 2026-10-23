@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { play } from './lib/sound';
 import { savedSession } from './lib/persist';
+import { resetSessionState } from './scipnet/session';
 import { AnimatePresence, motion } from 'motion/react';
 import CRT from './components/CRT';
 import PowerOn from './scenes/PowerOn';
@@ -69,6 +70,7 @@ export default function App() {
           <motion.div key="startup" className="fill" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <Startup
               onDone={() => {
+                resetSessionState();
                 savedSession.start();
                 setFresh(true);
                 setStage('session');
@@ -82,6 +84,7 @@ export default function App() {
               fresh={fresh}
               onLogout={() => {
                 savedSession.end();
+                resetSessionState();
                 setFresh(false);
                 setStage('off');
               }}
