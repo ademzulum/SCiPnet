@@ -36,7 +36,7 @@ export const BREACH_SCRIPT: Step[] = [
   { t: 'line', text: '' },
 
   // the "operation"
-  { t: 'line', text: 'HINWEIS: Auswahl mit den angezeigten Tasten. [ESC] überspringt.', cls: 'dim', delay: 300 },
+  { t: 'line', text: 'HINWEIS: Auswahl mit den angezeigten Tasten. [ESC] überspringt.', cls: 'dim', delay: 300, touch: 'HINWEIS: Auswahl über die Schaltflächen unten.' },
   { t: 'line', text: '' },
   { t: 'cmd', text: 'öffne fallakte "DIE FOUNDATION"' },
   { t: 'line', text: '> Zielnetzwerk: SCiPnet', delay: 200 },
@@ -67,7 +67,7 @@ export const BREACH_SCRIPT: Step[] = [
   },
   { t: 'line', text: '' },
   { t: 'cmd', text: 'starte ghostline' },
-  { t: 'line', text: '> Trägerfrequenz suchen: [←] [→] abstimmen, bei vollem Signal [ENTER].', cls: 'dim', delay: 200 },
+  { t: 'line', text: '> Trägerfrequenz suchen: [←] [→] abstimmen, bei vollem Signal [ENTER].', cls: 'dim', delay: 200, touch: '> Trägerfrequenz suchen: mit ◀ ▶ abstimmen, bei vollem Signal FIXIEREN.' },
   { t: 'tune', label: 'Phantom-Uplink' },
   { t: 'line', text: '> Trägersignal gefunden. Ursprung: [REDACTED]', cls: 'hi', delay: 500 },
   { t: 'progress', label: 'Chiffrierschicht I lösen', ms: 1600 },

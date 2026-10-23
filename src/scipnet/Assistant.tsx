@@ -404,7 +404,7 @@ export default function Assistant({ go, onSelfDestruct, notes }: { go: Go; onSel
                   send(input);
                 }
               }}
-              placeholder={listening ? 'Ich höre zu…' : 'Anfrage an S.C.I.P.A. eingeben…'}
+              placeholder={listening ? 'Ich höre zu…' : 'Anfrage eingeben…'}
               maxLength={500}
               autoFocus
             />
@@ -424,7 +424,7 @@ export default function Assistant({ go, onSelfDestruct, notes }: { go: Go; onSel
                 </svg>
               </button>
             )}
-            <button type="submit" className="card action" disabled={!input.trim() || thinking}>
+            <button type="submit" className="card action scipa-send" aria-label="Senden" disabled={!input.trim() || thinking}>
               SENDEN
             </button>
           </form>

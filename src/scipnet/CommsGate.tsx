@@ -105,7 +105,13 @@ export default function CommsGate({ onDone }: { onDone: () => void }) {
               onClick={connect}
               exit={{ opacity: 0, y: -6 }}
             >
-              {phase === 'ready' ? 'VERBINDEN  [ENTER]' : 'SCHLÜSSEL WIRD GELADEN…'}
+              {phase === 'ready' ? (
+                <>
+                  VERBINDEN<span className="key-hint">  [ENTER]</span>
+                </>
+              ) : (
+                'SCHLÜSSEL WIRD GELADEN…'
+              )}
             </motion.button>
           ) : (
             <motion.ul key="steps" className="cg-steps" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>

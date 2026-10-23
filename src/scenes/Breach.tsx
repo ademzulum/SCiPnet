@@ -91,7 +91,14 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
         {lines.map((l, i) => (
           <div key={l.id} className={l.cls}>
             {l.prompt && <span className="prompt">{l.prompt}</span>}
-            {l.text}
+            {l.touch === undefined ? (
+              l.text
+            ) : (
+              <>
+                <span className="key-hint">{l.text}</span>
+                <span className="touch-hint">{l.touch}</span>
+              </>
+            )}
             {i === lines.length - 1 && <span className="cursor" />}
           </div>
         ))}
@@ -111,7 +118,7 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
         </div>
       )}
       <button type="button" className="skip" data-sound="none" onClick={() => skipRef.current()}>
-        [ESC] ÜBERSPRINGEN
+        <span className="key-hint">[ESC] </span>ÜBERSPRINGEN
       </button>
     </div>
   );

@@ -91,7 +91,11 @@ export default function Login({ onSuccess }: { onSuccess: () => void }) {
 
         <button type="submit" className={phase === 'ready' ? 'pulse' : ''} disabled={phase !== 'ready'}>
           {phase === 'filling' && 'WARTE AUF ZUGANGSDATEN…'}
-          {phase === 'ready' && 'ANMELDEN  [ENTER]'}
+          {phase === 'ready' && (
+            <>
+              ANMELDEN<span className="key-hint">  [ENTER]</span>
+            </>
+          )}
           {phase === 'auth' && <span className="dots">AUTHENTIFIZIERUNG</span>}
           {phase === 'ok' && 'ZUGRIFF GEWÄHRT'}
         </button>

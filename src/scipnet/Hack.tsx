@@ -428,9 +428,14 @@ export default function Hack({
               </span>
               <span className="dim">Falsche Zeichen kürzen das Signal. Wände, Firewall-Blöcke, ICE-Wächter ◇ und das eigene Signal kosten einen Versuch.</span>
               <span className="dim small">
-                [PFEILTASTEN] / [WASD] / Wischen · {LIVES} Versuche · {TIME_S} Sekunden
+                <span className="key-hint">[PFEILTASTEN] / [WASD] · </span>
+                <span className="touch-hint">Wischen oder Steuerkreuz · </span>
+                {LIVES} Versuche · {TIME_S} Sekunden
               </span>
-              <span className="hack-start">[ ENTER ZUM STARTEN ]</span>
+              <span className="hack-start">
+                <span className="key-hint">[ ENTER ZUM STARTEN ]</span>
+                <span className="touch-hint">[ TIPPEN ZUM STARTEN ]</span>
+              </span>
             </motion.div>
           )}
           {phase === 'won' && (
@@ -447,6 +452,22 @@ export default function Hack({
           )}
         </AnimatePresence>
       </div>
+      {phase === 'play' && (
+        <div className="hack-dpad touch-only" data-sound="none">
+          {(
+            [
+              ['▲', { x: 0, y: -1 }],
+              ['◀', { x: -1, y: 0 }],
+              ['▼', { x: 0, y: 1 }],
+              ['▶', { x: 1, y: 0 }],
+            ] as const
+          ).map(([label, d]) => (
+            <button key={label} type="button" onPointerDown={() => steer(d)} aria-label={label}>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 }

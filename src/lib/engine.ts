@@ -2,11 +2,12 @@
 // plays back against a Ctx (which the React component wires to state).
 import type { SoundName } from './sound';
 
-export type Line = { id: number; text: string; cls?: string; prompt?: string };
+// `touch` replaces `text` on small screens, where the on-screen keys are shown.
+export type Line = { id: number; text: string; cls?: string; prompt?: string; touch?: string };
 
 export type Step =
   | { t: 'cmd'; text: string; prompt?: string; speed?: number } // typed by the "agent"
-  | { t: 'line'; text: string; cls?: string; delay?: number } // instant output
+  | { t: 'line'; text: string; cls?: string; delay?: number; touch?: string } // instant output
   | { t: 'lines'; lines: string[]; cls?: string; gap?: number }
   | { t: 'wait'; ms: number }
   | { t: 'progress'; label: string; ms: number; cls?: string }
@@ -64,7 +65,7 @@ export async function run(steps: Step[], ctx: Ctx) {
         break;
       }
       case 'line':
-        ctx.push({ text: s.text, cls: s.cls });
+        ctx.push({ text: s.text, cls: s.cls, touch: s.touch });
         await ctx.sleep(s.delay ?? 45);
         break;
       case 'lines':
@@ -169,7 +170,7 @@ export async function run(steps: Step[], ctx: Ctx) {
         break;
       }
       case 'choice': {
-        ctx.push({ text: s.options.map((o) => `[${o.key.toUpperCase()}] ${o.label}`).join('     '), cls: 'hi' });
+        ctx.push({ text: s.options.map((o) => `[${o.key.toUpperCase()}] ${o.label}`).join('     '), cls: 'hi', touch: '> Auswahl unten antippen.' });
         for (;;) {
           const picked: { o?: ChoiceOption } = {};
           await ctx.key((e) => {
