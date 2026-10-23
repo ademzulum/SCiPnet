@@ -127,6 +127,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
     if (locked) return;
     setRoute(r);
     document.querySelector('.shell-main')?.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0 }); // phones scroll the page itself
   };
 
   const page = (() => {

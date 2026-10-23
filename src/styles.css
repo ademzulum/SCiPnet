@@ -295,6 +295,16 @@ body,
   font-size: 18px;
 }
 
+.uiu-banner {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0.3em 0 0.2em;
+  padding: 0.6em 1.4em;
+  white-space: pre-wrap;
+  border: 4px double var(--fg);
+  box-shadow: 0 0 14px var(--glow), inset 0 0 14px var(--glow);
+}
+
 .touch-pads {
   position: absolute;
   left: 0;
@@ -913,7 +923,7 @@ button.skip {
 }
 
 @media (max-width: 720px) {
-  .topbar-right .dim {
+  .topbar-right > .dim {
     display: none;
   }
   .row {
@@ -4526,9 +4536,6 @@ button.skip {
 
   /* S.C.I.P.A.: compact header, chat fills the rest of the screen exactly so
      only the message list scrolls (no page scroll fighting the chat) */
-  .shell-main:has(.scipa-chat) {
-    overflow: hidden;
-  }
   .scipa-hero {
     gap: 0.8rem;
     padding: 0.7rem 0.9rem;
@@ -4609,5 +4616,70 @@ button.skip {
   .hack-word {
     font-size: 15px;
     gap: 0.2rem;
+  }
+}
+
+/* Phones: inside SCiPnet the document itself scrolls (header sticky, dock
+   fixed) instead of an inner scroll box; iOS Safari handles that reliably. */
+@media (max-width: 720px) {
+  html:has(.shell),
+  html:has(.shell) body,
+  html:has(.shell) #root {
+    height: auto;
+    overflow: visible;
+  }
+  .crt:has(.shell) {
+    position: relative;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .crt:has(.shell)::before,
+  .crt:has(.shell)::after {
+    position: fixed;
+  }
+  .crt:has(.shell) .screen,
+  .fill:has(> .shell) {
+    position: relative;
+    inset: auto;
+    min-height: 100dvh;
+  }
+  .shell {
+    position: relative;
+    inset: auto;
+    display: block;
+    min-height: 100dvh;
+  }
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    background: var(--bg);
+  }
+  .shell-main {
+    overflow: visible;
+    min-height: calc(100dvh - 4.6rem);
+  }
+  .dock,
+  .toast,
+  .expiry {
+    position: fixed;
+  }
+
+  /* bell and sessions panels: full width under the header, scroll inside */
+  .notify-panel,
+  .sessions-panel {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: 4.4rem;
+    width: auto;
+    max-height: calc(100dvh - 4.4rem - var(--dock-space, 5.5rem) - 12px);
+    transform-origin: top center;
+  }
+  .notify-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }

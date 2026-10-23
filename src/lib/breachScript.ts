@@ -3,21 +3,14 @@ import { AGENT, STOLEN } from './creds';
 
 // Purely cinematic. Every "program" and message here is made up.
 
-const box = (rows: string[]) => {
-  const w = 52;
-  return [
-    '╔' + '═'.repeat(w) + '╗',
-    ...rows.map((r) => '║   ' + r.padEnd(w - 3) + '║'),
-    '╚' + '═'.repeat(w) + '╝',
-  ];
-};
-
-const BANNER = box([
+// One line drawn as a framed panel by CSS (.uiu-banner), so the frame keeps
+// its shape when the text wraps on narrow screens.
+const BANNER = [
   'FEDERAL BUREAU OF INVESTIGATION',
-  'UNUSUAL INCIDENTS UNIT  //  FELDTERMINAL WS-07',
+  'UNUSUAL INCIDENTS UNIT // FELDTERMINAL WS-07',
   '',
   'GESCHÜTZTES SYSTEM — NUR FÜR BEFUGTE',
-]);
+].join('\n');
 
 export const BREACH_SCRIPT: Step[] = [
   // boot
@@ -30,7 +23,7 @@ export const BREACH_SCRIPT: Step[] = [
   },
   { t: 'wait', ms: 500 },
   { t: 'clear' },
-  { t: 'lines', lines: BANNER, cls: 'hi', gap: 50 },
+  { t: 'line', text: BANNER, cls: 'hi uiu-banner', delay: 300 },
   { t: 'line', text: '' },
   { t: 'line', text: `AGENT: ${AGENT.toUpperCase()}     FALLAKTE: UIU-2026-0419`, cls: 'dim', delay: 600 },
   { t: 'line', text: '' },
