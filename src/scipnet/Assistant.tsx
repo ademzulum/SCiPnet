@@ -5,6 +5,7 @@ import {
   INTENTS,
   REFUSE,
   RETRIEVING,
+  SCREAM,
   SUGGESTIONS,
   UNKNOWN,
   WELCOME_BACK,
@@ -82,7 +83,13 @@ function fromData(q: string): Reply | null {
   return null;
 }
 
+let screams = 0;
+// Two or more words written fully in capitals ("WO IST DAS"), ignoring punctuation; IDs like SCP-8041 do not count.
+const isScreaming = (s: string) =>
+  s.split(/\s+/).filter((w) => /^[^\p{L}\d]*\p{Lu}{2,}[^\p{L}\d]*$/u.test(w)).length >= 2;
+
 export function respond(input: string): Reply {
+  if (isScreaming(input)) return SCREAM[screams++ % SCREAM.length];
   const q = norm(input);
   const data = fromData(q);
   if (data) return data;

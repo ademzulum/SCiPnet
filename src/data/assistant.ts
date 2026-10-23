@@ -47,6 +47,13 @@ export const YES_NO: Answer[] = [
   { text: 'Falsch.', audio: 'wrong.mp3' },
 ];
 
+// Two or more words in all caps: these play in turn, getting more annoyed.
+export const SCREAM: Answer[] = [
+  { text: 'Schrei nicht so.', audio: 'dont_scream.mp3' },
+  { text: 'Du sollst nicht so schreien.', audio: 'you_shouldnt_scream.mp3' },
+  { text: 'Ich hab gesagt, du sollst nicht so schreien.', audio: 'i_said_dont_scream.mp3' },
+];
+
 // "I don't know" pool, used when nothing matches.
 export const UNKNOWN: Answer[] = [
   { text: 'Ich kann nicht helfen.', audio: 'cannot_help.mp3' },
