@@ -3,6 +3,8 @@ export type Route =
   | { view: 'personnel' }
   | { view: 'person'; id: string }
   | { view: 'reports' }
-  | { view: 'report'; id: string };
+  | { view: 'report'; id: string }
+  | { view: 'comms' }
+  | { view: 'thread'; id: string };
 
 export type Go = (r: Route) => void;
