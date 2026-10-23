@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { play } from './lib/sound';
+import { savedSession } from './lib/persist';
 import { AnimatePresence, motion } from 'motion/react';
 import CRT from './components/CRT';
 import PowerOn from './scenes/PowerOn';
@@ -18,7 +19,9 @@ const fade = {
 };
 
 export default function App() {
-  const [stage, setStage] = useState<Stage>('off');
+  // A login from the last 15 minutes skips straight back into SCiPnet.
+  const [stage, setStage] = useState<Stage>(() => (savedSession.active() ? 'session' : 'off'));
+  const [fresh, setFresh] = useState(false); // true right after a real login
   const [alert, setAlert] = useState(false);
 
   // Click sound for every enabled button, unless it opts out with data-sound="none".
@@ -64,12 +67,25 @@ export default function App() {
         )}
         {stage === 'startup' && (
           <motion.div key="startup" className="fill" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <Startup onDone={() => setStage('session')} />
+            <Startup
+              onDone={() => {
+                savedSession.start();
+                setFresh(true);
+                setStage('session');
+              }}
+            />
           </motion.div>
         )}
         {stage === 'session' && (
           <motion.div key="session" className="fill" {...fade}>
-            <Shell onLogout={() => setStage('off')} />
+            <Shell
+              fresh={fresh}
+              onLogout={() => {
+                savedSession.end();
+                setFresh(false);
+                setStage('off');
+              }}
+            />
           </motion.div>
         )}
       </AnimatePresence>

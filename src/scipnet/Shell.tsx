@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import ScpLogo from '../components/ScpLogo';
 import { STOLEN } from '../lib/creds';
@@ -18,20 +18,22 @@ import { commsAuth } from './session';
 import { Bell, Toast, useNotifications } from './Notifications';
 import { initials } from './Comms';
 import { play, type SoundName } from '../lib/sound';
+import { savedSession, SESSION_MS } from '../lib/persist';
 
 type NavItem = { label: string; route?: Route; match?: Route['view'][]; sound?: SoundName };
 
 // Items without a route are shown as locked; add pages here later.
 const NAV: NavItem[] = [
-  { label: 'Übersicht', route: { view: 'overview' }, match: ['overview'], sound: 'tabOverview' },
+  { label: 'Übersicht', route: { view: 'overview' }, match: ['overview'] },
   { label: 'Personalakten', route: { view: 'personnel' }, match: ['personnel', 'person', 'admin'], sound: 'tabPersonnel' },
   { label: 'Feldberichte', route: { view: 'reports' }, match: ['reports', 'report'], sound: 'tabReports' },
   { label: 'Kommunikation', route: { view: 'comms' }, match: ['comms', 'thread'], sound: 'tabComms' },
   { label: 'SCP-Archiv', route: { view: 'archive' }, match: ['archive', 'scp'], sound: 'tabArchive' },
 ];
 
-// Section sound for sidebar tabs: one at a time (the previous one fades out)
-// and at most one every 300 ms, so fast clicking can't stack them up.
+// Section sound for sidebar tabs, played once the new page has loaded in.
+// One at a time (the previous one fades out) and at most one every 300 ms,
+// so fast clicking can't stack them up.
 let stopTabSound: (fadeMs?: number) => void = () => {};
 let lastTabSound = 0;
 function playTabSound(name: SoundName) {
@@ -40,6 +42,12 @@ function playTabSound(name: SoundName) {
   lastTabSound = now;
   stopTabSound(120);
   stopTabSound = play(name, 0.55);
+}
+
+// Runs `fn` when the page it sits in mounts (after the old page has left).
+function OnEnter({ fn }: { fn: () => void }) {
+  useEffect(fn, []);
+  return null;
 }
 
 function Clock() {
@@ -56,8 +64,28 @@ function Clock() {
   );
 }
 
-export default function Shell({ onLogout }: { onLogout: () => void }) {
-  const [route, setRoute] = useState<Route>({ view: 'overview' });
+export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh: boolean }) {
+  const [route, setRoute] = useState<Route>(() => (savedSession.route() as Route | undefined) ?? { view: 'overview' });
+  const pendingSound = useRef<SoundName | null>(null);
+
+  // Remember the page for reloads; never the Administrator file.
+  useEffect(() => savedSession.setRoute(route.view === 'admin' ? { view: 'personnel' } : route), [route]);
+
+  // Overview sound once, right after a real login (not after a reload).
+  const greeted = useRef(false);
+  useEffect(() => {
+    if (fresh && !greeted.current) play('tabOverview', 0.55);
+    greeted.current = true;
+  }, []);
+
+  // Auto logout when the 15-minute session runs out.
+  useEffect(() => {
+    const left = savedSession.expiresAt() - Date.now();
+    const t = setTimeout(() => onLogoutRef.current(), left > 0 ? left : SESSION_MS);
+    return () => clearTimeout(t);
+  }, []);
+  const onLogoutRef = useRef(onLogout);
+  onLogoutRef.current = onLogout;
   const [destruct, setDestruct] = useState<'none' | 'countdown' | 'collapse'>('none');
   const [commsOk, setCommsOk] = useState(commsAuth.has);
   // Once the Administrator file is opened there is no way out.
@@ -158,8 +186,8 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
               className={n.match?.includes(route.view) ? 'active' : ''}
               data-sound="none"
               onClick={() => {
-                // only when actually switching section
-                if (n.sound && !n.match?.includes(route.view)) playTabSound(n.sound);
+                // only when actually switching section; plays once the page loads in
+                if (n.sound && !n.match?.includes(route.view)) pendingSound.current = n.sound;
                 go(n.route!);
               }}
               disabled={locked}
@@ -190,6 +218,12 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
           >
+            <OnEnter
+              fn={() => {
+                if (pendingSound.current) playTabSound(pendingSound.current);
+                pendingSound.current = null;
+              }}
+            />
             {page}
           </motion.div>
         </AnimatePresence>
