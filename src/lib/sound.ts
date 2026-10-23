@@ -3,6 +3,7 @@
 import biometric from '../../sounds/biometric.mp3';
 import click from '../../sounds/click.mp3';
 import enter from '../../sounds/enter.wav';
+import frequencyFound from '../../sounds/frequency_found.mp3';
 import error from '../../sounds/error.wav';
 import commsLogin from '../../sounds/communications_hub_login.wav';
 import memetic from '../../sounds/memetic_agent_detected.wav';
@@ -21,7 +22,7 @@ import tabOverview from '../../sounds/overview.MP3?url';
 import tabPersonnel from '../../sounds/personell_files.MP3?url';
 import tabReports from '../../sounds/field_reports.MP3?url';
 
-const URLS = { biometric, click, commsLogin, enter, error, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, tabArchive, tabComms, tabOverview, tabPersonnel, tabReports, terminalNoise, uiuSuccess };
+const URLS = { biometric, click, commsLogin, enter, error, frequencyFound, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, tabArchive, tabComms, tabOverview, tabPersonnel, tabReports, terminalNoise, uiuSuccess };
 export type SoundName = keyof typeof URLS;
 
 let ctx: AudioContext | null = null;

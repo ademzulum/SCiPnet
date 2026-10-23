@@ -153,6 +153,7 @@ export async function run(steps: Step[], ctx: Ctx) {
             render('  SIGNAL ZU SCHWACH');
             return false;
           } else return false;
+          if (pos === target) ctx.sound('frequencyFound', 0.8);
           render();
           return false;
         });
