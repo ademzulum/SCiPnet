@@ -33,7 +33,7 @@ const NAV: NavItem[] = [
   { label: 'KI-Assistent', route: { view: 'assistant' }, match: ['assistant'] },
 ];
 
-// Section sound for sidebar tabs, played once the new page has loaded in.
+// Section sound for sidebar tabs, played together with the click.
 // One at a time (the previous one fades out) and at most one every 300 ms,
 // so fast clicking can't stack them up.
 let stopTabSound: (fadeMs?: number) => void = () => {};
@@ -44,12 +44,6 @@ function playTabSound(name: SoundName) {
   lastTabSound = now;
   stopTabSound(120);
   stopTabSound = play(name, 0.55);
-}
-
-// Runs `fn` when the page it sits in mounts (after the old page has left).
-function OnEnter({ fn }: { fn: () => void }) {
-  useEffect(fn, []);
-  return null;
 }
 
 function Clock() {
@@ -68,7 +62,6 @@ function Clock() {
 
 export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh: boolean }) {
   const [route, setRoute] = useState<Route>(() => (savedSession.route() as Route | undefined) ?? { view: 'overview' });
-  const pendingSound = useRef<SoundName | null>(null);
 
   // Remember the page for reloads; never the Administrator file.
   useEffect(() => savedSession.setRoute(route.view === 'admin' ? { view: 'personnel' } : route), [route]);
@@ -188,10 +181,9 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
             <button
               key={n.label}
               className={n.match?.includes(route.view) ? 'active' : ''}
-              data-sound="none"
               onClick={() => {
-                // only when actually switching section; plays once the page loads in
-                if (n.sound && !n.match?.includes(route.view)) pendingSound.current = n.sound;
+                // only when actually switching section
+                if (n.sound && !n.match?.includes(route.view)) playTabSound(n.sound);
                 go(n.route!);
               }}
               disabled={locked}
@@ -222,12 +214,6 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
           >
-            <OnEnter
-              fn={() => {
-                if (pendingSound.current) playTabSound(pendingSound.current);
-                pendingSound.current = null;
-              }}
-            />
             {page}
           </motion.div>
         </AnimatePresence>
