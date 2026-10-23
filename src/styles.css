@@ -4530,7 +4530,7 @@ button.skip {
   .toast {
     left: 16px;
     right: 16px;
-    top: 4.6rem;
+    top: calc(64px + env(safe-area-inset-top) + 8px);
     max-width: none;
   }
 
@@ -4649,20 +4649,34 @@ button.skip {
     display: block;
     min-height: 100dvh;
   }
+  /* fixed (not sticky) and fully opaque: iOS shows content above a sticky
+     bar while the toolbar collapses or the page bounces */
+  html:has(.shell) {
+    overscroll-behavior-y: none;
+  }
   .topbar {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 9;
+    height: calc(64px + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
     background: var(--bg);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
   }
   .shell-main {
     overflow: visible;
-    min-height: calc(100dvh - 4.6rem);
+    min-height: 100dvh;
+    padding-top: calc(64px + env(safe-area-inset-top) + 1rem);
   }
   .dock,
   .toast,
   .expiry {
     position: fixed;
+  }
+  .dock {
+    bottom: calc(10px + env(safe-area-inset-bottom));
   }
 
   /* bell and sessions panels: full width under the header, scroll inside */
@@ -4671,9 +4685,9 @@ button.skip {
     position: fixed;
     left: 12px;
     right: 12px;
-    top: 4.4rem;
+    top: calc(64px + env(safe-area-inset-top) + 8px);
     width: auto;
-    max-height: calc(100dvh - 4.4rem - var(--dock-space, 5.5rem) - 12px);
+    max-height: calc(100dvh - 64px - env(safe-area-inset-top) - var(--dock-space, 5.5rem) - 20px);
     transform-origin: top center;
   }
   .notify-list {
