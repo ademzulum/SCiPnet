@@ -102,6 +102,12 @@ export const anthem = {
       () => false,
     );
   },
+  // Resolves when the anthem has played to the end (or is not playing).
+  ended(): Promise<void> {
+    const el = anthemEl;
+    if (!el || el.ended || el.paused) return Promise.resolve();
+    return new Promise((res) => el.addEventListener('ended', () => res(), { once: true }));
+  },
   fade(ms = 1500) {
     const el = anthemEl;
     if (!el) return;

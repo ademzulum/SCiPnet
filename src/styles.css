@@ -226,8 +226,9 @@ body,
 @keyframes seal-flash {
   50% { filter: brightness(2.2) drop-shadow(0 0 4px currentColor); }
 }
+/* starts on the outer ring, along the line from the centre, and slides in */
 @keyframes seal-slide {
-  from { opacity: 0; transform: translate(-90px, 90px); }
+  from { opacity: 0.15; transform: translate(-18px, 32px); }
 }
 @keyframes seal-shine {
   from { background-position: 150% 0; }

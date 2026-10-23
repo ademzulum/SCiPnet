@@ -4,13 +4,28 @@ import UiuLogo from '../components/UiuLogo';
 
 // Power-on screen. Browsers block sound until the first click or key press, so
 // if the anthem can't autoplay, a minimal "connect" gate comes first: the
-// gesture there starts the anthem and the seal animation together. A second
-// Enter / tap then powers the terminal on.
+// gesture there starts the anthem and the seal animation together. Once both
+// have finished the terminal powers on by itself; Enter / tap skips ahead.
+const SEAL_MS = 5200; // seal assembly plus the shine (see .seal-intro in styles.css)
+const MAX_WAIT_MS = 15000; // in case the anthem never reports its end
+
 export default function PowerOn({ onStart }: { onStart: () => void }) {
   const [phase, setPhase] = useState<'probe' | 'gate' | 'seal'>('probe');
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const started = useRef(false);
+
+  // Power on automatically when the seal animation and the anthem are done.
+  useEffect(() => {
+    if (phase !== 'seal') return;
+    let live = true;
+    const sealDone = new Promise((res) => setTimeout(res, SEAL_MS));
+    const songDone = Promise.race([anthem.ended(), new Promise((res) => setTimeout(res, MAX_WAIT_MS))]);
+    Promise.all([sealDone, songDone]).then(() => live && pressRef.current());
+    return () => {
+      live = false;
+    };
+  }, [phase]);
 
   // Try autoplay right away (works when the browser already trusts the site).
   useEffect(() => {
@@ -51,8 +66,8 @@ export default function PowerOn({ onStart }: { onStart: () => void }) {
           <span className="power-title power-late">UIU FELDTERMINAL WS-07</span>
           <span className="power-late">
             <span className="blink">
-              <span className="key-hint">[ENTER] ZUM EINSCHALTEN</span>
-              <span className="touch-hint">[ TIPPEN ZUM EINSCHALTEN ]</span>
+              <span className="key-hint">[ENTER] SOFORT EINSCHALTEN</span>
+              <span className="touch-hint">[ TIPPEN ZUM ÜBERSPRINGEN ]</span>
             </span>
           </span>
         </>
