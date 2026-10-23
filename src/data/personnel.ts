@@ -184,6 +184,38 @@ export const PERSONNEL: Person[] = [
     incidents: ['Keine disziplinarischen Vermerke.'],
   },
   {
+    id: 'P-80-0731',
+    name: 'Dr. Timothy Quebec Jr.',
+    role: 'Wissenschaftler, Xenobiologie',
+    department: 'Forschung und Entwicklung',
+    clearance: 'Stufe 3',
+    status: 'Aktiv',
+    since: '2021',
+    quote: 'In Lagos habe ich Schlimmeres gesehen als SCP-8041. Den Verkehr, zum Beispiel.',
+    summary:
+      'Stammt aus Lagos, Nigeria. Promovierte in Kapstadt über Anomalien in Mikroorganismen. Gilt als humorvollster Mitarbeiter von Site-80, nach eigener Aussage auch als bestaussehender.',
+    notes: [
+      'Hat dreimal beantragt, die Kaffeemaschine als SCP einzustufen.',
+      'Andauernder Konflikt mit Archivarin L. Hofstetter wegen "eines ausgeliehenen Kugelschreibers" (2023).',
+    ],
+    timeline: [
+      { year: '2021', text: 'Eintritt in die Forschungsabteilung von Site-80.' },
+      { year: '2023', text: 'Der Kugelschreiber-Vorfall. Beide Parteien verweigern eine Aussage.' },
+      { year: '2025', text: 'Leitung der Probenanalyse zu SCP-8041.' },
+    ],
+    psych: {
+      access: 'granted',
+      verdict: { label: 'Einsatzfähig', tone: 'ok' },
+      date: '2026-06-02',
+      metrics: [{ label: 'Belastbarkeit', value: 88 }, { label: 'Kooperation', value: 79 }, { label: 'Humor', value: 99 }],
+      text: [
+        'Nutzt Humor zur Stressbewältigung. Wirksam.',
+        'Erwähnte Archivarin Hofstetter in 11 von 12 Sitzungen ungefragt.',
+      ],
+    },
+    incidents: ['2024: Verwarnung wegen eines Furzkissens im Besprechungsraum der Standortdirektion.'],
+  },
+  {
     id: 'X-80-0003',
     name: 'Corvus Finch',
     role: 'Externe Person von Interesse',

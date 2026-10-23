@@ -28,8 +28,11 @@ export const GREETING: Answer = {
 // Greeting on later visits to the tab in the same session.
 export const WELCOME_BACK: Answer = { text: 'Willkommen zurück.', audio: 'welcome_back.mp3' };
 
-// Spoken before answers built from site data (SCP entries, reports, people).
-export const RETRIEVING: Answer = { text: 'Dateien werden abgerufen.', audio: 'retrieving_files.mp3' };
+// Spoken before answers built from site data (SCP entries, reports, people); one is picked at random.
+export const RETRIEVING: Answer[] = [
+  { text: 'Dateien werden abgerufen.', audio: 'retrieving_files.mp3' },
+  { text: 'Informationen:', audio: 'information.mp3' },
+];
 
 // Refusal for entries above the reader's clearance.
 export const REFUSE: Answer = { text: 'Ich kann keine Auskunft geben.', audio: 'cannot_disclose.mp3' };
@@ -131,6 +134,21 @@ export const INTENTS: Intent[] = [
     id: 'selfdestruct',
     keywords: ['selbstzerstorung', 'selbstzerstoren', 'self destruct'],
     answers: [{ text: 'Selbstzerstörung.', audio: 'self_destruct_voice.mp3' }],
+  },
+  {
+    id: 'femboys',
+    keywords: ['femboy', 'femboys'],
+    answers: [{ text: 'Keine Femboys im Umkreis von 5 km gefunden.', audio: 'femboys.mp3' }],
+  },
+  {
+    id: 'araki',
+    keywords: ['araki', 'hirohiko', 'jojo'],
+    answers: [
+      {
+        text: 'Hirohiko Araki, japanischer Mangaka, geboren am 7. Juni 1960 in Sendai, Präfektur Miyagi. Debüt 1980 mit "Poker Under Arms". Frühe Werke: "Cool Shock B.T." und "Baoh". Seit 1987 Autor von "JoJo\'s Bizarre Adventure", zuerst im Weekly Shōnen Jump, ab 2005 im Ultra Jump. Bekannt für extravagante Posen, Modeeinflüsse und sein scheinbar ausbleibendes Altern. Die Foundation hat dazu keine Akte. Offiziell.',
+        audio: 'araki.mp3',
+      },
+    ],
   },
   {
     id: 'joke',

@@ -45,12 +45,13 @@ let visited = false; // later visits in the same page load greet with WELCOME_BA
 
 // Answers built from the site data: SCP numbers, report ids, people, time.
 function fromData(q: string): Reply | null {
+  const lead = pick(RETRIEVING);
   for (const s of SCP) {
     if (q.includes(norm(s.id))) {
       if (s.locked && !adminAccess.has()) return { ...REFUSE, text: `${REFUSE.text} ${s.id} erfordert Freigabe ${s.locked.required}.` };
       return {
-        audio: RETRIEVING.audio,
-        text: `${RETRIEVING.text} ${s.id}, "${s.locked?.realName ?? s.name}", Objektklasse ${s.objectClass}. ${s.summary}`,
+        audio: lead.audio,
+        text: `${lead.text} ${s.id}, "${s.locked?.realName ?? s.name}", Objektklasse ${s.objectClass}. ${s.summary}`,
         action: { label: `${s.id} öffnen`, route: { view: 'scp', id: s.id } },
       };
     }
@@ -58,17 +59,17 @@ function fromData(q: string): Reply | null {
   for (const r of REPORTS) {
     if (q.includes(norm(r.id)))
       return {
-        audio: RETRIEVING.audio,
-        text: `${RETRIEVING.text} ${r.id}: ${r.title}. ${r.summary} Status: ${r.status}.`,
+        audio: lead.audio,
+        text: `${lead.text} ${r.id}: ${r.title}. ${r.summary} Status: ${r.status}.`,
         action: { label: 'Bericht öffnen', route: { view: 'report', id: r.id } },
       };
   }
   for (const p of PERSONNEL) {
-    const last = norm(p.name.split(' ').pop()!);
+    const last = norm(p.name.replace(/ (Jr|Sr)\.$/, '').split(' ').pop()!);
     if (q.includes(last) && !p.id.startsWith('X-'))
       return {
-        audio: RETRIEVING.audio,
-        text: `${RETRIEVING.text} ${p.name}, ${p.role}, ${p.department}. Freigabe ${p.clearance}, Status: ${p.status}.`,
+        audio: lead.audio,
+        text: `${lead.text} ${p.name}, ${p.role}, ${p.department}. Freigabe ${p.clearance}, Status: ${p.status}.`,
         action: { label: 'Akte öffnen', route: { view: 'person', id: p.id } },
       };
   }
