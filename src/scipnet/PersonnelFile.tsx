@@ -6,9 +6,10 @@ import { threadForContact } from '../data/threads';
 import type { Go } from './routes';
 import Redacted from './Redacted';
 import { ReportRow } from './ReportList';
-import { initials } from './Comms';
 import { psychAccess } from './session';
 import Tabs from './Tabs';
+import Biometric from './Biometric';
+import { play } from '../lib/sound';
 
 const TABS = ['Akte', 'Werdegang', 'Psychologie', 'Vorfälle', 'Berichte'] as const;
 type Tab = (typeof TABS)[number];
@@ -38,7 +39,7 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
       </button>
 
       <div className="dossier box">
-        <Biometric key={p.id} name={p.name} />
+        <Biometric key={p.id} id={p.id} name={p.name} />
         <div className="dossier-main">
           <div className="dossier-title">
             <h2>{p.name}</h2>
@@ -103,28 +104,6 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
   );
 }
 
-function Biometric({ name }: { name: string }) {
-  const [phase, setPhase] = useState<'idle' | 'scan' | 'done'>('idle');
-  const scan = async () => {
-    if (phase !== 'idle') return;
-    setPhase('scan');
-    await wait(1600);
-    setPhase('done');
-  };
-  return (
-    <button className={`photo photo-${phase}`} onClick={scan} title="Biometrie abrufen">
-      {phase === 'idle' && <span>BIOMETRIE LADEN</span>}
-      {phase === 'scan' && <span className="scanline" />}
-      {phase === 'done' && (
-        <>
-          <span className="photo-initials">{initials(name)}</span>
-          <span className="photo-ok">BESTÄTIGT</span>
-        </>
-      )}
-    </button>
-  );
-}
-
 function FileTab({ p }: { p: Person }) {
   return (
     <div className="stack">
@@ -156,6 +135,7 @@ function PsychTab({ p }: { p: Person }) {
     setPhase('asking');
     await wait(1500);
     if (p.psych.access === 'granted') psychAccess.grant(p.id);
+    else play('error', 0.7);
     setPhase(p.psych.access);
   };
 

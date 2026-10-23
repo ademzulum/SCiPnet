@@ -1702,3 +1702,202 @@ body,
   mix-blend-mode: screen;
   user-select: none;
 }
+
+/* ---- biometric scanner ----------------------------------------------- */
+
+.scanner {
+  flex: none;
+  width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.scanner-pad {
+  all: unset;
+  position: relative;
+  box-sizing: border-box;
+  width: 170px;
+  height: 200px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 65%),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--fg) 4%, transparent) 0 1px, transparent 1px 4px);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+/* corner brackets */
+.scanner-pad::before,
+.scanner-pad::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--accent);
+  pointer-events: none;
+}
+.scanner-pad::before {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+}
+.scanner-pad::after {
+  right: 8px;
+  bottom: 8px;
+  border-left: none;
+  border-top: none;
+}
+.scanner-pad:focus-visible {
+  outline: 1px solid var(--accent);
+}
+.scanner-idle .scanner-pad:hover {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.scanner-hold .scanner-pad {
+  border-color: var(--accent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 35%, transparent), inset 0 0 24px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.scanner-abort .scanner-pad {
+  border-color: var(--accent);
+  animation: shake 0.35s;
+}
+
+.print {
+  width: 120px;
+  height: 120px;
+}
+.print circle {
+  fill: none;
+  stroke-width: 2;
+}
+.ring-bg {
+  stroke: var(--line);
+}
+.ring {
+  stroke: var(--accent);
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 0 4px var(--accent));
+}
+.ridges path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--fg) 35%, transparent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  transition: stroke 0.2s;
+}
+.ridges path.lit {
+  stroke: var(--hi);
+  filter: drop-shadow(0 0 2px var(--hi));
+}
+.scanner-idle .ridges {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+.scanner-abort .ridges path {
+  stroke: var(--accent);
+}
+.sweep {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  filter: drop-shadow(0 0 3px var(--accent));
+}
+@keyframes breathe {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.mesh {
+  width: 120px;
+  height: 150px;
+}
+.mesh line {
+  stroke: var(--hi);
+  stroke-width: 0.5;
+}
+.mesh circle {
+  fill: var(--accent);
+}
+.mesh-sweep {
+  fill: color-mix(in srgb, var(--accent) 45%, transparent);
+  animation: meshsweep 1.2s ease-in-out infinite alternate;
+}
+@keyframes meshsweep {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(117px);
+  }
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+.result-initials {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  font-size: 36px;
+  color: var(--hi);
+  border: 2px solid #7fe0a8;
+  box-shadow: 0 0 22px rgba(127, 224, 168, 0.35);
+}
+.result-match {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: #7fe0a8;
+}
+.nomatch .result-initials {
+  border-color: var(--accent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.nomatch .result-match {
+  color: var(--accent);
+}
+
+.scanner-readout {
+  min-height: 4.6em;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  opacity: 0.85;
+}
+.scanner-readout ul {
+  list-style: none;
+}
+.scanner-readout li {
+  color: #7fe0a8;
+}
+.ok-text {
+  color: #7fe0a8;
+}
+.warn-text {
+  color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .scanner {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scanner-idle .ridges,
+  .mesh-sweep,
+  .scanner-abort .scanner-pad {
+    animation: none !important;
+  }
+}

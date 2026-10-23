@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
+import { play } from '../lib/sound';
 
 const GLYPHS = '█▓▒░#@$%&*!?/\\<>ΣΔΞ01';
 const scramble = (text: string, amount: number) =>
@@ -35,13 +36,20 @@ export function AdminFile({ onDone }: { onDone: () => void }) {
   done.current = onDone;
 
   useEffect(() => {
+    const stopSound = play('selfDestruct');
     const n = setInterval(() => setName((i) => (i + 1) % NAMES.length), 420);
     const w = setInterval(() => setWarn((l) => [...l, WARNINGS[l.length % WARNINGS.length]].slice(-6)), 380);
-    const end = setTimeout(() => done.current(), 3600);
+    let finished = false;
+    const end = setTimeout(() => {
+      finished = true;
+      done.current();
+    }, 3600);
     return () => {
       clearInterval(n);
       clearInterval(w);
       clearTimeout(end);
+      // keep playing into the countdown; only cut it if the file is torn down early
+      if (!finished) stopSound();
     };
   }, []);
 

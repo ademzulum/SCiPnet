@@ -1,12 +1,15 @@
 // Small Web Audio player: buffers are decoded once, every play is a fresh
 // source so rapid clicks can overlap. Audio unlocks on the first key/click.
-import click from '../../sounds/click.wav';
+import biometric from '../../sounds/biometric.mp3';
+import click from '../../sounds/click.mp3';
 import enter from '../../sounds/enter.wav';
+import error from '../../sounds/error.wav';
 import loginSuccess from '../../sounds/login_success.wav';
 import memetic from '../../sounds/memetic_agent_detected.wav';
+import selfDestruct from '../../sounds/self_destruct.mp3';
 import uiuSuccess from '../../sounds/uiu_success.wav';
 
-const URLS = { click, enter, loginSuccess, memetic, uiuSuccess };
+const URLS = { biometric, click, enter, error, loginSuccess, memetic, selfDestruct, uiuSuccess };
 export type SoundName = keyof typeof URLS;
 
 let ctx: AudioContext | null = null;
@@ -27,13 +30,21 @@ export function initAudio() {
   }
 }
 
-export function play(name: SoundName, volume = 1) {
+// Returns a function that stops the sound early.
+export function play(name: SoundName, volume = 1): () => void {
   const buf = buffers.get(name);
-  if (!ctx || !buf) return;
+  if (!ctx || !buf) return () => {};
   const src = ctx.createBufferSource();
   const gain = ctx.createGain();
   gain.gain.value = volume;
   src.buffer = buf;
   src.connect(gain).connect(ctx.destination);
   src.start();
+  return () => {
+    try {
+      src.stop();
+    } catch {
+      // already ended
+    }
+  };
 }
