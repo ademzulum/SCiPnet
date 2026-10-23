@@ -3,10 +3,13 @@ import { AnimatePresence, motion } from 'motion/react';
 import { STOLEN } from '../lib/creds';
 import { initials } from './Comms';
 import { Corrupt } from './Admin';
+import { useAdminUnlocked } from './session';
 
-// Header user chip. A second, glitching session ("Der Administrator") hangs
-// off it; picking that session starts the brute-force minigame.
+// Header user chip with a drop-down. "Der Administrator" is listed as a
+// distorted entry that opens the signal puzzle; once solved it is a normal
+// entry that opens the Administrator file.
 export default function Sessions({ disabled, onAdmin }: { disabled: boolean; onAdmin: () => void }) {
+  const solved = useAdminUnlocked();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -20,16 +23,14 @@ export default function Sessions({ disabled, onAdmin }: { disabled: boolean; onA
   return (
     <div className="sessions" ref={ref}>
       <button className={`hdr-user${open ? ' open' : ''}`} onClick={() => setOpen((o) => !o)} disabled={disabled}>
-        <span className="avatar-stack">
-          <span className="avatar">{initials(STOLEN.name)}</span>
-          <span className="avatar ghost" aria-hidden>
-            <Corrupt text="A" amount={0.5} every={260} />
-          </span>
-        </span>
+        <span className="avatar">{initials(STOLEN.name)}</span>
         <div>
           <strong>{STOLEN.name}</strong>
           <span className="badge">{STOLEN.clearance}</span>
         </div>
+        <span className={`chevron${open ? ' up' : ''}`} aria-hidden>
+          ▾
+        </span>
       </button>
 
       <AnimatePresence>
@@ -57,24 +58,22 @@ export default function Sessions({ disabled, onAdmin }: { disabled: boolean; onA
                 <span className="live-dot" />
               </div>
               <button
-                className="session-item admin-session"
+                className={solved ? 'session-item admin-solved' : 'session-item admin-session'}
                 onClick={() => {
                   setOpen(false);
                   onAdmin();
                 }}
               >
-                <span className="avatar ghost">
-                  <Corrupt text="??" amount={0.6} every={180} />
+                <span className={solved ? 'avatar' : 'avatar ghost'}>
+                  {solved ? 'DA' : <Corrupt text="??" amount={0.6} every={180} />}
                 </span>
                 <span className="notify-text">
-                  <strong>
-                    <Corrupt text="Der Administrator" amount={0.1} every={200} />
-                  </strong>
+                  <strong>{solved ? 'Der Administrator' : <Corrupt text="Der Administrator" amount={0.1} every={200} />}</strong>
                   <span className="dim small">
-                    <Corrupt text="Ursprung unbekannt · Stufe 6" amount={0.15} every={300} />
+                    {solved ? 'Stufe 6 · Akte lesbar' : <Corrupt text="Ursprung unbekannt · Stufe 6" amount={0.15} every={300} />}
                   </span>
                 </span>
-                <span className="lock">VERBINDEN</span>
+                <span className="lock">{solved ? 'AKTE' : 'SIGNAL'}</span>
               </button>
             </div>
           </motion.div>

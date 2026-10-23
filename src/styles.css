@@ -3951,3 +3951,53 @@ body,
     animation: none !important;
   }
 }
+
+/* ---- header chevron, solved admin entry, session expiry -------------- */
+
+.chevron {
+  font-size: 12px;
+  opacity: 0.6;
+  transition: transform 0.2s;
+}
+.chevron.up {
+  transform: rotate(180deg);
+}
+.admin-solved {
+  cursor: pointer;
+}
+.admin-solved:hover {
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+.expiry {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  margin: 0 auto;
+  top: 5.2rem;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid #e8b85a;
+  background: color-mix(in srgb, #e8b85a 10%, var(--bg));
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+.expiry > span:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+}
+.expiry-count {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: #e8b85a;
+  border: 2px solid #e8b85a;
+  font-variant-numeric: tabular-nums;
+}

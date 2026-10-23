@@ -6,7 +6,7 @@ import { threadForContact } from '../data/threads';
 import type { Go } from './routes';
 import Redacted from './Redacted';
 import { ReportRow } from './ReportList';
-import { biometric, psychAccess } from './session';
+import { adminAccess, biometric, psychAccess } from './session';
 import Tabs from './Tabs';
 import BiometricGate from './BiometricGate';
 import Portrait from './Portrait';
@@ -159,9 +159,11 @@ function PsychTab({ p }: { p: Person }) {
   const request = async () => {
     setPhase('asking');
     await wait(1500);
-    if (p.psych.access === 'granted') psychAccess.grant(p.id);
+    // the solved signal puzzle opens every profile
+    const access = adminAccess.has() ? 'granted' : p.psych.access;
+    if (access === 'granted') psychAccess.grant(p.id);
     else play('negative', 0.8);
-    setPhase(p.psych.access);
+    setPhase(access);
   };
 
   if (phase === 'granted') {

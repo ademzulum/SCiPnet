@@ -9,3 +9,15 @@ export const STOLEN = {
 };
 
 export const AGENT = 'Special Agent Corvus Finch';
+
+// Second account, available after the brute-force minigame is won.
+export const ADMIN = {
+  user: 'administrator',
+  name: 'Der Administrator',
+  clearance: 'Stufe 6',
+  site: 'Site-80',
+  personnelId: 'A-00-0000',
+};
+
+export type Account = 'maynard' | 'admin';
+export const ACCOUNTS = { maynard: STOLEN, admin: ADMIN } as const;

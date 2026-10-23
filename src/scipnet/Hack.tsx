@@ -3,14 +3,14 @@ import { AnimatePresence, motion } from 'motion/react';
 import { play } from '../lib/sound';
 import { Corrupt } from './Admin';
 
-// Brute-force minigame against the Administrator account (in the spirit of
-// GTA V's BruteForce.exe). One column per password letter; the active column
+// Signal-synchronisation puzzle (gameplay in the spirit of GTA V's column
+// minigame). One column per letter; the active column
 // scrolls, the password letter is shown red, and the player locks it with
 // Space / Enter / click while it sits in the capture row. Misses cost a life.
 // Only the active column animates, and it is moved via refs (no re-render per
 // frame).
 
-const PASSWORD = 'OVERSEER';
+const WORD = 'OVERSEER';
 const LIVES = 3;
 const TIME_S = 60;
 const ROWS = 18; // letters per column strip
@@ -21,7 +21,7 @@ const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 type Column = { chars: string[]; target: number; dir: 1 | -1; speed: number };
 
 function makeColumns(): Column[] {
-  return [...PASSWORD].map((letter, i) => {
+  return [...WORD].map((letter, i) => {
     const chars = Array.from({ length: ROWS }, () => {
       let c = letter;
       while (c === letter) c = GLYPHS[(Math.random() * GLYPHS.length) | 0];
@@ -140,8 +140,8 @@ export default function Hack({
           <span className="hack-won-icon">✓</span>
           <div className="label">Administrator-Ebene</div>
           <h2>ZUGRIFF GEWÄHRT</h2>
-          <p className="dim">Das Passwort wurde geknackt. Die Administrator-Ebene wird vorbereitet…</p>
-          <p className="small hack-soon">[ WEITERE INHALTE FOLGEN ]</p>
+          <p className="dim">Signal synchronisiert. Der Administrator gewährt Ihnen Einblick in seine Akte.</p>
+          <p className="small hack-soon">[ GESPERRTE AKTEN SIND JETZT LESBAR ]</p>
         </motion.div>
       </div>
     );
@@ -151,7 +151,7 @@ export default function Hack({
       <div className={`box hack${flash ? ` hack-${flash}` : ''}`} onPointerDown={attempt} data-sound="none">
         <header className="hack-head">
           <div>
-            <div className="label">BruteForce · Zielkonto</div>
+            <div className="label">Signal-Synchronisation</div>
             <h2>
               <Corrupt text="DER ADMINISTRATOR" amount={0.08} every={220} />
             </h2>
@@ -174,7 +174,7 @@ export default function Hack({
             <div key={i} className={`hack-col${i < col ? ' done' : i === col ? ' active' : ''}`}>
               {i < col ? (
                 <span className="hack-solved" style={{ top: Math.floor(VISIBLE / 2) * ROW_H, height: ROW_H }}>
-                  {PASSWORD[i]}
+                  {WORD[i]}
                 </span>
               ) : (
                 <div ref={i === col ? strip : undefined} className="hack-strip">
@@ -192,7 +192,7 @@ export default function Hack({
         <AnimatePresence>
           {phase === 'intro' && (
             <motion.div className="hack-intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <strong>Passwort knacken</strong>
+              <strong>Signal synchronisieren</strong>
               <span className="dim">
                 Stoppe jede Spalte, wenn der <span className="hot-text">rote Buchstabe</span> im Zielfeld steht.
               </span>

@@ -50,7 +50,19 @@ export const PERSONNEL: Person[] = [
     psych: {
       access: 'denied',
       required: 'Stufe 4',
-      text: [],
+      // readable once the signal puzzle is solved
+      verdict: { label: 'Einsatzfähig', tone: 'ok' },
+      date: '2026-08-30',
+      metrics: [
+        { label: 'Belastbarkeit', value: 96 },
+        { label: 'Kooperation', value: 61 },
+        { label: 'Kognitive Integrität', value: 93 },
+      ],
+      text: [
+        'Außergewöhnlich kontrolliert. Trifft Entscheidungen ohne erkennbares Zögern.',
+        'Vertraut niemandem vollständig, am wenigsten sich selbst.',
+        'Führt ein privates Tagebuch, dessen Existenz sie bestreitet.',
+      ],
     },
     incidents: ['Keine disziplinarischen Vermerke.'],
   },
@@ -200,4 +212,41 @@ export const PERSONNEL: Person[] = [
   },
 ];
 
-export const personById = (id: string) => PERSONNEL.find((p) => p.id === id);
+// Not listed with the staff; reachable through the Administrator card once
+// the signal puzzle is solved.
+export const ADMIN_PERSON: Person = {
+  id: 'A-00-0000',
+  name: 'Der Administrator',
+  role: 'Gründer der Foundation',
+  department: 'O5-Rat / Verwaltung',
+  clearance: 'Stufe 6',
+  status: 'Aktiv',
+  since: '[unbekannt]',
+  quote: 'Wir sichern, damit die Welt es nicht muss.',
+  summary:
+    'Gründer der SCP Foundation. Identität, Alter und Aufenthaltsort sind selbst dem O5-Rat nur teilweise bekannt. Kommuniziert ausschließlich über gesicherte Kanäle.',
+  notes: [
+    'Alle Anfragen an den Administrator laufen über das Büro des O5-Rats.',
+    'Hat Site-80 bei ihrer Gründung persönlich besucht. Der Besuch ist nicht protokolliert.',
+  ],
+  timeline: [
+    { year: '[unbekannt]', text: 'Gründung der Foundation.' },
+    { year: '[unbekannt]', text: 'Einsetzung des O5-Rats.' },
+    { year: '2014', text: 'Bestätigung von Dr. Ilse Brandt als Standortdirektorin von Site-80.' },
+    { year: '2026', text: 'Gewährt Einblick in diese Akte.' },
+  ],
+  psych: {
+    access: 'granted',
+    verdict: { label: 'Nicht bewertbar', tone: 'warn' },
+    metrics: [
+      { label: 'Belastbarkeit', value: 100 },
+      { label: 'Kooperation', value: 50 },
+      { label: 'Vorhersagbarkeit', value: 8 },
+    ],
+    text: ['Eine psychologische Bewertung wurde nie durchgeführt. Alle Versuche wurden freundlich abgelehnt.'],
+  },
+  incidents: ['Keine Vermerke.'],
+};
+
+export const personById = (id: string) =>
+  id === ADMIN_PERSON.id ? ADMIN_PERSON : PERSONNEL.find((p) => p.id === id);

@@ -1,6 +1,18 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { GREETING, INTENTS, SUGGESTIONS, UNKNOWN, type Answer, type Intent } from '../data/assistant';
+import {
+  GREETING,
+  INTENTS,
+  REFUSE,
+  RETRIEVING,
+  SUGGESTIONS,
+  UNKNOWN,
+  WELCOME_BACK,
+  YES_NO,
+  type Answer,
+  type Intent,
+} from '../data/assistant';
+import { adminAccess } from './session';
 import { SCP } from '../data/scp';
 import { PERSONNEL } from '../data/personnel';
 import { REPORTS } from '../data/reports';
@@ -29,14 +41,16 @@ const norm = (s: string) =>
 
 const pick = <T,>(list: T[]) => list[(Math.random() * list.length) | 0];
 let lastUnknown = -1;
+let visited = false; // later visits in the same page load greet with WELCOME_BACK
 
 // Answers built from the site data: SCP numbers, report ids, people, time.
 function fromData(q: string): Reply | null {
   for (const s of SCP) {
     if (q.includes(norm(s.id))) {
-      if (s.locked) return { text: `${s.id} erfordert Freigabe ${s.locked.required}. Ich kann Ihnen dazu nichts sagen.` };
+      if (s.locked && !adminAccess.has()) return { ...REFUSE, text: `${REFUSE.text} ${s.id} erfordert Freigabe ${s.locked.required}.` };
       return {
-        text: `${s.id}, "${s.name}", Objektklasse ${s.objectClass}. ${s.summary}`,
+        audio: RETRIEVING.audio,
+        text: `${RETRIEVING.text} ${s.id}, "${s.locked?.realName ?? s.name}", Objektklasse ${s.objectClass}. ${s.summary}`,
         action: { label: `${s.id} öffnen`, route: { view: 'scp', id: s.id } },
       };
     }
@@ -44,7 +58,8 @@ function fromData(q: string): Reply | null {
   for (const r of REPORTS) {
     if (q.includes(norm(r.id)))
       return {
-        text: `${r.id}: ${r.title}. ${r.summary} Status: ${r.status}.`,
+        audio: RETRIEVING.audio,
+        text: `${RETRIEVING.text} ${r.id}: ${r.title}. ${r.summary} Status: ${r.status}.`,
         action: { label: 'Bericht öffnen', route: { view: 'report', id: r.id } },
       };
   }
@@ -52,7 +67,8 @@ function fromData(q: string): Reply | null {
     const last = norm(p.name.split(' ').pop()!);
     if (q.includes(last) && !p.id.startsWith('X-'))
       return {
-        text: `${p.name}, ${p.role}, ${p.department}. Freigabe ${p.clearance}, Status: ${p.status}.`,
+        audio: RETRIEVING.audio,
+        text: `${RETRIEVING.text} ${p.name}, ${p.role}, ${p.department}. Freigabe ${p.clearance}, Status: ${p.status}.`,
         action: { label: 'Akte öffnen', route: { view: 'person', id: p.id } },
       };
   }
@@ -81,6 +97,10 @@ export function respond(input: string): Reply {
   }
   if (best) return { ...pick(best.answers), action: best.action };
 
+  // Unmatched yes/no question (starts with a verb): a short spoken verdict.
+  if (/^ (ist|sind|bin|bist|kann|kannst|konnen|soll|sollte|darf|wird|werden|hat|hast|gibt|existiert|lebt|stimmt|weisst|magst) /.test(q))
+    return pick(YES_NO);
+
   let i = (Math.random() * UNKNOWN.length) | 0;
   if (UNKNOWN.length > 1 && i === lastUnknown) i = (i + 1) % UNKNOWN.length;
   lastUnknown = i;
@@ -101,7 +121,8 @@ function speak(file: string | undefined, onEnd: () => void): boolean {
 }
 
 export default function Assistant({ go }: { go: Go }) {
-  const [log, setLog] = useState<Msg[]>([{ from: 'scipa', text: GREETING.text }]);
+  const [greeting] = useState(() => (visited ? WELCOME_BACK : GREETING));
+  const [log, setLog] = useState<Msg[]>([{ from: 'scipa', text: greeting.text }]);
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const [speaking, setSpeaking] = useState(false);
@@ -109,7 +130,8 @@ export default function Assistant({ go }: { go: Go }) {
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
-    if (speak(GREETING.audio, () => setSpeaking(false))) setSpeaking(true);
+    visited = true;
+    if (speak(greeting.audio, () => setSpeaking(false))) setSpeaking(true);
     return () => {
       clearTimeout(timer.current);
       voice?.pause();

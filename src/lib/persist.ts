@@ -29,6 +29,13 @@ export const savedSession = {
   expiresAt: () => read()?.expiresAt ?? 0,
   route: () => read()?.route,
   start: () => write({ expiresAt: Date.now() + SESSION_MS }),
+  // Push the expiry 15 minutes out again; returns the new expiry time.
+  extend: () => {
+    const s = read();
+    const expiresAt = Date.now() + SESSION_MS;
+    if (s) write({ ...s, expiresAt });
+    return expiresAt;
+  },
   setRoute: (route: unknown) => {
     const s = read();
     if (s) write({ ...s, route });

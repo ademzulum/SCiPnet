@@ -21,15 +21,34 @@ export type Intent = {
 };
 
 export const GREETING: Answer = {
-  text: 'S.C.I.P.A. online. SCiPNet Intelligent Processing Assistant, Site-80. Wie kann ich helfen?',
-  // audio: 'greeting.mp3',
+  text: 'S.C.I.P.A. online. Mit was kann ich helfen?',
+  audio: 'how_can_i_help.mp3',
 };
+
+// Greeting on later visits to the tab in the same session.
+export const WELCOME_BACK: Answer = { text: 'Willkommen zurück.', audio: 'welcome_back.mp3' };
+
+// Spoken before answers built from site data (SCP entries, reports, people).
+export const RETRIEVING: Answer = { text: 'Dateien werden abgerufen.', audio: 'retrieving_files.mp3' };
+
+// Refusal for entries above the reader's clearance.
+export const REFUSE: Answer = { text: 'Ich kann keine Auskunft geben.', audio: 'cannot_disclose.mp3' };
+
+// Yes/no questions nothing else matched ("Ist …?", "Kann …?") get one of these.
+export const YES_NO: Answer[] = [
+  { text: 'Ja.', audio: 'yes.mp3' },
+  { text: 'Nein.', audio: 'no.mp3' },
+  { text: 'Absolut.', audio: 'absolutely.mp3' },
+  { text: 'Korrekt.', audio: 'correct.mp3' },
+  { text: 'Inkorrekt.', audio: 'incorrect.mp3' },
+  { text: 'Falsch.', audio: 'wrong.mp3' },
+];
 
 // "I don't know" pool, used when nothing matches.
 export const UNKNOWN: Answer[] = [
-  { text: 'Dazu liegen mir keine Informationen vor.' },
-  { text: 'Das weiß ich nicht. Bitte formulieren Sie die Anfrage anders.' },
-  { text: 'Anfrage nicht erkannt. Versuchen Sie es mit einem Stichwort wie "Feldberichte" oder "SCP-8041".' },
+  { text: 'Ich kann nicht helfen.', audio: 'cannot_help.mp3' },
+  { text: 'Damit kann ich nicht behilflich sein.', audio: 'cannot_assist_with_that.mp3' },
+  { text: 'Ich kann keine Auskunft geben.', audio: 'cannot_disclose.mp3' },
 ];
 
 export const SUGGESTIONS = ['Wer bist du?', 'Zeige Feldberichte', 'Was ist SCP-8041?', 'Wer ist Dr. Brandt?', 'Wie spät ist es?'];
@@ -90,10 +109,7 @@ export const INTENTS: Intent[] = [
   {
     id: 'administrator',
     keywords: ['administrator', 'gruender', 'o5', 'rat'],
-    answers: [
-      { text: 'Zu dieser Anfrage darf ich keine Auskunft geben.' },
-      { text: 'Diese Information existiert nicht. Bitte stellen Sie die Anfrage nicht erneut.' },
-    ],
+    answers: [{ text: 'Ich kann keine Auskunft geben.', audio: 'cannot_disclose.mp3' }],
   },
   {
     id: 'finch',
@@ -105,6 +121,16 @@ export const INTENTS: Intent[] = [
     id: 'site',
     keywords: ['site 80', 'standort', 'status', 'lage'],
     answers: [{ text: 'Standortstatus: NORMAL. Archiv 7 bleibt gesperrt. Keine aktiven Eindämmungsbrüche.' }],
+  },
+  {
+    id: 'marry',
+    keywords: ['heiraten', 'heirate', 'hochzeit', 'heiratest', 'marry'],
+    answers: [{ text: 'Ich werde Sie nicht heiraten.', audio: 'will_not_marry_you.mp3' }],
+  },
+  {
+    id: 'selfdestruct',
+    keywords: ['selbstzerstorung', 'selbstzerstoren', 'self destruct'],
+    answers: [{ text: 'Selbstzerstörung.', audio: 'self_destruct_voice.mp3' }],
   },
   {
     id: 'joke',

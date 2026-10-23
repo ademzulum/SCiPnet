@@ -12,15 +12,18 @@ import Comms from './Comms';
 import ThreadView from './ThreadView';
 import GlitchLayer from './GlitchLayer';
 import { AdminFile, SelfDestruct } from './Admin';
+import { ADMIN_PERSON } from '../data/personnel';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
 import Assistant from './Assistant';
 import Hack from './Hack';
 import Sessions from './Sessions';
-import { commsAuth } from './session';
+import { adminAccess, commsAuth, useAdminUnlocked } from './session';
 import { Bell, Toast, useNotifications } from './Notifications';
 import { play, type SoundName } from '../lib/sound';
 import { savedSession, SESSION_MS } from '../lib/persist';
+
+const WARN_S = 30;
 
 type NavItem = { label: string; route?: Route; match?: Route['view'][]; sound?: SoundName };
 
@@ -74,19 +77,31 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
     greeted.current = true;
   }, []);
 
-  // Auto logout when the 15-minute session runs out.
+  // Session timer: a 30-second warning with a countdown, then auto logout.
+  const [expiresAt, setExpiresAt] = useState(() => {
+    const at = savedSession.expiresAt();
+    return at > Date.now() ? at : Date.now() + SESSION_MS;
+  });
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   useEffect(() => {
-    const left = savedSession.expiresAt() - Date.now();
-    const t = setTimeout(() => onLogoutRef.current(), left > 0 ? left : SESSION_MS);
-    return () => clearTimeout(t);
-  }, []);
+    const tick = () => {
+      const left = Math.ceil((expiresAt - Date.now()) / 1000);
+      if (left <= 0) onLogoutRef.current();
+      else setSecondsLeft(left <= WARN_S ? left : null);
+    };
+    tick();
+    const t = setInterval(tick, 500);
+    return () => clearInterval(t);
+  }, [expiresAt]);
   const onLogoutRef = useRef(onLogout);
   onLogoutRef.current = onLogout;
   const [destruct, setDestruct] = useState<'none' | 'countdown' | 'collapse'>('none');
   const [commsOk, setCommsOk] = useState(commsAuth.has);
   // Once the Administrator file is opened there is no way out.
   const [hacking, setHacking] = useState(false);
-  const meltdown = route.view === 'admin' || destruct !== 'none';
+  const adminSolved = useAdminUnlocked();
+  // Before the puzzle is solved the Administrator file triggers the meltdown.
+  const meltdown = (route.view === 'admin' && !adminSolved) || destruct !== 'none';
   const locked = meltdown || hacking;
   const notes = useNotifications(locked);
   const go = (r: Route) => {
@@ -116,7 +131,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
         return (
           <Hack
             onActive={setHacking}
-            onWin={() => {}}
+            onWin={() => adminAccess.grant()}
             onLose={() => {
               setHacking(false);
               setRoute({ view: 'admin' });
@@ -124,7 +139,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
           />
         );
       case 'admin':
-        return <AdminFile onDone={() => setDestruct('countdown')} />;
+        return adminSolved ? <PersonnelFile id={ADMIN_PERSON.id} go={go} /> : <AdminFile onDone={() => setDestruct('countdown')} />;
       case 'reports':
         return <ReportList go={go} />;
       case 'report':
@@ -174,7 +189,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
           <Clock />
           <span className="hdr-sep" />
           <Bell api={notes} go={go} disabled={locked} />
-          <Sessions disabled={locked} onAdmin={() => go({ view: 'hack' })} />
+          <Sessions disabled={locked} onAdmin={() => go(adminSolved ? { view: 'admin' } : { view: 'hack' })} />
           <button className="logout" onClick={onLogout} disabled={locked} title="Abmelden" aria-label="Abmelden">
             <svg viewBox="0 0 24 24" aria-hidden>
               <path d="M14 4h5v16h-5 M10 8l-4 4 4 4 M6 12h10" />
@@ -228,6 +243,27 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       </main>
 
       <Toast api={notes} go={go} hidden={locked} />
+
+      <AnimatePresence>
+        {secondsLeft !== null && !meltdown && (
+          <motion.div
+            className="expiry"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            role="alert"
+          >
+            <span className="expiry-count">{secondsLeft}</span>
+            <span>
+              <strong>Sitzung läuft ab</strong>
+              <span className="dim small">Automatische Abmeldung in {secondsLeft} Sekunden.</span>
+            </span>
+            <button className="card action" onClick={() => setExpiresAt(savedSession.extend())}>
+              VERLÄNGERN
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <GlitchLayer pulse={route} storm={meltdown && destruct !== 'collapse'} />
       {destruct !== 'none' && <SelfDestruct onDone={() => setDestruct('collapse')} />}

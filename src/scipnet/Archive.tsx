@@ -6,6 +6,7 @@ import { play } from '../lib/sound';
 import type { Go } from './routes';
 import Redacted from './Redacted';
 import { Corrupt } from './Admin';
+import { useAdminUnlocked } from './session';
 import ScpLogo from '../components/ScpLogo';
 
 const CLASSES: ObjectClass[] = ['Safe', 'Euclid', 'Keter', 'Thaumiel'];
@@ -15,6 +16,7 @@ export function ClassBadge({ c }: { c: ObjectClass }) {
 }
 
 export default function Archive({ go }: { go: Go }) {
+  const solved = useAdminUnlocked();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<ObjectClass | 'Alle'>('Alle');
   const q = query.trim().toLowerCase();
@@ -62,18 +64,26 @@ export default function Archive({ go }: { go: Go }) {
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ duration: 0.25, ease: [0.25, 0.8, 0.25, 1] }}
                 whileHover={{ y: -2 }}
-              className={`scp-card class-edge-${s.objectClass}${s.locked ? ' locked' : ''}`}
+              className={`scp-card class-edge-${s.objectClass}${s.locked && !solved ? ' locked' : ''}`}
               onClick={() => go({ view: 'scp', id: s.id })}
             >
               <span className="scp-card-top">
                 <span className="scp-num">{s.id}</span>
                 <ClassBadge c={s.objectClass} />
               </span>
-              <strong>{s.locked?.corrupt ? <Corrupt text={s.name} amount={0.15} every={300} /> : s.name}</strong>
-              <span className="dim small">{s.locked ? 'Inhalt gesperrt.' : s.summary}</span>
+              <strong>
+                {s.locked && solved ? (
+                  s.locked.realName ?? s.name
+                ) : s.locked?.corrupt ? (
+                  <Corrupt text={s.name} amount={0.15} every={300} />
+                ) : (
+                  s.name
+                )}
+              </strong>
+              <span className="dim small">{s.locked && !solved ? 'Inhalt gesperrt.' : s.summary}</span>
               <span className="scp-card-foot">
                 <span className="small">{s.clearance}</span>
-                {s.locked && <span className="lock">GESPERRT</span>}
+                {s.locked && !solved && <span className="lock">GESPERRT</span>}
               </span>
             </motion.button>
           ))}
@@ -86,11 +96,13 @@ export default function Archive({ go }: { go: Go }) {
 
 export function ScpView({ id, go }: { id: string; go: Go }) {
   const s = scpById(id);
+  const solved = useAdminUnlocked();
+  const sealed = !!s?.locked && !solved;
   const [open, setOpen] = useState<number | null>(0);
 
   useEffect(() => {
-    if (s?.locked) play('negative', 0.8);
-  }, [s]);
+    if (sealed) play('negative', 0.8);
+  }, [s, sealed]);
 
   if (!s) return <p className="page">Eintrag nicht gefunden.</p>;
 
@@ -100,7 +112,7 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
     </button>
   );
 
-  if (s.locked)
+  if (s.locked && sealed)
     return (
       <div className="page">
         {back}
@@ -127,7 +139,7 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
           <div className="scp-doc-title">
             <div className="label">SCP Foundation · Secure. Contain. Protect.</div>
             <h2>{s.id}</h2>
-            <p>{s.name}</p>
+            <p>{s.locked && solved ? (s.locked.realName ?? s.name) : s.name}</p>
           </div>
         </header>
 
