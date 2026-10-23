@@ -58,7 +58,7 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
           </div>
         ))}
       </div>
-      <div className="skip">[ESC] SKIP</div>
+      <div className="skip">[ESC] ÜBERSPRINGEN</div>
     </div>
   );
 }

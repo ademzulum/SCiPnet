@@ -8,12 +8,12 @@ export default function Session() {
     <div className="scip">
       <ScpLogo size={64} />
       <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-        WELCOME, {STOLEN.name.toUpperCase()}
+        WILLKOMMEN, {STOLEN.name.toUpperCase()}
       </motion.h2>
       <p className="motto">
-        CLEARANCE LEVEL {STOLEN.clearance} · {STOLEN.site.toUpperCase()}
+        FREIGABESTUFE {STOLEN.clearance} · {STOLEN.site.toUpperCase()}
       </p>
-      <p className="legal">SCiPnet interior under construction.</p>
+      <p className="legal">SCiPnet-Innenbereich im Aufbau.</p>
     </div>
   );
 }

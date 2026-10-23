@@ -64,7 +64,7 @@ export async function run(steps: Step[], ctx: Ctx) {
         await ctx.sleep(s.ms);
         break;
       case 'progress': {
-        const render = (p: number) => `${s.label.padEnd(26)}${bar(p)} ${String(p).padStart(3)}%`;
+        const render = (p: number) => `${s.label.padEnd(28)}${bar(p)} ${String(p).padStart(3)}%`;
         let pct = 0;
         ctx.push({ text: render(0), cls: s.cls });
         const tick = 40;

@@ -60,7 +60,7 @@ export default function Login({ onSuccess }: { onSuccess: () => void }) {
       >
         <ScpLogo />
         <h1>SCP FOUNDATION</h1>
-        <p className="motto">SECURE · CONTAIN · PROTECT</p>
+        <p className="motto">SICHERN · EINDÄMMEN · BEWAHREN</p>
       </motion.div>
 
       <motion.form
@@ -73,26 +73,27 @@ export default function Login({ onSuccess }: { onSuccess: () => void }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.25 }}
       >
-        <div className="panel-title">SCiPnet SECURE ACCESS TERMINAL</div>
+        <div className="panel-title">SCiPnet SICHERES ZUGANGSTERMINAL</div>
         <label>
-          <span>USER ID</span>
+          <span>BENUTZERKENNUNG</span>
           <input value={user} readOnly />
         </label>
         <label>
-          <span>PASSPHRASE</span>
+          <span>PASSWORT</span>
           <input value={pass} readOnly />
         </label>
 
         <button type="submit" className={phase === 'ready' ? 'pulse' : ''} disabled={phase !== 'ready'}>
-          {phase === 'filling' && 'AWAITING CREDENTIALS…'}
-          {phase === 'ready' && 'LOG IN  [ENTER]'}
-          {phase === 'auth' && <span className="dots">AUTHENTICATING</span>}
-          {phase === 'ok' && 'ACCESS GRANTED'}
+          {phase === 'filling' && 'WARTE AUF ZUGANGSDATEN…'}
+          {phase === 'ready' && 'ANMELDEN  [ENTER]'}
+          {phase === 'auth' && <span className="dots">AUTHENTIFIZIERUNG</span>}
+          {phase === 'ok' && 'ZUGRIFF GEWÄHRT'}
         </button>
       </motion.form>
 
       <p className="legal">
-        Unauthorized access to Foundation systems is a violation of Overseer directive 05-117. All sessions are monitored.
+        Unbefugter Zugriff auf Systeme der Foundation verstößt gegen Overseer-Direktive 05-117. Alle Sitzungen werden
+        überwacht.
       </p>
     </div>
   );

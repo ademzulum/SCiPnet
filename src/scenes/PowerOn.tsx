@@ -9,8 +9,8 @@ export default function PowerOn({ onStart }: { onStart: () => void }) {
 
   return (
     <button className="power" onClick={onStart}>
-      <span className="power-title">UIU FIELD TERMINAL WS-07</span>
-      <span className="blink">PRESS ANY KEY TO POWER ON</span>
+      <span className="power-title">UIU FELDTERMINAL WS-07</span>
+      <span className="blink">BELIEBIGE TASTE ZUM EINSCHALTEN</span>
     </button>
   );
 }
