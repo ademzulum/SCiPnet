@@ -3,6 +3,7 @@
 import biometric from '../../sounds/biometric.mp3';
 import click from '../../sounds/click.mp3';
 import enter from '../../sounds/enter.wav';
+import anthemUrl from '../../sounds/national_anthem.mp3';
 import frequencyFound from '../../sounds/frequency_found.mp3';
 import error from '../../sounds/error.wav';
 import commsLogin from '../../sounds/communications_hub_login.wav';
@@ -83,3 +84,29 @@ export function play(name: SoundName, volume = 1, loop = false): (fadeMs?: numbe
     }
   };
 }
+
+// National anthem: a plain <audio> element so it can start directly inside the
+// Enter key handler (a gesture browsers accept) without waiting for decoding.
+// Plays through the UIU terminal intro and fades out when the intro ends.
+let anthemEl: HTMLAudioElement | null = null;
+export const anthem = {
+  start() {
+    anthemEl?.pause();
+    anthemEl = new Audio(anthemUrl);
+    anthemEl.volume = 0.45;
+    anthemEl.play().catch(() => {});
+  },
+  fade(ms = 1500) {
+    const el = anthemEl;
+    if (!el) return;
+    anthemEl = null;
+    const step = el.volume / (ms / 50);
+    const t = setInterval(() => {
+      el.volume = Math.max(0, el.volume - step);
+      if (el.volume === 0) {
+        clearInterval(t);
+        el.pause();
+      }
+    }, 50);
+  },
+};

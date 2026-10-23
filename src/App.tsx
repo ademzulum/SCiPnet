@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { play } from './lib/sound';
+import { anthem, play } from './lib/sound';
 import { savedSession } from './lib/persist';
 import { resetSessionState } from './scipnet/session';
 import { AnimatePresence, motion } from 'motion/react';
@@ -56,6 +56,7 @@ export default function App() {
               onAlert={setAlert}
               onDone={() => {
                 setAlert(false);
+                anthem.fade();
                 setStage('login');
               }}
             />

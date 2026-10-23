@@ -18,6 +18,7 @@ export type Intent = {
   keywords: string[];
   answers: Answer[]; // one is picked at random
   action?: { label: string; route: Route }; // optional button under the answer
+  destruct?: boolean; // answering starts S.C.I.P.A.'s self-destruct screen instead
 };
 
 export const GREETING: Answer = {
@@ -119,7 +120,8 @@ export const INTENTS: Intent[] = [
   {
     id: 'administrator',
     keywords: ['administrator', 'gruender', 'o5', 'rat'],
-    answers: [{ text: 'Ich kann keine Auskunft geben.', audio: 'cannot_disclose.mp3' }],
+    answers: [{ text: 'Warnung. Unautorisierte Anfrage.' }],
+    destruct: true,
   },
   {
     id: 'finch',

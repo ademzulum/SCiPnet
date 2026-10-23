@@ -27,7 +27,7 @@ const VOICES = Object.fromEntries(
   ).map(([path, url]) => [path.split('/').pop()!, url]),
 );
 
-type Reply = Answer & { action?: Intent['action'] };
+type Reply = Answer & { action?: Intent['action']; destruct?: boolean };
 type Msg = { from: 'me' | 'scipa'; text: string; action?: Intent['action'] };
 
 const norm = (s: string) =>
@@ -103,7 +103,7 @@ export function respond(input: string): Reply {
       bestScore = score;
     }
   }
-  if (best) return { ...pick(best.answers), action: best.action };
+  if (best) return { ...pick(best.answers), action: best.action, destruct: best.destruct };
 
   // Unmatched yes/no question (starts with a verb): a short spoken verdict.
   if (/^ (ist|sind|bin|bist|kann|kannst|konnen|soll|sollte|darf|wird|werden|hat|hast|gibt|existiert|lebt|stimmt|weisst|magst) /.test(q))
@@ -128,7 +128,7 @@ function speak(file: string | undefined, onEnd: () => void): boolean {
   return true;
 }
 
-export default function Assistant({ go }: { go: Go }) {
+export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestruct: () => void }) {
   const [greeting] = useState(() => (visited ? WELCOME_BACK : GREETING));
   const [log, setLog] = useState<Msg[]>([{ from: 'scipa', text: greeting.text }]);
   const [input, setInput] = useState('');
@@ -162,6 +162,11 @@ export default function Assistant({ go }: { go: Go }) {
       () => {
         setThinking(false);
         setLog((l) => [...l, { from: 'scipa', text: reply.text, action: reply.action }]);
+        if (reply.destruct) {
+          voice?.pause();
+          onSelfDestruct();
+          return;
+        }
         if (speak(reply.audio, () => setSpeaking(false))) setSpeaking(true);
         else play('receivedMessage', 0.6);
       },

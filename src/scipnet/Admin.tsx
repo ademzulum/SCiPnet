@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { play } from '../lib/sound';
+import warningUrl from '../../sounds/assistant/administrator_warning.mp3';
+import selfDestructVoiceUrl from '../../sounds/assistant/self_destruct_voice.mp3';
 
 const GLYPHS = '█▓▒░#@$%&*!?/\\<>ΣΔΞ01';
 const scramble = (text: string, amount: number) =>
@@ -90,6 +92,70 @@ export function AdminFile({ onDone }: { onDone: () => void }) {
         ))}
       </div>
     </div>
+  );
+}
+
+// S.C.I.P.A.'s own self-destruct, triggered by asking her about the
+// Administrator: a spoken warning first, then the self-destruct voice line
+// over a countdown. Timers stand in if a voice file can't play.
+export function ScipaDestruct({ onDone }: { onDone: () => void }) {
+  const [phase, setPhase] = useState<'warning' | 'countdown'>('warning');
+  const [count, setCount] = useState(5);
+  const done = useRef(onDone);
+  done.current = onDone;
+
+  useEffect(() => {
+    const voice = new Audio(phase === 'warning' ? warningUrl : selfDestructVoiceUrl);
+    let next = false;
+    const advance = () => {
+      if (next) return;
+      next = true;
+      if (phase === 'warning') setPhase('countdown');
+    };
+    voice.onended = advance;
+    voice.onerror = advance;
+    voice.play().catch(advance);
+    const fallback = phase === 'warning' ? setTimeout(advance, 8000) : undefined;
+    const stopSiren = phase === 'countdown' ? play('selfDestruct', 0.5) : undefined;
+    return () => {
+      clearTimeout(fallback);
+      voice.pause();
+      stopSiren?.(300);
+    };
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== 'countdown') return;
+    if (count === 0) {
+      const t = setTimeout(() => done.current(), 600);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setCount((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [phase, count]);
+
+  return (
+    <motion.div className="destruct scipa-destruct" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      {phase === 'warning' ? (
+        <>
+          <div className="destruct-title">S.C.I.P.A. · WARNUNG</div>
+          <p className="scipa-destruct-text">Unautorisierte Anfrage zum Administrator erkannt.</p>
+          <p className="scipa-destruct-text blink">Gegenmaßnahmen werden eingeleitet…</p>
+        </>
+      ) : (
+        <>
+          <div className="destruct-title">SELBSTZERSTÖRUNG EINGELEITET</div>
+          <motion.div key={count} className="destruct-count" initial={{ scale: 1.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+            {count}
+          </motion.div>
+          <ul>
+            <li>▸ Anfrage protokolliert: Der Administrator</li>
+            {count <= 3 && <li>▸ Lösche Gesprächsverlauf…</li>}
+            {count <= 1 && <li>▸ Trenne Terminal von SCiPnet…</li>}
+          </ul>
+        </>
+      )}
+    </motion.div>
   );
 }
 

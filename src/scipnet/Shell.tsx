@@ -11,7 +11,7 @@ import ReportView from './ReportView';
 import Comms from './Comms';
 import ThreadView from './ThreadView';
 import GlitchLayer from './GlitchLayer';
-import { AdminFile, SelfDestruct } from './Admin';
+import { AdminFile, ScipaDestruct, SelfDestruct } from './Admin';
 import { ADMIN_PERSON } from '../data/personnel';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
@@ -95,7 +95,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   }, [expiresAt]);
   const onLogoutRef = useRef(onLogout);
   onLogoutRef.current = onLogout;
-  const [destruct, setDestruct] = useState<'none' | 'countdown' | 'collapse'>('none');
+  const [destruct, setDestruct] = useState<'none' | 'countdown' | 'scipa' | 'collapse'>('none');
   const [commsOk, setCommsOk] = useState(commsAuth.has);
   // Once the Administrator file is opened there is no way out.
   const [hacking, setHacking] = useState(false);
@@ -149,7 +149,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       case 'scp':
         return <ScpView id={route.id} go={go} />;
       case 'assistant':
-        return <Assistant go={go} />;
+        return <Assistant go={go} onSelfDestruct={() => setDestruct('scipa')} />;
       case 'comms':
         return <Comms go={go} />;
       case 'thread':
@@ -266,7 +266,8 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       </AnimatePresence>
 
       <GlitchLayer pulse={route} storm={meltdown && destruct !== 'collapse'} />
-      {destruct !== 'none' && <SelfDestruct onDone={() => setDestruct('collapse')} />}
+      {destruct === 'scipa' && <ScipaDestruct onDone={() => setDestruct('collapse')} />}
+      {destruct === 'countdown' && <SelfDestruct onDone={() => setDestruct('collapse')} />}
     </motion.div>
   );
 }

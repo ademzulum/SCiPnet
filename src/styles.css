@@ -1322,6 +1322,14 @@ body,
   font-size: clamp(70px, 14vw, 150px);
   line-height: 1;
 }
+.scipa-destruct {
+  background: radial-gradient(ellipse at center, rgba(120, 0, 60, 0.92), rgba(15, 0, 10, 0.97));
+}
+.scipa-destruct-text {
+  max-width: 34ch;
+  text-align: center;
+  letter-spacing: 0.12em;
+}
 .destruct ul {
   list-style: none;
   font-size: 13px;
