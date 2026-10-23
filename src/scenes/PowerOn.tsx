@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { initAudio, play } from '../lib/sound';
+import UiuLogo from '../components/UiuLogo';
 
 export default function PowerOn({ onStart }: { onStart: () => void }) {
   const started = useRef(false);
@@ -21,8 +22,11 @@ export default function PowerOn({ onStart }: { onStart: () => void }) {
 
   return (
     <div className="power">
-      <span className="power-title">UIU FELDTERMINAL WS-07</span>
-      <span className="blink">[ENTER] ZUM EINSCHALTEN</span>
+      <UiuLogo className="seal-intro" />
+      <span className="power-title power-late">UIU FELDTERMINAL WS-07</span>
+      <span className="power-late">
+        <span className="blink">[ENTER] ZUM EINSCHALTEN</span>
+      </span>
     </div>
   );
 }
