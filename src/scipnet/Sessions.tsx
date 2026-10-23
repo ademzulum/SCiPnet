@@ -1,15 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { STOLEN } from '../lib/creds';
+import { ACCOUNTS, type Account } from '../lib/creds';
 import { initials } from './Comms';
 import { Corrupt } from './Admin';
-import { useAdminUnlocked } from './session';
+import { switchAccount, useAccount, useAdminUnlocked } from './session';
 
-// Header user chip with a drop-down. "Der Administrator" is listed as a
-// distorted entry that opens the signal puzzle; once solved it is a normal
-// entry that opens the Administrator file.
+// Header user chip with a drop-down of both sessions. "Der Administrator" is a
+// distorted entry that opens the signal puzzle; once solved, picking an entry
+// switches the active account.
 export default function Sessions({ disabled, onAdmin }: { disabled: boolean; onAdmin: () => void }) {
   const solved = useAdminUnlocked();
+  const me = useAccount();
+  const pick = (a: Account) => {
+    setOpen(false);
+    if (a !== me.id) switchAccount(a);
+  };
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -23,10 +28,10 @@ export default function Sessions({ disabled, onAdmin }: { disabled: boolean; onA
   return (
     <div className="sessions" ref={ref}>
       <button className={`hdr-user${open ? ' open' : ''}`} onClick={() => setOpen((o) => !o)} disabled={disabled}>
-        <span className="avatar">{initials(STOLEN.name)}</span>
+        <span className="avatar">{initials(me.name)}</span>
         <div>
-          <strong>{STOLEN.name}</strong>
-          <span className="badge">{STOLEN.clearance}</span>
+          <strong>{me.name}</strong>
+          <span className="badge">{me.clearance}</span>
         </div>
         <span className={`chevron${open ? ' up' : ''}`} aria-hidden>
           ▾
@@ -47,34 +52,51 @@ export default function Sessions({ disabled, onAdmin }: { disabled: boolean; onA
               <span className="dim small">2</span>
             </div>
             <div className="notify-list">
-              <div className="session-item current">
-                <span className="avatar">{initials(STOLEN.name)}</span>
+              <button className={`session-item${me.id === 'maynard' ? ' current' : ''}`} onClick={() => pick('maynard')}>
+                <span className="avatar">{initials(ACCOUNTS.maynard.name)}</span>
                 <span className="notify-text">
-                  <strong>{STOLEN.name}</strong>
+                  <strong>{ACCOUNTS.maynard.name}</strong>
                   <span className="dim small">
-                    {STOLEN.user} · {STOLEN.clearance} · diese Sitzung
+                    {ACCOUNTS.maynard.user} · {ACCOUNTS.maynard.clearance}
+                    {me.id === 'maynard' ? ' · aktiv' : ''}
                   </span>
                 </span>
-                <span className="live-dot" />
-              </div>
-              <button
-                className={solved ? 'session-item admin-solved' : 'session-item admin-session'}
-                onClick={() => {
-                  setOpen(false);
-                  onAdmin();
-                }}
-              >
-                <span className={solved ? 'avatar' : 'avatar ghost'}>
-                  {solved ? 'DA' : <Corrupt text="??" amount={0.6} every={180} />}
-                </span>
-                <span className="notify-text">
-                  <strong>{solved ? 'Der Administrator' : <Corrupt text="Der Administrator" amount={0.1} every={200} />}</strong>
-                  <span className="dim small">
-                    {solved ? 'Stufe 6 · Akte lesbar' : <Corrupt text="Ursprung unbekannt · Stufe 6" amount={0.15} every={300} />}
-                  </span>
-                </span>
-                <span className="lock">{solved ? 'AKTE' : 'SIGNAL'}</span>
+                {me.id === 'maynard' ? <span className="live-dot" /> : <span className="lock">WECHSELN</span>}
               </button>
+              {solved ? (
+                <button className={`session-item admin-solved${me.id === 'admin' ? ' current' : ''}`} onClick={() => pick('admin')}>
+                  <span className="avatar">DA</span>
+                  <span className="notify-text">
+                    <strong>{ACCOUNTS.admin.name}</strong>
+                    <span className="dim small">
+                      {ACCOUNTS.admin.user} · {ACCOUNTS.admin.clearance}
+                      {me.id === 'admin' ? ' · aktiv' : ''}
+                    </span>
+                  </span>
+                  {me.id === 'admin' ? <span className="live-dot" /> : <span className="lock">WECHSELN</span>}
+                </button>
+              ) : (
+                <button
+                  className="session-item admin-session"
+                  onClick={() => {
+                    setOpen(false);
+                    onAdmin();
+                  }}
+                >
+                  <span className="avatar ghost">
+                    <Corrupt text="??" amount={0.6} every={180} />
+                  </span>
+                  <span className="notify-text">
+                    <strong>
+                      <Corrupt text="Der Administrator" amount={0.1} every={200} />
+                    </strong>
+                    <span className="dim small">
+                      <Corrupt text="Ursprung unbekannt · Stufe 6" amount={0.15} every={300} />
+                    </span>
+                  </span>
+                  <span className="lock">SIGNAL</span>
+                </button>
+              )}
             </div>
           </motion.div>
         )}

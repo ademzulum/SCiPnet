@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { STOLEN } from '../lib/creds';
+import { useAccount } from './session';
 import { play } from '../lib/sound';
 
 // Login in front of the communications hub: the channel key fills in,
@@ -16,6 +16,7 @@ const STEP_MS = 520;
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export default function CommsGate({ onDone }: { onDone: () => void }) {
+  const me = useAccount();
   const [phase, setPhase] = useState<Phase>('filling');
   const [key, setKey] = useState('');
   const [steps, setSteps] = useState(0);
@@ -84,7 +85,7 @@ export default function CommsGate({ onDone }: { onDone: () => void }) {
         <div className="cg-fields">
           <label>
             <span className="label">Teilnehmer</span>
-            <span className="cg-value">{STOLEN.user}</span>
+            <span className="cg-value">{me.user}</span>
           </label>
           <label>
             <span className="label">Kanalschlüssel</span>

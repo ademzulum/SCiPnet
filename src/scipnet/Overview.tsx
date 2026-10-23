@@ -1,6 +1,6 @@
 import { PERSONNEL } from '../data/personnel';
 import { REPORTS } from '../data/reports';
-import { STOLEN } from '../lib/creds';
+import { useAccount } from './session';
 import type { Go } from './routes';
 import { ReportRow } from './ReportList';
 
@@ -15,6 +15,7 @@ const NOTICES: Notice[] = [
 const LEVEL_LABEL = { info: 'Info', warn: 'Hinweis', alert: 'Dringend' };
 
 export default function Overview({ go }: { go: Go }) {
+  const me = useAccount();
   const open = REPORTS.filter((r) => r.status === 'Offen').length;
   const stats = [
     { label: 'Personalakten', value: PERSONNEL.length + 1, onClick: () => go({ view: 'personnel' }) },
@@ -28,9 +29,9 @@ export default function Overview({ go }: { go: Go }) {
       <div className="box hero">
         <div>
           <div className="label">Sitzung aktiv</div>
-          <h2>Willkommen, {STOLEN.name}</h2>
+          <h2>Willkommen, {me.name.replace(/^Der /, '')}</h2>
           <p className="dim">
-            {STOLEN.site} · Freigabe {STOLEN.clearance}
+            {me.site} · Freigabe {me.clearance}
           </p>
         </div>
         <span className="live">
