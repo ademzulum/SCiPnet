@@ -10,9 +10,10 @@ import { play } from '../lib/sound';
 
 type Phase = 'idle' | 'hold' | 'abort' | 'face' | 'match' | 'granted' | 'nomatch';
 
-const HOLD_MS = 2400;
-const FACE_MS = 1600;
-const MATCH_MS = 1300;
+// Hold + face + match together span the scan sound (biometric_scan.mp3, ~8.4 s).
+const HOLD_MS = 3600;
+const FACE_MS = 2700;
+const MATCH_MS = 2100;
 const RESULT_MS = 1300;
 const RECORDS = 4812;
 
@@ -132,7 +133,7 @@ export default function BiometricGate({
   const startHold = () => {
     if (phaseRef.current !== 'idle') return;
     setP('hold');
-    stopSound.current = play('biometric', 0.8);
+    stopSound.current = play('biometric', 0.36); // file is ~7 dB louder than the old one
     const t0 = performance.now();
     const tick = () => {
       const p = Math.min(1, (performance.now() - t0) / HOLD_MS);

@@ -1,6 +1,6 @@
 // Small Web Audio player: buffers are decoded once, every play is a fresh
 // source so rapid clicks can overlap. Audio unlocks on the first key/click.
-import biometric from '../../sounds/biometric.mp3';
+import biometric from '../../sounds/biometric_scan.mp3';
 import click from '../../sounds/click.mp3';
 import enter from '../../sounds/enter.wav';
 import anthemUrl from '../../sounds/national_anthem.mp3';
