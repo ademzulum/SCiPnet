@@ -3,6 +3,7 @@ export type Route =
   | { view: 'personnel' }
   | { view: 'person'; id: string }
   | { view: 'admin' }
+  | { view: 'hack' }
   | { view: 'reports' }
   | { view: 'report'; id: string }
   | { view: 'archive' }

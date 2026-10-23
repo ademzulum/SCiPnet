@@ -15,9 +15,10 @@ import { AdminFile, SelfDestruct } from './Admin';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
 import Assistant from './Assistant';
+import Hack from './Hack';
+import Sessions from './Sessions';
 import { commsAuth } from './session';
 import { Bell, Toast, useNotifications } from './Notifications';
-import { initials } from './Comms';
 import { play, type SoundName } from '../lib/sound';
 import { savedSession, SESSION_MS } from '../lib/persist';
 
@@ -64,7 +65,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   const [route, setRoute] = useState<Route>(() => (savedSession.route() as Route | undefined) ?? { view: 'overview' });
 
   // Remember the page for reloads; never the Administrator file.
-  useEffect(() => savedSession.setRoute(route.view === 'admin' ? { view: 'personnel' } : route), [route]);
+  useEffect(() => savedSession.setRoute(route.view === 'admin' || route.view === 'hack' ? { view: 'personnel' } : route), [route]);
 
   // Overview sound once, right after a real login (not after a reload).
   const greeted = useRef(false);
@@ -84,7 +85,9 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   const [destruct, setDestruct] = useState<'none' | 'countdown' | 'collapse'>('none');
   const [commsOk, setCommsOk] = useState(commsAuth.has);
   // Once the Administrator file is opened there is no way out.
-  const locked = route.view === 'admin' || destruct !== 'none';
+  const [hacking, setHacking] = useState(false);
+  const meltdown = route.view === 'admin' || destruct !== 'none';
+  const locked = meltdown || hacking;
   const notes = useNotifications(locked);
   const go = (r: Route) => {
     if (locked) return;
@@ -109,6 +112,17 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
         return <PersonnelList go={go} />;
       case 'person':
         return <PersonnelFile id={route.id} go={go} />;
+      case 'hack':
+        return (
+          <Hack
+            onActive={setHacking}
+            onWin={() => {}}
+            onLose={() => {
+              setHacking(false);
+              setRoute({ view: 'admin' });
+            }}
+          />
+        );
       case 'admin':
         return <AdminFile onDone={() => setDestruct('countdown')} />;
       case 'reports':
@@ -130,7 +144,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
 
   return (
     <motion.div
-      className={locked && destruct !== 'collapse' ? 'shell meltdown' : 'shell'}
+      className={meltdown && destruct !== 'collapse' ? 'shell meltdown' : 'shell'}
       animate={
         destruct === 'collapse'
           ? { scaleY: [1, 0.004, 0.004], scaleX: [1, 1, 0], opacity: [1, 1, 0] }
@@ -160,13 +174,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
           <Clock />
           <span className="hdr-sep" />
           <Bell api={notes} go={go} disabled={locked} />
-          <div className="hdr-user">
-            <span className="avatar">{initials(STOLEN.name)}</span>
-            <div>
-              <strong>{STOLEN.name}</strong>
-              <span className="badge">{STOLEN.clearance}</span>
-            </div>
-          </div>
+          <Sessions disabled={locked} onAdmin={() => go({ view: 'hack' })} />
           <button className="logout" onClick={onLogout} disabled={locked} title="Abmelden" aria-label="Abmelden">
             <svg viewBox="0 0 24 24" aria-hidden>
               <path d="M14 4h5v16h-5 M10 8l-4 4 4 4 M6 12h10" />
@@ -221,7 +229,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
 
       <Toast api={notes} go={go} hidden={locked} />
 
-      <GlitchLayer pulse={route} storm={locked && destruct !== 'collapse'} />
+      <GlitchLayer pulse={route} storm={meltdown && destruct !== 'collapse'} />
       {destruct !== 'none' && <SelfDestruct onDone={() => setDestruct('collapse')} />}
     </motion.div>
   );
