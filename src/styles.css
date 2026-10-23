@@ -1693,3 +1693,12 @@ body,
     animation: none !important;
   }
 }
+
+/* ---- logo ------------------------------------------------------------ */
+
+.scp-logo {
+  display: block;
+  filter: invert(1) drop-shadow(0 0 6px var(--glow));
+  mix-blend-mode: screen;
+  user-select: none;
+}

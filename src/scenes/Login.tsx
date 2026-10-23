@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import ScpLogo from '../components/ScpLogo';
 import { STOLEN } from '../lib/creds';
+import { play } from '../lib/sound';
 
 type Phase = 'filling' | 'ready' | 'auth' | 'ok';
 
@@ -37,8 +38,10 @@ export default function Login({ onSuccess }: { onSuccess: () => void }) {
 
   const submit = async () => {
     if (phaseRef.current !== 'ready') return;
+    play('enter', 0.8);
     setPhase('auth');
     await wait(1800);
+    play('loginSuccess');
     setPhase('ok');
     await wait(1100);
     onSuccess();
@@ -83,7 +86,7 @@ export default function Login({ onSuccess }: { onSuccess: () => void }) {
           <input value={pass} readOnly />
         </label>
 
-        <button type="submit" className={phase === 'ready' ? 'pulse' : ''} disabled={phase !== 'ready'}>
+        <button type="submit" data-sound="none" className={phase === 'ready' ? 'pulse' : ''} disabled={phase !== 'ready'}>
           {phase === 'filling' && 'WARTE AUF ZUGANGSDATEN…'}
           {phase === 'ready' && 'ANMELDEN  [ENTER]'}
           {phase === 'auth' && <span className="dots">AUTHENTIFIZIERUNG</span>}

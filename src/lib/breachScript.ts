@@ -49,6 +49,7 @@ export const BREACH_SCRIPT: Step[] = [
 
   // trouble
   { t: 'alert', on: true },
+  { t: 'sound', name: 'memetic' },
   { t: 'line', text: '!! WARNUNG: MEMETISCHE GEGENMASSNAHME ERKANNT', cls: 'warn', delay: 400 },
   { t: 'line', text: '!! NICHT DIREKT AUF DEN BILDSCHIRM SEHEN', cls: 'warn', delay: 900 },
   { t: 'cmd', text: 'aktiviere filter --anti-memetisch', speed: 0.5 },
@@ -64,5 +65,6 @@ export const BREACH_SCRIPT: Step[] = [
   { t: 'scramble', label: '  FREIGABE : ', value: STOLEN.clearance, ms: 900, cls: 'hi' },
   { t: 'scramble', label: '  SCHLÜSSEL: ', value: '•'.repeat(STOLEN.password.length), ms: 1100, cls: 'hi' },
   { t: 'line', text: '' },
+  { t: 'sound', name: 'uiuSuccess' },
   { t: 'line', text: '>>> GATEWAY OFFEN. VERBINDE MIT SCiPnet...', cls: 'hi', delay: 1400 },
 ];

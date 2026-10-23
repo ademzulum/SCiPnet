@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { play } from './lib/sound';
 import { AnimatePresence, motion } from 'motion/react';
 import CRT from './components/CRT';
 import PowerOn from './scenes/PowerOn';
@@ -18,6 +19,16 @@ const fade = {
 export default function App() {
   const [stage, setStage] = useState<Stage>('off');
   const [alert, setAlert] = useState(false);
+
+  // Click sound for every enabled button, unless it opts out with data-sound="none".
+  useEffect(() => {
+    const onDown = (e: PointerEvent) => {
+      const btn = (e.target as Element).closest('button');
+      if (btn && !btn.disabled && btn.dataset.sound !== 'none') play('click', 0.5);
+    };
+    window.addEventListener('pointerdown', onDown);
+    return () => window.removeEventListener('pointerdown', onDown);
+  }, []);
 
   return (
     <CRT theme={stage === 'login' || stage === 'session' ? 'scip' : 'uiu'} alert={alert}>

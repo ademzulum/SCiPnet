@@ -1,5 +1,6 @@
 // Tiny scripted-terminal engine. A script is a list of steps that the runner
 // plays back against a Ctx (which the React component wires to state).
+import type { SoundName } from './sound';
 
 export type Line = { id: number; text: string; cls?: string; prompt?: string };
 
@@ -12,6 +13,7 @@ export type Step =
   | { t: 'scramble'; label: string; value: string; ms: number; cls?: string }
   | { t: 'hex'; rows: number; gap?: number }
   | { t: 'alert'; on: boolean }
+  | { t: 'sound'; name: SoundName; volume?: number }
   | { t: 'clear' };
 
 export interface Ctx {
@@ -19,6 +21,7 @@ export interface Ctx {
   set(line: Omit<Line, 'id'>): void; // replace last line
   clear(): void;
   alert(on: boolean): void;
+  sound(name: SoundName, volume?: number): void;
   sleep(ms: number): Promise<void>;
 }
 
@@ -48,6 +51,7 @@ export async function run(steps: Step[], ctx: Ctx) {
           await ctx.sleep(rand(18, 60) * (s.speed ?? 1));
         }
         await ctx.sleep(rand(200, 380));
+        ctx.sound('enter', 0.6);
         break;
       }
       case 'line':
@@ -107,6 +111,9 @@ export async function run(steps: Step[], ctx: Ctx) {
         break;
       case 'alert':
         ctx.alert(s.on);
+        break;
+      case 'sound':
+        ctx.sound(s.name, s.volume);
         break;
       case 'clear':
         ctx.clear();

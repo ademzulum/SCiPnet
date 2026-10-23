@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git commit -q -m 'Refine glitch, restyle dossiers, add the Administrator file *)",
       "Bash(xargs sed -i '' -e 's/GESCHWÄRZT/REDACTED/g' -e 's/\"Geschwärzt\"/\"Redacted\"/g')",
-      "Bash(git commit -q -m 'Restyle overview and comms, animate navigation, louder Administrator card *)"
+      "Bash(git commit -q -m 'Restyle overview and comms, animate navigation, louder Administrator card *)",
+      "Bash(git commit -q -m 'Add sound effects and the official Foundation logo *)"
     ]
   }
 }

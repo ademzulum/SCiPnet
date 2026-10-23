@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CANCEL, run, type Ctx, type Line } from '../lib/engine';
 import { BREACH_SCRIPT } from '../lib/breachScript';
+import { play } from '../lib/sound';
 
 const MAX_LINES = 120;
 const GLITCH_MS = 900;
@@ -26,6 +27,7 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
       set: (line) => setLines((l) => (l.length ? [...l.slice(0, -1), { ...line, id: l[l.length - 1].id }] : l)),
       clear: () => setLines([]),
       alert: (on) => cb.current.onAlert(on),
+      sound: (name, volume) => play(name, volume),
       sleep: (ms) => new Promise((res, rej) => setTimeout(() => (dead ? rej(CANCEL) : res()), ms)),
     };
 
