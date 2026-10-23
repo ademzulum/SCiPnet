@@ -14,10 +14,9 @@ import GlitchLayer from './GlitchLayer';
 import { AdminFile, SelfDestruct } from './Admin';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
-import { commsAuth, threadState } from './session';
-import { THREADS } from '../data/threads';
-import { personById } from '../data/personnel';
-import { play } from '../lib/sound';
+import { commsAuth } from './session';
+import { Bell, Toast, useNotifications } from './Notifications';
+import { initials } from './Comms';
 
 type NavItem = { label: string; route?: Route; match?: Route['view'][] };
 
@@ -36,35 +35,21 @@ function Clock() {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
-  return <span>{now.toLocaleTimeString('de-DE')}</span>;
-}
-
-// "New message" popup a few seconds into the session, if a thread is unread.
-function useNotify() {
-  const [toast, setToast] = useState<{ name: string; subject: string } | null>(null);
-  useEffect(() => {
-    const unread = THREADS.find((t) => threadState.isNew(t.id));
-    if (!unread) return;
-    const show = setTimeout(() => {
-      play('notify', 0.8);
-      setToast({ name: personById(unread.contact)?.name ?? unread.contact, subject: unread.subject });
-    }, 3500);
-    const hide = setTimeout(() => setToast(null), 3500 + 7000);
-    return () => {
-      clearTimeout(show);
-      clearTimeout(hide);
-    };
-  }, []);
-  return [toast, () => setToast(null)] as const;
+  return (
+    <div className="hdr-clock">
+      <strong>{now.toLocaleTimeString('de-DE')}</strong>
+      <span className="dim small">{now.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+    </div>
+  );
 }
 
 export default function Shell({ onLogout }: { onLogout: () => void }) {
   const [route, setRoute] = useState<Route>({ view: 'overview' });
   const [destruct, setDestruct] = useState<'none' | 'countdown' | 'collapse'>('none');
   const [commsOk, setCommsOk] = useState(commsAuth.has);
-  const [toast, closeToast] = useNotify();
   // Once the Administrator file is opened there is no way out.
   const locked = route.view === 'admin' || destruct !== 'none';
+  const notes = useNotifications(locked);
   const go = (r: Route) => {
     if (locked) return;
     setRoute(r);
@@ -118,16 +103,36 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
     >
       <header className="topbar">
         <div className="brand">
-          <ScpLogo size={30} />
-          <span>SCiPnet</span>
-          <span className="dim">// {STOLEN.site.toUpperCase()}</span>
+          <ScpLogo size={38} />
+          <div className="brand-text">
+            <span className="brand-name">SCiPnet</span>
+            <span className="brand-sub">
+              {STOLEN.site.toUpperCase()} · <span className="live-dot" /> Gesicherte Verbindung
+            </span>
+          </div>
         </div>
         <div className="topbar-right">
-          <span className="dim">{STOLEN.name}</span>
-          <span className="badge">{STOLEN.clearance}</span>
+          <div className="hdr-status">
+            <span className="label">Standortstatus</span>
+            <span className="threat">
+              <span className="threat-bar" /> NORMAL
+            </span>
+          </div>
+          <span className="hdr-sep" />
           <Clock />
-          <button className="link" onClick={onLogout} disabled={locked}>
-            ABMELDEN
+          <span className="hdr-sep" />
+          <Bell api={notes} go={go} disabled={locked} />
+          <div className="hdr-user">
+            <span className="avatar">{initials(STOLEN.name)}</span>
+            <div>
+              <strong>{STOLEN.name}</strong>
+              <span className="badge">{STOLEN.clearance}</span>
+            </div>
+          </div>
+          <button className="logout" onClick={onLogout} disabled={locked} title="Abmelden" aria-label="Abmelden">
+            <svg viewBox="0 0 24 24" aria-hidden>
+              <path d="M14 4h5v16h-5 M10 8l-4 4 4 4 M6 12h10" />
+            </svg>
           </button>
         </div>
       </header>
@@ -172,28 +177,7 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
         </AnimatePresence>
       </main>
 
-      <AnimatePresence>
-        {toast && !locked && (
-          <motion.button
-            className="toast"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 40 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-            onClick={() => {
-              closeToast();
-              go({ view: 'comms' });
-            }}
-          >
-            <span className="toast-dot" />
-            <span>
-              <span className="label">Neue Nachricht</span>
-              <strong>{toast.name}</strong>
-              <span className="dim small">{toast.subject}</span>
-            </span>
-          </motion.button>
-        )}
-      </AnimatePresence>
+      <Toast api={notes} go={go} hidden={locked} />
 
       <GlitchLayer pulse={route} storm={locked && destruct !== 'collapse'} />
       {destruct !== 'none' && <SelfDestruct onDone={() => setDestruct('collapse')} />}

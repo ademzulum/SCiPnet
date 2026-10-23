@@ -10,11 +10,12 @@ import selfDestruct from '../../sounds/self_destruct.mp3';
 import startup from '../../sounds/scipnet_startup.mp3';
 import negative from '../../sounds/ui_negative.mp3';
 import notify from '../../sounds/new_notify.mp3';
+import receivedMessage from '../../sounds/recieved_message.mp3';
 import sentMessage from '../../sounds/sent_message.mp3';
 import terminalNoise from '../../sounds/uiu_terminal_background_noise.mp3';
 import uiuSuccess from '../../sounds/uiu_success.wav';
 
-const URLS = { biometric, click, commsLogin, enter, error, memetic, negative, notify, selfDestruct, sentMessage, startup, terminalNoise, uiuSuccess };
+const URLS = { biometric, click, commsLogin, enter, error, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, terminalNoise, uiuSuccess };
 export type SoundName = keyof typeof URLS;
 
 let ctx: AudioContext | null = null;

@@ -30,7 +30,8 @@
       "Bash(git commit -q -m 'Use new sounds: message sent, new-message notification, terminal ambience *)",
       "Bash(sed -i '' \"s#p.on\\('pageerror'#p.on\\('response', \\(r\\) => r.status\\(\\) >= 400 \\\\&\\\\& console.log\\('[404]', r.url\\(\\)\\)\\);\\\\np.on\\('pageerror'#\" audio.mjs)",
       "Bash(node audio.mjs)",
-      "Bash(git commit -q -m 'Resume suspended audio on any gesture and before each sound *)"
+      "Bash(git commit -q -m 'Resume suspended audio on any gesture and before each sound *)",
+      "Bash(git commit -q -m 'Notification centre, roomier header, received-message sound, smoother filters *)"
     ]
   }
 }

@@ -21,29 +21,25 @@ const stepOf = (p: Phase) => (p === 'face' ? 1 : p === 'match' ? 2 : p === 'gran
 
 const RING = 2 * Math.PI * 46;
 
-// Fingerprint: a whorl of nested ovals broken by gaps, cropped to a fingertip outline.
-const RIDGES = Array.from({ length: 9 }, (_, i) => {
-  const rx = 4 + i * 4;
-  const ry = rx * 1.18 + 2;
+// Fingerprint: fine nested loops; each ridge arches over the core and its
+// sides sweep outward toward the base, broken by small gaps. Cropped to a
+// fingertip outline.
+const RIDGES = Array.from({ length: 11 }, (_, i) => {
+  const r = 2.5 + i * 3.2;
+  const top = 46 - r * 1.25;
+  const flare = r * 0.22;
   return {
-    rx,
-    ry,
-    dash: i % 3 === 0 ? `${rx * 2.2} ${2 + i} ${rx * 1.4} 3` : i % 2 ? `${rx * 3} 4 ${rx} 5` : undefined,
-    rot: (i % 2 ? 1 : -1) * (i * 6),
+    d:
+      `M ${50 - r - flare} 98 C ${50 - r - flare * 0.6} 74, ${50 - r} 60, ${50 - r} 46 ` +
+      `C ${50 - r} ${top}, ${50 + r} ${top}, ${50 + r} 46 ` +
+      `C ${50 + r} 60, ${50 + r + flare * 0.6} 74, ${50 + r + flare} 98`,
+    dash: i % 4 === 1 ? '34 3 70 4' : i % 4 === 3 ? '52 4 24 3' : undefined,
   };
 });
 const RidgePaths = () => (
   <>
     {RIDGES.map((r, i) => (
-      <ellipse
-        key={i}
-        cx="50"
-        cy="52"
-        rx={r.rx}
-        ry={r.ry}
-        strokeDasharray={r.dash}
-        transform={`rotate(${r.rot} 50 52)`}
-      />
+      <path key={i} d={r.d} strokeDasharray={r.dash} />
     ))}
   </>
 );

@@ -48,17 +48,19 @@ export default function ReportList({ go }: { go: Go }) {
         </div>
       </div>
 
-      <motion.div layout className="report-grid">
-        <AnimatePresence>
+      <div className="report-grid">
+        <AnimatePresence mode="popLayout" initial={false}>
           {items.map((r) => {
             const author = personById(r.author);
             return (
               <motion.button
                 layout
                 key={r.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.25, ease: [0.25, 0.8, 0.25, 1] }}
+                whileHover={{ y: -2 }}
                 className={`report-card cl-${classKey(r.classification)}`}
                 onClick={() => go({ view: 'report', id: r.id })}
               >
@@ -79,7 +81,7 @@ export default function ReportList({ go }: { go: Go }) {
             );
           })}
         </AnimatePresence>
-      </motion.div>
+      </div>
     </div>
   );
 }

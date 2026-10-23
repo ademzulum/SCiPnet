@@ -51,15 +51,17 @@ export default function Archive({ go }: { go: Go }) {
         </div>
       </div>
 
-      <motion.div layout className="archive-grid">
-        <AnimatePresence>
+      <div className="archive-grid">
+        <AnimatePresence mode="popLayout" initial={false}>
           {items.map((s) => (
             <motion.button
               layout
               key={s.id}
-              initial={{ opacity: 0, scale: 0.97 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.97 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.8, 0.25, 1] }}
+                whileHover={{ y: -2 }}
               className={`scp-card class-edge-${s.objectClass}${s.locked ? ' locked' : ''}`}
               onClick={() => go({ view: 'scp', id: s.id })}
             >
@@ -76,7 +78,7 @@ export default function Archive({ go }: { go: Go }) {
             </motion.button>
           ))}
         </AnimatePresence>
-      </motion.div>
+      </div>
       {!items.length && <p className="dim">Keine Einträge gefunden.</p>}
     </div>
   );

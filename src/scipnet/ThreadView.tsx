@@ -31,7 +31,7 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
     if (!next) return;
     const delay = next.from === 'me' ? 250 : Math.min(2400, 500 + next.text.length * 22);
     const timer = setTimeout(() => {
-      play('sentMessage', 0.7);
+      play(next.from === 'me' ? 'sentMessage' : 'receivedMessage', 0.7);
       setSt((s) => ({ ...s, log: [...s.log, { ...s.queue[0], time: clock() }], queue: s.queue.slice(1) }));
     }, delay);
     return () => clearTimeout(timer);

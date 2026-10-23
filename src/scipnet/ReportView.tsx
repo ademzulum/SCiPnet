@@ -1,4 +1,3 @@
-import { motion } from 'motion/react';
 import { personById } from '../data/personnel';
 import { reportById } from '../data/reports';
 import { scpForReport } from '../data/scp';
@@ -26,14 +25,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
             <div className="label">Feldbericht · {r.id}</div>
             <h2>{r.title}</h2>
           </div>
-          <motion.span
-            className="stamp"
-            initial={{ opacity: 0, scale: 1.8, rotate: -4 }}
-            animate={{ opacity: 1, scale: 1, rotate: -9 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 18, delay: 0.15 }}
-          >
-            {r.classification}
-          </motion.span>
+          <span className="stamp">{r.classification}</span>
         </header>
 
         <div className="report-meta">
