@@ -6,6 +6,7 @@ import type { Go } from './routes';
 import { threadState, type ThreadState } from './session';
 import { initials } from './Comms';
 import Redacted from './Redacted';
+import { play } from '../lib/sound';
 
 const clock = () => new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
@@ -29,10 +30,10 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
     const next = st.queue[0];
     if (!next) return;
     const delay = next.from === 'me' ? 250 : Math.min(2400, 500 + next.text.length * 22);
-    const timer = setTimeout(
-      () => setSt((s) => ({ ...s, log: [...s.log, { ...s.queue[0], time: clock() }], queue: s.queue.slice(1) })),
-      delay,
-    );
+    const timer = setTimeout(() => {
+      play('sentMessage', 0.7);
+      setSt((s) => ({ ...s, log: [...s.log, { ...s.queue[0], time: clock() }], queue: s.queue.slice(1) }));
+    }, delay);
     return () => clearTimeout(timer);
   }, [st.queue]);
 
@@ -45,12 +46,14 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
   const choices = st.queue.length ? undefined : node.choices;
   const ended = !st.queue.length && !node.choices;
 
-  const choose = (c: Choice) =>
+  const choose = (c: Choice) => {
+    play('sentMessage', 0.7);
     setSt((s) => ({
       log: [...s.log, { from: 'me', text: c.reply ?? c.label, time: clock() }],
       queue: [...t.nodes[c.next].msgs],
       node: c.next,
     }));
+  };
 
   const reset = () => {
     threadState.reset(t.id);
@@ -128,6 +131,7 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
                   <motion.button
                     key={c.label}
                     className="choice"
+                    data-sound="none"
                     onClick={() => choose(c)}
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}

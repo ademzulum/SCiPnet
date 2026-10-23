@@ -26,7 +26,8 @@
       "Bash(git commit -q -m 'Interactive UIU terminal and Enter-only power-on *)",
       "Bash(grep -n \"^\\\\.report-row,$\" src/styles.css)",
       "Bash(node /private/tmp/claude-501/-Users-adem-Documents-Coding-SCiPnet/339ed89f-41cb-4610-8ac0-01bc42f0b4d5/scratchpad/pt/shots.mjs)",
-      "Bash(git commit -q -m 'SCP archive, field report overhaul, terminal and scan fixes *)"
+      "Bash(git commit -q -m 'SCP archive, field report overhaul, terminal and scan fixes *)",
+      "Bash(git commit -q -m 'Use new sounds: message sent, new-message notification, terminal ambience *)"
     ]
   }
 }

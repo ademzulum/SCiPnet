@@ -3234,3 +3234,40 @@ body,
 .report-doc .doc-section {
   border-left-color: var(--cl);
 }
+
+/* ---- notification toast ---------------------------------------------- */
+
+.toast {
+  all: unset;
+  position: absolute;
+  right: 1.4rem;
+  top: 4.4rem;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  max-width: 320px;
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--fg) 6%, var(--bg));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+.toast > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+.toast .label {
+  margin: 0;
+}
+.toast-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  animation: blink 1.2s ease-in-out infinite;
+}

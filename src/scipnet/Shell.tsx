@@ -14,7 +14,10 @@ import GlitchLayer from './GlitchLayer';
 import { AdminFile, SelfDestruct } from './Admin';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
-import { commsAuth } from './session';
+import { commsAuth, threadState } from './session';
+import { THREADS } from '../data/threads';
+import { personById } from '../data/personnel';
+import { play } from '../lib/sound';
 
 type NavItem = { label: string; route?: Route; match?: Route['view'][] };
 
@@ -36,10 +39,30 @@ function Clock() {
   return <span>{now.toLocaleTimeString('de-DE')}</span>;
 }
 
+// "New message" popup a few seconds into the session, if a thread is unread.
+function useNotify() {
+  const [toast, setToast] = useState<{ name: string; subject: string } | null>(null);
+  useEffect(() => {
+    const unread = THREADS.find((t) => threadState.isNew(t.id));
+    if (!unread) return;
+    const show = setTimeout(() => {
+      play('notify', 0.8);
+      setToast({ name: personById(unread.contact)?.name ?? unread.contact, subject: unread.subject });
+    }, 3500);
+    const hide = setTimeout(() => setToast(null), 3500 + 7000);
+    return () => {
+      clearTimeout(show);
+      clearTimeout(hide);
+    };
+  }, []);
+  return [toast, () => setToast(null)] as const;
+}
+
 export default function Shell({ onLogout }: { onLogout: () => void }) {
   const [route, setRoute] = useState<Route>({ view: 'overview' });
   const [destruct, setDestruct] = useState<'none' | 'countdown' | 'collapse'>('none');
   const [commsOk, setCommsOk] = useState(commsAuth.has);
+  const [toast, closeToast] = useNotify();
   // Once the Administrator file is opened there is no way out.
   const locked = route.view === 'admin' || destruct !== 'none';
   const go = (r: Route) => {
@@ -148,6 +171,29 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      <AnimatePresence>
+        {toast && !locked && (
+          <motion.button
+            className="toast"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 40 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+            onClick={() => {
+              closeToast();
+              go({ view: 'comms' });
+            }}
+          >
+            <span className="toast-dot" />
+            <span>
+              <span className="label">Neue Nachricht</span>
+              <strong>{toast.name}</strong>
+              <span className="dim small">{toast.subject}</span>
+            </span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       <GlitchLayer pulse={route} storm={locked && destruct !== 'collapse'} />
       {destruct !== 'none' && <SelfDestruct onDone={() => setDestruct('collapse')} />}

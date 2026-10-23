@@ -9,9 +9,12 @@ import memetic from '../../sounds/memetic_agent_detected.wav';
 import selfDestruct from '../../sounds/self_destruct.mp3';
 import startup from '../../sounds/scipnet_startup.mp3';
 import negative from '../../sounds/ui_negative.mp3';
+import notify from '../../sounds/new_notify.mp3';
+import sentMessage from '../../sounds/sent_message.mp3';
+import terminalNoise from '../../sounds/uiu_terminal_background_noise.mp3';
 import uiuSuccess from '../../sounds/uiu_success.wav';
 
-const URLS = { biometric, click, commsLogin, enter, error, memetic, negative, selfDestruct, startup, uiuSuccess };
+const URLS = { biometric, click, commsLogin, enter, error, memetic, negative, notify, selfDestruct, sentMessage, startup, terminalNoise, uiuSuccess };
 export type SoundName = keyof typeof URLS;
 
 let ctx: AudioContext | null = null;
@@ -38,19 +41,24 @@ export function initAudio(): Promise<void> {
   return loading;
 }
 
-// Returns a function that stops the sound early.
-export function play(name: SoundName, volume = 1): () => void {
+// Returns a function that stops the sound early, optionally fading out over `fadeMs`.
+export function play(name: SoundName, volume = 1, loop = false): (fadeMs?: number) => void {
   const buf = buffers.get(name);
   if (!ctx || !buf) return () => {};
-  const src = ctx.createBufferSource();
-  const gain = ctx.createGain();
+  const audio = ctx;
+  const src = audio.createBufferSource();
+  const gain = audio.createGain();
   gain.gain.value = volume;
   src.buffer = buf;
-  src.connect(gain).connect(ctx.destination);
+  src.loop = loop;
+  src.connect(gain).connect(audio.destination);
   src.start();
-  return () => {
+  return (fadeMs = 0) => {
     try {
-      src.stop();
+      const end = audio.currentTime + fadeMs / 1000;
+      gain.gain.setValueAtTime(gain.gain.value, audio.currentTime);
+      gain.gain.linearRampToValueAtTime(0, end);
+      src.stop(end);
     } catch {
       // already ended
     }
