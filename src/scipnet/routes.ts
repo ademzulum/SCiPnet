@@ -7,6 +7,7 @@ export type Route =
   | { view: 'report'; id: string }
   | { view: 'archive' }
   | { view: 'scp'; id: string }
+  | { view: 'assistant' }
   | { view: 'comms' }
   | { view: 'thread'; id: string };
 

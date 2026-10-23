@@ -14,6 +14,7 @@ import GlitchLayer from './GlitchLayer';
 import { AdminFile, SelfDestruct } from './Admin';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
+import Assistant from './Assistant';
 import { commsAuth } from './session';
 import { Bell, Toast, useNotifications } from './Notifications';
 import { initials } from './Comms';
@@ -29,6 +30,7 @@ const NAV: NavItem[] = [
   { label: 'Feldberichte', route: { view: 'reports' }, match: ['reports', 'report'], sound: 'tabReports' },
   { label: 'Kommunikation', route: { view: 'comms' }, match: ['comms', 'thread'], sound: 'tabComms' },
   { label: 'SCP-Archiv', route: { view: 'archive' }, match: ['archive', 'scp'], sound: 'tabArchive' },
+  { label: 'KI-Assistent', route: { view: 'assistant' }, match: ['assistant'] },
 ];
 
 // Section sound for sidebar tabs, played once the new page has loaded in.
@@ -124,6 +126,8 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
         return <Archive go={go} />;
       case 'scp':
         return <ScpView id={route.id} go={go} />;
+      case 'assistant':
+        return <Assistant go={go} />;
       case 'comms':
         return <Comms go={go} />;
       case 'thread':
