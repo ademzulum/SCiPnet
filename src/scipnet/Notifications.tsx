@@ -7,8 +7,9 @@ import { threadState } from './session';
 import type { Go, Route } from './routes';
 
 // Site notifications: one for an unread message shortly after login, then
-// random site events every 30-70 s. Each shows as a toast and is kept in the
-// bell panel in the header.
+// site events every 30-70 s. Every other event is written by the model behind
+// /api/scipa (falling back to POOL when that fails). Each shows as a toast and
+// is kept in the bell panel in the header; S.C.I.P.A. can read and act on them.
 
 export type Level = 'info' | 'warn' | 'alert' | 'msg';
 export type Notice = {
@@ -35,6 +36,22 @@ const POOL: Template[] = [
   { level: 'info', title: 'Kantine', text: 'Heute: Eintopf. Bitte nicht mit SCP-8041 in Verbindung bringen.' },
 ];
 
+// Model-written notification, or null if the function is unavailable.
+async function aiNotice(recent: string[]): Promise<Template | null> {
+  try {
+    const res = await fetch('/api/scipa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'notice', recent }),
+    });
+    if (!res.ok) return null;
+    const n = (await res.json()) as Template;
+    return n.title && n.text ? n : null;
+  } catch {
+    return null;
+  }
+}
+
 const clock = () => new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 const ICON: Record<Level, string> = { info: 'i', warn: '!', alert: '⚠', msg: '✉' };
 
@@ -42,6 +59,7 @@ export function useNotifications(paused: boolean) {
   const [items, setItems] = useState<Notice[]>([]);
   const [toast, setToast] = useState<Notice | null>(null);
   const nextId = useRef(1);
+  const recent = useRef<string[]>([]);
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -49,6 +67,7 @@ export function useNotifications(paused: boolean) {
   const push = (t: Template) => {
     if (pausedRef.current) return;
     const n: Notice = { ...t, id: nextId.current++, time: clock(), read: false };
+    recent.current = [`${t.title}: ${t.text}`, ...recent.current].slice(0, 8);
     setItems((l) => [n, ...l].slice(0, 30));
     setToast(n);
     play('notify', 0.7);
@@ -73,17 +92,26 @@ export function useNotifications(paused: boolean) {
         ),
       );
     let bag = [...POOL].sort(() => Math.random() - 0.5);
+    let useAi = true;
+    let alive = true;
+    const fromPool = () => {
+      if (!bag.length) bag = [...POOL].sort(() => Math.random() - 0.5);
+      return bag.pop()!;
+    };
     const loop = () => {
       timers.push(
-        setTimeout(() => {
-          if (!bag.length) bag = [...POOL].sort(() => Math.random() - 0.5);
-          push(bag.pop()!);
+        setTimeout(async () => {
+          const t = (useAi && !pausedRef.current && (await aiNotice(recent.current))) || fromPool();
+          useAi = !useAi;
+          if (!alive) return;
+          push(t);
           loop();
         }, 30000 + Math.random() * 40000),
       );
     };
     loop();
     return () => {
+      alive = false;
       timers.forEach(clearTimeout);
       clearTimeout(hideTimer.current);
     };
@@ -100,7 +128,7 @@ export function useNotifications(paused: boolean) {
   };
 }
 
-type Api = ReturnType<typeof useNotifications>;
+export type Api = ReturnType<typeof useNotifications>;
 
 export function Toast({ api, go, hidden }: { api: Api; go: Go; hidden: boolean }) {
   const n = api.toast;

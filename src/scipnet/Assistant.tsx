@@ -19,6 +19,7 @@ import { PERSONNEL } from '../data/personnel';
 import { REPORTS } from '../data/reports';
 import { play } from '../lib/sound';
 import type { Go, Route } from './routes';
+import type { Api as Notices } from './Notifications';
 
 // Voice files dropped into sounds/assistant/, keyed by file name.
 const VOICES = Object.fromEntries(
@@ -126,7 +127,7 @@ export function respond(input: string): Reply {
 
 // Free-form answer from the model behind /api/scipa. Resolves to null when the
 // function is unavailable (local dev without `vercel dev`, rate limit, errors).
-async function ask(message: string, history: Msg[]): Promise<string | null> {
+async function ask(message: string, history: Msg[], notes: Notices): Promise<string | null> {
   try {
     const res = await fetch('/api/scipa', {
       method: 'POST',
@@ -135,6 +136,7 @@ async function ask(message: string, history: Msg[]): Promise<string | null> {
         message,
         history: history.slice(-8).map(({ from, text }) => ({ from, text })),
         unlocked: adminAccess.has(),
+        notices: notes.items.slice(0, 10).map(({ id, level, title, text, time, read }) => ({ id, level, title, text, time, read })),
       }),
     });
     if (!res.ok) return null;
@@ -215,7 +217,29 @@ function useDictation(setText: (t: string) => void) {
   return { canListen: !!SpeechRecognition, listening, toggleMic };
 }
 
-export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestruct: () => void }) {
+// The model can end an answer with [[OPEN:#id]], [[READ:#id]], [[READ_ALL]]
+// or [[CLEAR]] to act on the notifications. Strip them from the text, apply the
+// read/clear ones right away and turn OPEN into the usual action button.
+function applyCommands(text: string, notes: Notices): Reply {
+  let action: Intent['action'];
+  const clean = text
+    .replace(/\[\[(OPEN|READ):#?(\d+)\]\]|\[\[(READ_ALL|CLEAR)\]\]/g, (_, cmd: string, id: string, all: string) => {
+      const n = id ? notes.items.find((x) => x.id === Number(id)) : undefined;
+      if (cmd === 'READ' && n) notes.markRead(n.id);
+      if (cmd === 'OPEN' && n) {
+        notes.markRead(n.id);
+        if (n.route) action = { label: `${n.title} öffnen`, route: n.route };
+      }
+      if (all === 'READ_ALL') notes.markAll();
+      if (all === 'CLEAR') notes.clear();
+      return '';
+    })
+    .replace(/\[\[[^\]]*\]\]/g, '') // anything malformed
+    .trim();
+  return { text: clean || 'Sehr wohl, Doktor.', action };
+}
+
+export default function Assistant({ go, onSelfDestruct, notes }: { go: Go; onSelfDestruct: () => void; notes: Notices }) {
   const [greeting] = useState(() => (visited ? WELCOME_BACK : GREETING));
   const [log, setLog] = useState<Msg[]>([{ from: 'scipa', text: greeting.text }]);
   const [input, setInput] = useState('');
@@ -230,7 +254,7 @@ export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestru
     const el = field.current;
     if (!el) return;
     el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, 96)}px`;
   }, [input]);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -257,7 +281,9 @@ export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestru
     setThinking(true);
     const scripted = respond(t);
     const started = Date.now();
-    const answer = scripted.ai ? ask(t, log).then((text) => (text ? ({ text } as Reply) : scripted)) : Promise.resolve(scripted);
+    const answer = scripted.ai
+      ? ask(t, log, notesRef.current).then((text) => (text ? applyCommands(text, notesRef.current) : scripted))
+      : Promise.resolve(scripted);
     void answer.then((reply) => {
       // keep a short "thinking" pause even when the answer is instant
       const wait = Math.max(0, 600 + Math.min(1200, reply.text.length * 8) - (Date.now() - started));
@@ -274,6 +300,22 @@ export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestru
       }, wait);
     });
   };
+
+  // Urgent notifications that arrive while the chat is open get a short remark.
+  const notesRef = useRef(notes);
+  notesRef.current = notes;
+  const seen = useRef(notes.toast?.id ?? 0);
+  useEffect(() => {
+    const n = notes.toast;
+    if (!n || n.id <= seen.current) return;
+    seen.current = n.id;
+    if (n.level !== 'warn' && n.level !== 'alert') return;
+    const lead = n.level === 'alert' ? 'Doktor, das sollten Sie sehen' : 'Eine neue Meldung, Doktor';
+    setLog((l) => [
+      ...l,
+      { from: 'scipa', text: `${lead}: ${n.title}. ${n.text}`, action: n.route ? { label: `${n.title} öffnen`, route: n.route } : undefined },
+    ]);
+  }, [notes.toast]);
 
   const open = (route: Route) => {
     voice?.pause();

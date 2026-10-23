@@ -536,8 +536,18 @@ body,
 }
 
 .shell-main {
+  --dock-space: 6.75rem; /* dock height plus its bottom gap */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   overflow-y: auto;
-  padding: 2rem clamp(16px, 4vw, 3rem) 7.5rem;
+  padding: 2rem clamp(16px, 4vw, 3rem) calc(var(--dock-space) + 1rem);
+}
+/* Pages sit centred between header and dock; taller ones scroll from the top
+   (auto margins, unlike justify-content, never clip the start). */
+.shell-main > * {
+  width: 100%;
+  margin-block: auto;
 }
 .shell-main > * > .page {
   margin-inline: auto;
@@ -3861,9 +3871,20 @@ body,
 .scipa-orb.speaking .scipa-ring.r2 {
   animation-delay: 0.45s;
 }
+/* Fixed-height chat: the window never grows; messages scroll and a taller
+   input only takes room from the message list. */
+.scipa-chat {
+  display: flex;
+  flex-direction: column;
+  height: clamp(380px, calc(100dvh - 400px), 640px);
+}
 .scipa-chat .chat {
-  min-height: 320px;
-  max-height: 52vh;
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+}
+.scipa-chat .composer {
+  flex: none;
 }
 .scipa-msg {
   border-left: 2px solid var(--accent);
