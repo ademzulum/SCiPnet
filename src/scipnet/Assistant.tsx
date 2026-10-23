@@ -103,6 +103,13 @@ export function respond(input: string): Reply {
       bestScore = score;
     }
   }
+  // With Administrator access she answers instead of defending herself.
+  if (best?.destruct && adminAccess.has())
+    return {
+      text: `${RETRIEVING[0].text} Der Administrator, Gründer der Foundation, Freigabe Stufe 6. Ihre Freigabe wurde bestätigt.`,
+      audio: RETRIEVING[0].audio,
+      action: { label: 'Akte öffnen', route: { view: 'admin' } },
+    };
   if (best) return { ...pick(best.answers), action: best.action, destruct: best.destruct };
 
   // Unmatched yes/no question (starts with a verb): a short spoken verdict.

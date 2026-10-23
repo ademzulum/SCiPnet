@@ -128,16 +128,8 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       case 'person':
         return <PersonnelFile id={route.id} go={go} />;
       case 'hack':
-        return (
-          <Hack
-            onActive={setHacking}
-            onWin={() => adminAccess.grant()}
-            onLose={() => {
-              setHacking(false);
-              setRoute({ view: 'admin' });
-            }}
-          />
-        );
+        // the minigame itself is a full-screen overlay, see below
+        return <PersonnelList go={go} />;
       case 'admin':
         return adminSolved ? <PersonnelFile id={ADMIN_PERSON.id} go={go} /> : <AdminFile onDone={() => setDestruct('countdown')} />;
       case 'reports':
@@ -262,6 +254,24 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
               VERLÄNGERN
             </button>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {route.view === 'hack' && (
+          <Hack
+            key="hack"
+            onActive={setHacking}
+            onWin={() => adminAccess.grant()}
+            onOpen={() => {
+              setHacking(false);
+              setRoute({ view: 'admin' });
+            }}
+            onLose={() => {
+              setHacking(false);
+              setRoute({ view: 'admin' });
+            }}
+          />
         )}
       </AnimatePresence>
 

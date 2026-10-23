@@ -95,6 +95,36 @@ export function AdminFile({ onDone }: { onDone: () => void }) {
   );
 }
 
+// The kill agent itself: nested, counter-rotating geometry around an eye.
+// Slow motion only (no strobing).
+function MemeticGlyph() {
+  const ring = (r: number, n: number) =>
+    Array.from({ length: n }, (_, i) => {
+      const a = (i / n) * Math.PI * 2;
+      const x = 100 + Math.cos(a) * r;
+      const y = 100 + Math.sin(a) * r;
+      return `M${x},${y - 6} L${x + 5},${y + 4} L${x - 5},${y + 4} Z`;
+    }).join(' ');
+  return (
+    <svg className="memetic-glyph" viewBox="0 0 200 200" aria-hidden>
+      <g className="mg-spin-a">
+        <circle cx="100" cy="100" r="92" />
+        <path d={ring(80, 24)} />
+      </g>
+      <g className="mg-spin-b">
+        <polygon points="100,22 168,140 32,140" />
+        <polygon points="100,178 32,60 168,60" />
+      </g>
+      <g className="mg-spin-a">
+        <circle cx="100" cy="100" r="46" strokeDasharray="4 6" />
+        <path d={ring(38, 12)} />
+      </g>
+      <ellipse cx="100" cy="100" rx="22" ry="12" />
+      <circle className="mg-pupil" cx="100" cy="100" r="6" />
+    </svg>
+  );
+}
+
 // S.C.I.P.A.'s own self-destruct, triggered by asking her about the
 // Administrator: a spoken warning first, then the self-destruct voice line
 // over a countdown. Timers stand in if a voice file can't play.
@@ -106,19 +136,28 @@ export function ScipaDestruct({ onDone }: { onDone: () => void }) {
 
   useEffect(() => {
     const voice = new Audio(phase === 'warning' ? warningUrl : selfDestructVoiceUrl);
+    // The warning stays up at least 4 s, even if its voice line is shorter or fails.
     let next = false;
+    let minDone = phase !== 'warning';
+    let voiceDone = false;
     const advance = () => {
-      if (next) return;
+      voiceDone = true;
+      if (next || !minDone) return;
       next = true;
       if (phase === 'warning') setPhase('countdown');
     };
+    const min = setTimeout(() => {
+      minDone = true;
+      if (voiceDone) advance();
+    }, 4000);
     voice.onended = advance;
     voice.onerror = advance;
     voice.play().catch(advance);
     const fallback = phase === 'warning' ? setTimeout(advance, 8000) : undefined;
-    const stopSiren = phase === 'countdown' ? play('selfDestruct', 0.5) : undefined;
+    const stopSiren = phase === 'countdown' ? play('selfDestruct', 0.5) : play('memetic', 0.6);
     return () => {
       clearTimeout(fallback);
+      clearTimeout(min);
       voice.pause();
       stopSiren?.(300);
     };
@@ -135,12 +174,13 @@ export function ScipaDestruct({ onDone }: { onDone: () => void }) {
   }, [phase, count]);
 
   return (
-    <motion.div className="destruct scipa-destruct" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <motion.div className={`destruct scipa-destruct${phase === 'warning' ? ' memetic' : ''}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       {phase === 'warning' ? (
         <>
-          <div className="destruct-title">S.C.I.P.A. · WARNUNG</div>
-          <p className="scipa-destruct-text">Unautorisierte Anfrage zum Administrator erkannt.</p>
-          <p className="scipa-destruct-text blink">Gegenmaßnahmen werden eingeleitet…</p>
+          <MemeticGlyph />
+          <div className="memetic-title">MEMETISCHER TÖTUNGSAGENT</div>
+          <p className="scipa-destruct-text">S.C.I.P.A. · Unautorisierte Anfrage zum Administrator.</p>
+          <p className="scipa-destruct-text dim">Agent wird über das Terminal ausgespielt. Nicht wegsehen.</p>
         </>
       ) : (
         <>

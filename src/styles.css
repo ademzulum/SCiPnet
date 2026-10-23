@@ -1325,6 +1325,53 @@ body,
 .scipa-destruct {
   background: radial-gradient(ellipse at center, rgba(120, 0, 60, 0.92), rgba(15, 0, 10, 0.97));
 }
+.scipa-destruct.memetic {
+  color: #e9ffe0;
+  background: radial-gradient(ellipse at center, #1c2a07 0%, #070a02 75%);
+  text-shadow: 0 0 12px rgba(200, 255, 80, 0.7);
+  animation: none;
+}
+.memetic-title {
+  font-size: clamp(20px, 3.4vw, 36px);
+  letter-spacing: 0.3em;
+  color: #c8ff50;
+}
+.memetic-glyph {
+  width: min(46vmin, 320px);
+  fill: none;
+  stroke: #c8ff50;
+  stroke-width: 1.6;
+  filter: drop-shadow(0 0 10px rgba(200, 255, 80, 0.6));
+  animation: mg-breathe 3s ease-in-out infinite;
+}
+.memetic-glyph g {
+  transform-origin: 100px 100px;
+}
+.mg-spin-a {
+  animation: mg-spin 14s linear infinite;
+}
+.mg-spin-b {
+  animation: mg-spin 9s linear infinite reverse;
+}
+.mg-pupil {
+  fill: #c8ff50;
+}
+@keyframes mg-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes mg-breathe {
+  50% {
+    transform: scale(1.06);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .memetic-glyph,
+  .memetic-glyph g {
+    animation: none;
+  }
+}
 .scipa-destruct-text {
   max-width: 34ch;
   text-align: center;
@@ -3932,6 +3979,87 @@ body,
 .hack-miss {
   animation: shake 0.3s;
   border-color: #ff2a55;
+}
+
+/* Signalpfad: full-screen over the whole shell, sidebar included */
+.hack-overlay {
+  --fg: #7fe0a8;
+  --accent: #ff2a55;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(12px, 3vh, 32px) clamp(16px, 4vw, 48px);
+  background: radial-gradient(ellipse at center, #06120c 0%, #020604 80%);
+  border-top: 2px solid #ff2a55;
+  user-select: none;
+  touch-action: none;
+}
+.hack-overlay.hack-hit {
+  box-shadow: inset 0 0 60px rgba(127, 224, 168, 0.25);
+}
+.hack-overlay.hack-miss {
+  box-shadow: inset 0 0 80px rgba(255, 42, 85, 0.45);
+}
+.hack-overlay .hack-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.hack-word {
+  display: flex;
+  gap: 0.35rem;
+  font-size: clamp(18px, 2.4vw, 28px);
+  letter-spacing: 0.1em;
+}
+.hack-word span {
+  display: grid;
+  place-items: center;
+  width: 1.4em;
+  height: 1.6em;
+  border: 1px solid color-mix(in srgb, #7fe0a8 25%, transparent);
+  opacity: 0.4;
+}
+.hack-word .done {
+  opacity: 1;
+  background: color-mix(in srgb, #7fe0a8 15%, transparent);
+}
+.hack-word .next {
+  opacity: 1;
+  color: #ff2a55;
+  border-color: #ff2a55;
+  text-shadow: 0 0 10px #ff2a55;
+  animation: hack-next 1s ease-in-out infinite;
+}
+@keyframes hack-next {
+  50% {
+    box-shadow: 0 0 14px rgba(255, 42, 85, 0.6);
+  }
+}
+.hack-board {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+.hack-board canvas {
+  border: 1px solid color-mix(in srgb, #7fe0a8 35%, transparent);
+  box-shadow: 0 0 40px rgba(127, 224, 168, 0.08);
+}
+.hack-overlay .hack-intro {
+  color: #7fe0a8;
+  background: rgba(2, 8, 5, 0.9);
+}
+.hack-overlay .hack-intro .dim {
+  max-width: 52ch;
+}
+.hack-overlay .hack-won {
+  border-top: none;
 }
 .hack-head {
   display: flex;
