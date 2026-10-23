@@ -85,16 +85,22 @@ export function play(name: SoundName, volume = 1, loop = false): (fadeMs?: numbe
   };
 }
 
-// National anthem: a plain <audio> element so it can start directly inside the
-// Enter key handler (a gesture browsers accept) without waiting for decoding.
-// Plays through the UIU terminal intro and fades out when the intro ends.
+// National anthem: a plain <audio> element so it can start directly inside a
+// gesture handler without waiting for decoding. Starts with the seal on the
+// power-on screen and fades out when the UIU terminal intro ends. start()
+// resolves to false when the browser blocks autoplay.
 let anthemEl: HTMLAudioElement | null = null;
 export const anthem = {
-  start() {
+  start(): Promise<boolean> {
+    if (anthemEl && !anthemEl.paused) return Promise.resolve(true);
     anthemEl?.pause();
-    anthemEl = new Audio(anthemUrl);
-    anthemEl.volume = 0.45;
-    anthemEl.play().catch(() => {});
+    const el = new Audio(anthemUrl);
+    anthemEl = el;
+    el.volume = 0.45;
+    return el.play().then(
+      () => true,
+      () => false,
+    );
   },
   fade(ms = 1500) {
     const el = anthemEl;
