@@ -1,4 +1,4 @@
-// VERA, the SCiPnet assistant. Purely scripted: what the user types is matched
+// S.C.I.P.A. (SCiPNet Intelligent Processing Assistant), the SCiPnet assistant. Purely scripted: what the user types is matched
 // against keywords; the best-matching intent answers. Nothing matched -> a
 // random line from UNKNOWN.
 //
@@ -21,7 +21,7 @@ export type Intent = {
 };
 
 export const GREETING: Answer = {
-  text: 'VERA online. Virtuelle Einsatz- und Recherche-Assistenz von Site-80. Wie kann ich helfen?',
+  text: 'S.C.I.P.A. online. SCiPNet Intelligent Processing Assistant, Site-80. Wie kann ich helfen?',
   // audio: 'greeting.mp3',
 };
 
@@ -42,10 +42,10 @@ export const INTENTS: Intent[] = [
   },
   {
     id: 'who',
-    keywords: ['wer bist du', 'was bist du', 'vera', 'dein name', 'wie heisst du'],
+    keywords: ['wer bist du', 'was bist du', 'scipa', 's c i p a', 'dein name', 'wie heisst du'],
     answers: [
       {
-        text: 'Ich bin VERA, die virtuelle Einsatz- und Recherche-Assistenz von Site-80. Ich durchsuche Akten, Berichte und das Archiv für Sie.',
+        text: 'Ich bin S.C.I.P.A., der SCiPNet Intelligent Processing Assistant von Site-80. Ich durchsuche Akten, Berichte und das Archiv für Sie.',
       },
     ],
   },

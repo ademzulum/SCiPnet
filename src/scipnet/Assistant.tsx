@@ -15,7 +15,7 @@ const VOICES = Object.fromEntries(
 );
 
 type Reply = Answer & { action?: Intent['action'] };
-type Msg = { from: 'me' | 'vera'; text: string; action?: Intent['action'] };
+type Msg = { from: 'me' | 'scipa'; text: string; action?: Intent['action'] };
 
 const norm = (s: string) =>
   ` ${s
@@ -101,7 +101,7 @@ function speak(file: string | undefined, onEnd: () => void): boolean {
 }
 
 export default function Assistant({ go }: { go: Go }) {
-  const [log, setLog] = useState<Msg[]>([{ from: 'vera', text: GREETING.text }]);
+  const [log, setLog] = useState<Msg[]>([{ from: 'scipa', text: GREETING.text }]);
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const [speaking, setSpeaking] = useState(false);
@@ -131,7 +131,7 @@ export default function Assistant({ go }: { go: Go }) {
     timer.current = setTimeout(
       () => {
         setThinking(false);
-        setLog((l) => [...l, { from: 'vera', text: reply.text, action: reply.action }]);
+        setLog((l) => [...l, { from: 'scipa', text: reply.text, action: reply.action }]);
         if (speak(reply.audio, () => setSpeaking(false))) setSpeaking(true);
         else play('receivedMessage', 0.6);
       },
@@ -146,35 +146,35 @@ export default function Assistant({ go }: { go: Go }) {
 
   return (
     <div className="page">
-      <div className="box vera-hero">
-        <div className={`vera-orb${speaking ? ' speaking' : thinking ? ' thinking' : ''}`} aria-hidden>
-          <span className="vera-ring r1" />
-          <span className="vera-ring r2" />
-          <span className="vera-core" />
+      <div className="box scipa-hero">
+        <div className={`scipa-orb${speaking ? ' speaking' : thinking ? ' thinking' : ''}`} aria-hidden>
+          <span className="scipa-ring r1" />
+          <span className="scipa-ring r2" />
+          <span className="scipa-core" />
         </div>
         <div>
           <div className="label">KI-Assistent · Site-80</div>
-          <h2>VERA</h2>
-          <p className="dim">Virtuelle Einsatz- und Recherche-Assistenz</p>
+          <h2>S.C.I.P.A.</h2>
+          <p className="dim">SCiPNet Intelligent Processing Assistant</p>
         </div>
-        <span className="vera-state">
+        <span className="scipa-state">
           <span className="live-dot" /> {speaking ? 'SPRICHT' : thinking ? 'ANALYSIERT' : 'BEREIT'}
         </span>
       </div>
 
-      <div className="box chat-window vera-chat">
+      <div className="box chat-window scipa-chat">
         <div className="chat" ref={logRef}>
           <AnimatePresence initial={false}>
             {log.map((m, i) => (
               <motion.div
                 key={i}
-                className={m.from === 'me' ? 'msg me' : 'msg vera-msg'}
+                className={m.from === 'me' ? 'msg me' : 'msg scipa-msg'}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
               >
                 {m.text}
                 {m.action && (
-                  <button className="vera-action" onClick={() => open(m.action!.route)}>
+                  <button className="scipa-action" onClick={() => open(m.action!.route)}>
                     {m.action.label} →
                   </button>
                 )}
@@ -182,7 +182,7 @@ export default function Assistant({ go }: { go: Go }) {
             ))}
           </AnimatePresence>
           {thinking && (
-            <div className="msg typing-bubble" aria-label="VERA analysiert">
+            <div className="msg typing-bubble" aria-label="S.C.I.P.A. analysiert">
               <span />
               <span />
               <span />
@@ -191,7 +191,7 @@ export default function Assistant({ go }: { go: Go }) {
         </div>
 
         <div className="composer">
-          <div className="vera-suggest">
+          <div className="scipa-suggest">
             {SUGGESTIONS.map((s) => (
               <button key={s} className="chip" onClick={() => send(s)} disabled={thinking}>
                 {s}
@@ -199,7 +199,7 @@ export default function Assistant({ go }: { go: Go }) {
             ))}
           </div>
           <form
-            className="vera-input"
+            className="scipa-input"
             onSubmit={(e) => {
               e.preventDefault();
               send(input);
@@ -208,7 +208,7 @@ export default function Assistant({ go }: { go: Go }) {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Anfrage an VERA eingeben…"
+              placeholder="Anfrage an S.C.I.P.A. eingeben…"
               maxLength={200}
               autoFocus
             />
