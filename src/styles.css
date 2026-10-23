@@ -971,6 +971,8 @@ body,
 .msg {
   align-self: flex-start;
   max-width: 78%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   padding: 0.55rem 0.8rem;
   border: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
   background: color-mix(in srgb, var(--fg) 4%, transparent);
@@ -3850,6 +3852,16 @@ body,
   display: flex;
   gap: 0.6rem;
 }
+.scipa-input {
+  align-items: flex-end;
+}
+.scipa-input textarea {
+  resize: none;
+  line-height: 1.4;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+}
+.scipa-input textarea,
 .scipa-input input {
   flex: 1;
   min-width: 0;
@@ -3862,6 +3874,37 @@ body,
   background: color-mix(in srgb, var(--bg) 70%, black);
   outline: none;
 }
+.scipa-mic {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+}
+.scipa-mic svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+.scipa-mic.on {
+  color: var(--accent);
+  border-color: var(--accent);
+  animation: mic-pulse 1.2s ease-in-out infinite;
+}
+@keyframes mic-pulse {
+  50% {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+}
+.scipa-input textarea:focus,
 .scipa-input input:focus {
   border-color: var(--accent);
 }

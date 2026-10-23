@@ -135,6 +135,63 @@ function speak(file: string | undefined, onEnd: () => void): boolean {
   return true;
 }
 
+// Speech-to-text through the browser's Web Speech API (Chrome, Edge, Safari;
+// not Firefox). German recognition; interim results stream into the input,
+// which the user then sends as usual. Chrome processes the audio on Google's
+// servers.
+type Recognition = {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onresult: ((e: { resultIndex: number; results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> }) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+const SpeechRecognition: (new () => Recognition) | undefined =
+  (window as unknown as Record<string, new () => Recognition>).SpeechRecognition ??
+  (window as unknown as Record<string, new () => Recognition>).webkitSpeechRecognition;
+
+function useDictation(setText: (t: string) => void) {
+  const [listening, setListening] = useState(false);
+  const rec = useRef<Recognition | null>(null);
+
+  useEffect(() => () => rec.current?.stop(), []);
+
+  const toggleMic = () => {
+    if (!SpeechRecognition) return;
+    if (rec.current) {
+      rec.current.stop();
+      return;
+    }
+    const r = new SpeechRecognition();
+    r.lang = 'de-DE';
+    r.interimResults = true;
+    r.continuous = true;
+    let base = '';
+    setText('');
+    r.onresult = (e) => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript;
+        if (e.results[i].isFinal) base += t;
+        else interim += t;
+      }
+      setText((base + interim).trim());
+    };
+    r.onend = r.onerror = () => {
+      rec.current = null;
+      setListening(false);
+    };
+    rec.current = r;
+    r.start();
+    setListening(true);
+  };
+
+  return { canListen: !!SpeechRecognition, listening, toggleMic };
+}
+
 export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestruct: () => void }) {
   const [greeting] = useState(() => (visited ? WELCOME_BACK : GREETING));
   const [log, setLog] = useState<Msg[]>([{ from: 'scipa', text: greeting.text }]);
@@ -142,6 +199,16 @@ export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestru
   const [thinking, setThinking] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
+  const field = useRef<HTMLTextAreaElement>(null);
+  const { canListen, listening, toggleMic } = useDictation(setInput);
+
+  // The input grows with its text, up to a few lines, then scrolls.
+  useLayoutEffect(() => {
+    const el = field.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
+  }, [input]);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
@@ -160,6 +227,7 @@ export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestru
   const send = (text: string) => {
     const t = text.trim();
     if (!t || thinking) return;
+    if (listening) toggleMic();
     play('sentMessage', 0.6);
     setLog((l) => [...l, { from: 'me', text: t }]);
     setInput('');
@@ -247,13 +315,38 @@ export default function Assistant({ go, onSelfDestruct }: { go: Go; onSelfDestru
               send(input);
             }}
           >
-            <input
+            <textarea
+              ref={field}
+              rows={1}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Anfrage an S.C.I.P.A. eingeben…"
-              maxLength={200}
+              onKeyDown={(e) => {
+                // Enter sends, Shift+Enter starts a new line
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  send(input);
+                }
+              }}
+              placeholder={listening ? 'Ich höre zu…' : 'Anfrage an S.C.I.P.A. eingeben…'}
+              maxLength={500}
               autoFocus
             />
+            {canListen && (
+              <button
+                type="button"
+                className={`scipa-mic${listening ? ' on' : ''}`}
+                onClick={toggleMic}
+                disabled={thinking}
+                title={listening ? 'Aufnahme beenden' : 'Spracheingabe'}
+                aria-label={listening ? 'Aufnahme beenden' : 'Spracheingabe'}
+                aria-pressed={listening}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden>
+                  <rect x="9" y="3" width="6" height="11" rx="3" />
+                  <path d="M5.5 11a6.5 6.5 0 0 0 13 0 M12 17.5V21 M8.5 21h7" />
+                </svg>
+              </button>
+            )}
             <button type="submit" className="card action" disabled={!input.trim() || thinking}>
               SENDEN
             </button>
