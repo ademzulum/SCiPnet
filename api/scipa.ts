@@ -1,11 +1,11 @@
 // S.C.I.P.A.'s free-form answers: a Vercel Function that asks a model through
 // the Vercel AI Gateway. The client only calls it when no scripted intent
 // matched. Authentication is Vercel OIDC (no API key in the repo). The model
-// can be changed with AI_GATEWAY_MODEL.
+// can be changed with AI_GATEWAY_MODEL. Imports need .js: the function runs as plain Node ESM.
 import { generateText } from 'ai';
-import { SCP } from '../src/data/scp';
-import { ADMIN_PERSON, PERSONNEL } from '../src/data/personnel';
-import { REPORTS } from '../src/data/reports';
+import { SCP } from '../src/data/scp.js';
+import { ADMIN_PERSON, PERSONNEL } from '../src/data/personnel.js';
+import { REPORTS } from '../src/data/reports.js';
 
 const MODEL = process.env.AI_GATEWAY_MODEL ?? 'anthropic/claude-haiku-5.5';
 const MAX_INPUT = 500;
