@@ -120,6 +120,22 @@ body,
   aspect-ratio: 1;
   filter: drop-shadow(0 0 6px var(--glow));
   animation: seal-breathe 4s ease-in-out 3.6s infinite;
+  position: relative;
+}
+/* sunlight glinting across metal, clipped to the seal's own shapes */
+.seal-intro::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.15) 43%, #fff 50%, rgba(255, 255, 255, 0.15) 57%, transparent 65%)
+    no-repeat;
+  background-size: 250% 100%;
+  background-position: 150% 0;
+  -webkit-mask: var(--seal-mask) center / contain no-repeat;
+  mask: var(--seal-mask) center / contain no-repeat;
+  mix-blend-mode: screen;
+  animation: seal-shine 1.3s ease-in-out 3.5s both;
 }
 .seal-intro svg g,
 .seal-intro svg path,
@@ -148,13 +164,22 @@ body,
   animation: seal-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.9s backwards;
 }
 .seal-intro #eagle {
-  animation: seal-wings 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.2) 1.3s backwards;
+  animation: seal-rise 0.5s ease-out 1.2s backwards;
+}
+/* wings unfold from the shoulders: each pivots on the edge next to the body */
+.seal-intro #wing_left {
+  transform-origin: right center;
+  animation: seal-wing-l 1s cubic-bezier(0.2, 0.9, 0.3, 1.15) 1.4s backwards;
+}
+.seal-intro #wing_right {
+  transform-origin: left center;
+  animation: seal-wing-r 1s cubic-bezier(0.2, 0.9, 0.3, 1.15) 1.4s backwards;
 }
 .seal-intro #sword {
   animation: seal-sword 0.5s cubic-bezier(0.5, 0, 0.75, 0) 1.8s backwards, seal-flash 0.4s ease-out 2.3s;
 }
 .seal-intro #compass {
-  animation: seal-spin 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 2s backwards;
+  animation: seal-slide 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 2s backwards;
 }
 .seal-intro #unusual {
   animation: seal-sweep-l 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 2.1s backwards;
@@ -187,8 +212,13 @@ body,
 @keyframes seal-rise {
   from { opacity: 0; transform: translateY(14px) scale(0.85); }
 }
-@keyframes seal-wings {
-  from { opacity: 0; transform: scaleX(0.1); }
+@keyframes seal-wing-l {
+  from { opacity: 0; transform: rotate(75deg) scaleX(0.15); }
+  30% { opacity: 1; }
+}
+@keyframes seal-wing-r {
+  from { opacity: 0; transform: rotate(-75deg) scaleX(0.15); }
+  30% { opacity: 1; }
 }
 @keyframes seal-sword {
   from { opacity: 0; transform: translateY(-60px); }
@@ -196,8 +226,12 @@ body,
 @keyframes seal-flash {
   50% { filter: brightness(2.2) drop-shadow(0 0 4px currentColor); }
 }
-@keyframes seal-spin {
-  from { opacity: 0; transform: rotate(-180deg) scale(0.4); }
+@keyframes seal-slide {
+  from { opacity: 0; transform: translate(-90px, 90px); }
+}
+@keyframes seal-shine {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
 }
 @keyframes seal-sweep-l {
   from { opacity: 0; transform: rotate(-70deg); }
