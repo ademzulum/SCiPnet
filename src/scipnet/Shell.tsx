@@ -101,7 +101,14 @@ export default function Shell({ onLogout }: { onLogout: () => void }) {
               onClick={() => go(n.route!)}
               disabled={locked}
             >
-              {n.label}
+              {n.match?.includes(route.view) && (
+                <motion.span
+                  layoutId="nav-indicator"
+                  className="nav-indicator"
+                  transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                />
+              )}
+              <span className="nav-label">{n.label}</span>
             </button>
           ) : (
             <button key={n.label} disabled title="Zugriff verweigert">

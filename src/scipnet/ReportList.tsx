@@ -19,7 +19,7 @@ export default function ReportList({ go }: { go: Go }) {
     <div className="page">
       <h2>Feldberichte</h2>
       <p className="dim">{REPORTS.length} Berichte · neueste zuerst</p>
-      <div className="rows">
+      <div className="rows box">
         {REPORTS.map((r) => (
           <ReportRow key={r.id} report={r} go={go} />
         ))}

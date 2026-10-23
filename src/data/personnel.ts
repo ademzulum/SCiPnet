@@ -140,7 +140,7 @@ export const PERSONNEL: Person[] = [
       text: [
         'Seit Archiv 7: wiederholte Fragen nach Personen, die nicht existieren.',
         'Schreibt Notizen an sich selbst, die er später nicht erkennt.',
-        'Beurteilung: [[GESCHWÄRZT]].',
+        'Beurteilung: [[REDACTED]].',
       ],
     },
     incidents: ['2026: Unerlaubtes Mitnehmen eines Filterprototyps nach Hause.'],

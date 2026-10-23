@@ -4,7 +4,7 @@ export default function Redacted({ text }: { text: string }) {
     <>
       {text.split(/\[\[(.+?)\]\]/).map((part, i) =>
         i % 2 ? (
-          <span key={i} className="redact" title="Geschwärzt">
+          <span key={i} className="redact" title="Redacted">
             {'█'.repeat(Math.max(4, part.length))}
           </span>
         ) : (

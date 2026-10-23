@@ -8,6 +8,7 @@ import Redacted from './Redacted';
 import { ReportRow } from './ReportList';
 import { initials } from './Comms';
 import { psychAccess } from './session';
+import Tabs from './Tabs';
 
 const TABS = ['Akte', 'Werdegang', 'Psychologie', 'Vorfälle', 'Berichte'] as const;
 type Tab = (typeof TABS)[number];
@@ -64,13 +65,7 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
         </div>
       </div>
 
-      <div className="tabs" role="tablist">
-        {TABS.map((t) => (
-          <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>
-            {t}
-          </button>
-        ))}
-      </div>
+      <Tabs tabs={TABS} value={tab} onChange={setTab} />
 
       <AnimatePresence mode="wait">
         <motion.div

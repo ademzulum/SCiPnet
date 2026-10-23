@@ -41,7 +41,7 @@ export const BREACH_SCRIPT: Step[] = [
   { t: 'line', text: '> Status: MIT STANDARDMITTELN NICHT ERREICHBAR', cls: 'dim', delay: 500 },
   { t: 'cmd', text: 'starte ghostline' },
   { t: 'progress', label: 'Phantom-Uplink abstimmen', ms: 2200 },
-  { t: 'line', text: '> Schwaches Trägersignal gefunden. Ursprung: [GESCHWÄRZT]', cls: 'hi', delay: 500 },
+  { t: 'line', text: '> Schwaches Trägersignal gefunden. Ursprung: [REDACTED]', cls: 'hi', delay: 500 },
   { t: 'progress', label: 'Chiffrierschicht I lösen', ms: 1600 },
   { t: 'progress', label: 'Chiffrierschicht II lösen', ms: 1900 },
   { t: 'hex', rows: 10 },

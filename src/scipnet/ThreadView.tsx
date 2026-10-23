@@ -57,54 +57,96 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
     setSt(threadState.get(t));
   };
 
+  // Number keys pick a reply.
+  useEffect(() => {
+    if (!choices?.length) return;
+    const onKey = (e: KeyboardEvent) => {
+      const c = choices[Number(e.key) - 1];
+      if (c) choose(c);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
   return (
     <div className="page thread">
       <button className="link back" onClick={() => go({ view: 'comms' })}>
         ← Kommunikation
       </button>
-      <div className="thread-head">
-        <span className="avatar">{initials(contact?.name ?? '?')}</span>
-        <div>
-          {contact ? (
-            <button className="link" onClick={() => go({ view: 'person', id: contact.id })}>
-              {contact.name}
+      <div className="box chat-window">
+        <div className="thread-head">
+          <span className="avatar">
+            {initials(contact?.name ?? '?')}
+            <span className={`presence presence-${contact?.status ?? 'Aktiv'}`} />
+          </span>
+          <div className="thread-head-text">
+            {contact ? (
+              <button className="link" onClick={() => go({ view: 'person', id: contact.id })}>
+                {contact.name}
+              </button>
+            ) : (
+              t.contact
+            )}
+            <div className="dim small">
+              {contact?.role} · {t.subject}
+            </div>
+          </div>
+          <span className="secure-tag">GESICHERT</span>
+        </div>
+
+        <div className="chat" ref={logRef}>
+          <div className="chat-day">Kanal geöffnet</div>
+          <AnimatePresence initial={false}>
+            {st.log.map((m, i) => (
+              <motion.div
+                key={i}
+                className={m.from === 'me' ? 'msg me' : 'msg'}
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+              >
+                <Redacted text={m.text} />
+                {m.time && <span className="msg-time">{m.time}</span>}
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          {typing && (
+            <div className="msg typing-bubble" aria-label={`${contact?.name ?? 'Kontakt'} schreibt`}>
+              <span />
+              <span />
+              <span />
+            </div>
+          )}
+          {ended && <div className="chat-day">Verbindung beendet</div>}
+        </div>
+
+        <div className="composer">
+          {choices?.length ? (
+            <>
+              <div className="label">Antwort wählen</div>
+              <div className="choices">
+                {choices.map((c, i) => (
+                  <motion.button
+                    key={c.label}
+                    className="choice"
+                    onClick={() => choose(c)}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.06 }}
+                  >
+                    <span className="choice-key">{i + 1}</span>
+                    {c.label}
+                  </motion.button>
+                ))}
+              </div>
+            </>
+          ) : ended ? (
+            <button className="link small" onClick={reset}>
+              Verlauf zurücksetzen
             </button>
           ) : (
-            t.contact
+            <div className="dim small">Warte auf Antwort…</div>
           )}
-          <div className="dim small">{t.subject}</div>
         </div>
-      </div>
-
-      <div className="chat" ref={logRef}>
-        <AnimatePresence initial={false}>
-          {st.log.map((m, i) => (
-            <motion.div
-              key={i}
-              className={m.from === 'me' ? 'msg me' : 'msg'}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <Redacted text={m.text} />
-              {m.time && <span className="msg-time">{m.time}</span>}
-            </motion.div>
-          ))}
-        </AnimatePresence>
-        {typing && <div className="msg typing">{contact?.name ?? 'Kontakt'} schreibt</div>}
-        {ended && <div className="chat-end">— Verbindung beendet —</div>}
-      </div>
-
-      <div className="choices">
-        {choices?.map((c) => (
-          <button key={c.label} className="card choice" onClick={() => choose(c)}>
-            ▸ {c.label}
-          </button>
-        ))}
-        {ended && (
-          <button className="link back" onClick={reset}>
-            Verlauf zurücksetzen
-          </button>
-        )}
       </div>
     </div>
   );

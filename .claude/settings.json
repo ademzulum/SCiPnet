@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit -q -m 'Refine glitch, restyle dossiers, add the Administrator file *)"
+      "Bash(git commit -q -m 'Refine glitch, restyle dossiers, add the Administrator file *)",
+      "Bash(xargs sed -i '' -e 's/GESCHWÄRZT/REDACTED/g' -e 's/\"Geschwärzt\"/\"Redacted\"/g')",
+      "Bash(git commit -q -m 'Restyle overview and comms, animate navigation, louder Administrator card *)"
     ]
   }
 }

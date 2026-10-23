@@ -40,7 +40,7 @@ export const REPORTS: Report[] = [
     body: [
       'Archivbestand 7 enthält ein Regal, das in keinem Verzeichnis geführt wird.',
       'Mitarbeiter, die das Regal betrachten, verlieren nach etwa 40 Sekunden jede Erinnerung daran.',
-      'Dr. Reyes führte eine Untersuchung mit antimemetischem Filter durch. Ergebnis: [[GESCHWÄRZT]].',
+      'Dr. Reyes führte eine Untersuchung mit antimemetischem Filter durch. Ergebnis: [[REDACTED]].',
     ],
   },
   {

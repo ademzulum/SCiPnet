@@ -18,7 +18,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
       <h2>{r.title}</h2>
       <p className="dim">{r.id}</p>
 
-      <dl className="fields">
+      <dl className="fields box">
         <div>
           <dt>Datum</dt>
           <dd>{new Date(r.date).toLocaleDateString('de-DE')}</dd>
@@ -47,12 +47,12 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
         </div>
       </dl>
 
-      <section>
+      <section className="box">
         <h3>Zusammenfassung</h3>
         <p>{r.summary}</p>
       </section>
 
-      <section>
+      <section className="box report-body">
         <h3>Bericht</h3>
         {r.body.map((para, i) => (
           <p key={i}>
