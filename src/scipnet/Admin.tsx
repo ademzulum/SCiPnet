@@ -183,26 +183,94 @@ export function ScipaDestruct({ onDone }: { onDone: () => void }) {
           <p className="scipa-destruct-text dim">Agent wird über das Terminal ausgespielt. Nicht wegsehen.</p>
         </>
       ) : (
-        <>
-          <div className="destruct-title">SELBSTZERSTÖRUNG EINGELEITET</div>
-          <motion.div key={count} className="destruct-count" initial={{ scale: 1.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-            {count}
-          </motion.div>
-          <ul>
-            <li>▸ Anfrage protokolliert: Der Administrator</li>
-            {count <= 3 && <li>▸ Lösche Gesprächsverlauf…</li>}
-            {count <= 1 && <li>▸ Trenne Terminal von SCiPnet…</li>}
-          </ul>
-        </>
+        <DestructStage
+          title="SELBSTZERSTÖRUNG EINGELEITET"
+          count={count}
+          total={5}
+          steps={['Anfrage protokolliert: Der Administrator', 'Lösche Gesprächsverlauf', 'Trenne Terminal von SCiPnet']}
+        />
       )}
     </motion.div>
   );
 }
 
-const STEPS = ['Lösche Sitzungsdaten', 'Trenne Verbindung zu SCiPnet', 'Vernichte Terminal'];
+// Paths the purge log "deletes" while the countdown runs.
+const PURGE = [
+  '/scipnet/sitzung/token',
+  '/scipnet/akten/P-80-0117',
+  '/scipnet/akten/A-00-0000',
+  '/site-80/archiv/7/index',
+  '/scipnet/kanal/hofstetter',
+  '/scipnet/kanal/quebec',
+  '/site-80/kamera/14-B',
+  '/scipnet/cache/biometrie',
+  '/scipnet/feldberichte/FB-80-2026-031',
+  '/scipnet/scipa/gedaechtnis',
+  '/terminal/firmware',
+  '/terminal/schluessel',
+];
+
+// Shared countdown stage for both self-destructs: hazard bands, a rotating
+// radar sweep, counter-rotating rings with a draining progress arc around the
+// number, a fast purge log and a jolt on every tick.
+function DestructStage({ title, count, total, steps }: { title: string; count: number; total: number; steps: string[] }) {
+  const [log, setLog] = useState<string[]>([]);
+  useEffect(() => {
+    let i = 0;
+    const t = setInterval(() => {
+      const path = PURGE[i++ % PURGE.length];
+      const hex = ((Math.random() * 0xffffff) | 0).toString(16).padStart(6, '0').toUpperCase();
+      setLog((l) => [...l, `0x${hex}  LÖSCHE ${path}`].slice(-9));
+    }, 140);
+    return () => clearInterval(t);
+  }, []);
+
+  const R = 92;
+  const C = 2 * Math.PI * R;
+  const shown = Math.min(steps.length, Math.ceil(((total - count + 1) / total) * steps.length));
+
+  return (
+    <div className="ds">
+      <div className="ds-band top" aria-hidden />
+      <div className="ds-band bottom" aria-hidden />
+      <div className="ds-sweep" aria-hidden />
+      <motion.div key={count} className="ds-jolt" initial={{ x: -8, y: 4 }} animate={{ x: 0, y: 0 }} transition={{ duration: 0.25 }}>
+        <div className="destruct-title">{title}</div>
+        <div className="ds-core">
+          <svg className="ds-rings" viewBox="0 0 220 220" aria-hidden>
+            <circle className="ds-ring a" cx="110" cy="110" r="104" />
+            <circle className="ds-ring b" cx="110" cy="110" r="80" />
+            <circle className="ds-track" cx="110" cy="110" r={R} />
+            <circle
+              className="ds-progress"
+              cx="110"
+              cy="110"
+              r={R}
+              strokeDasharray={C}
+              strokeDashoffset={C * (1 - count / total)}
+            />
+          </svg>
+          <motion.span key={count} className="destruct-count" initial={{ scale: 1.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
+            {count}
+          </motion.span>
+        </div>
+        <ul className="ds-steps">
+          {steps.slice(0, shown).map((s) => (
+            <motion.li key={s} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+              ▸ {s}…
+            </motion.li>
+          ))}
+        </ul>
+      </motion.div>
+      <pre className="ds-log" aria-hidden>
+        {log.join('\n')}
+      </pre>
+    </div>
+  );
+}
 
 export function SelfDestruct({ onDone }: { onDone: () => void }) {
-  const [count, setCount] = useState(3);
+  const [count, setCount] = useState(5);
   useEffect(() => {
     if (count === 0) {
       const t = setTimeout(onDone, 500);
@@ -214,15 +282,12 @@ export function SelfDestruct({ onDone }: { onDone: () => void }) {
 
   return (
     <motion.div className="destruct" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <div className="destruct-title">SELBSTZERSTÖRUNG</div>
-      <motion.div key={count} className="destruct-count" initial={{ scale: 1.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-        {count}
-      </motion.div>
-      <ul>
-        {STEPS.slice(0, 3 - count + 1).map((s) => (
-          <li key={s}>▸ {s}…</li>
-        ))}
-      </ul>
+      <DestructStage
+        title="SELBSTZERSTÖRUNG"
+        count={count}
+        total={5}
+        steps={['Lösche Sitzungsdaten', 'Vernichte Personalakten', 'Trenne Verbindung zu SCiPnet', 'Vernichte Terminal']}
+      />
     </motion.div>
   );
 }

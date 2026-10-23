@@ -53,7 +53,21 @@ async function aiNotice(recent: string[]): Promise<Template | null> {
 }
 
 const clock = () => new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-const ICON: Record<Level, string> = { info: 'i', warn: '!', alert: '⚠', msg: '✉' };
+// Level icons as strokes on a 24×24 grid (glyphs like ✉ render tiny in the mono font).
+const ICON_PATH: Record<Level, string> = {
+  info: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 11v6 M12 7.5v.5',
+  warn: 'M12 3l10 18H2z M12 10v5 M12 18v.5',
+  alert: 'M8 2h8l6 6v8l-6 6H8l-6-6V8z M12 7v6 M12 16.5v.5',
+  msg: 'M3 6h18v12H3z M3 6l9 7 9-7',
+};
+const ICON: Record<Level, React.ReactNode> = Object.fromEntries(
+  Object.entries(ICON_PATH).map(([k, d]) => [
+    k,
+    <svg key={k} viewBox="0 0 24 24" aria-hidden>
+      <path d={d} />
+    </svg>,
+  ]),
+) as Record<Level, React.ReactNode>;
 
 export function useNotifications(paused: boolean) {
   const [items, setItems] = useState<Notice[]>([]);

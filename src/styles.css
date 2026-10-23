@@ -3840,8 +3840,8 @@ button.skip {
   flex: none;
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   font-size: 12px;
   --lvl: #6fb3ff;
@@ -4624,14 +4624,160 @@ button.skip {
     transform-origin: top center;
   }
   .notice-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 16px;
+    width: 40px;
+    height: 40px;
+  }
+  .notice-icon svg {
+    width: 22px;
+    height: 22px;
   }
   .notify-list {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
+  }
+}
+
+/* notification level icons */
+.notice-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---- self-destruct stage ----------------------------------------------- */
+
+.ds {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.ds-jolt {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+/* moving hazard stripes along the top and bottom edge */
+.ds-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 26px;
+  background: repeating-linear-gradient(-45deg, #ffcc00 0 18px, #120000 18px 36px);
+  opacity: 0.85;
+  animation: ds-stripes 0.6s linear infinite;
+}
+.ds-band.top {
+  top: 0;
+}
+.ds-band.bottom {
+  bottom: 0;
+  animation-direction: reverse;
+}
+@keyframes ds-stripes {
+  to {
+    background-position: 51px 0;
+  }
+}
+/* rotating warning-light sweep */
+.ds-sweep {
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 40, 60, 0.32) 30deg, transparent 70deg);
+  animation: ds-spin 1.6s linear infinite;
+}
+@keyframes ds-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.ds-core {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(60vmin, 300px);
+  aspect-ratio: 1;
+}
+.ds-core .destruct-count {
+  position: relative;
+}
+.ds-rings {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  overflow: visible;
+}
+.ds-ring {
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1.5;
+  transform-origin: 110px 110px;
+}
+.ds-ring.a {
+  stroke-dasharray: 3 9;
+  animation: ds-spin 6s linear infinite;
+}
+.ds-ring.b {
+  stroke-dasharray: 22 10 4 10;
+  animation: ds-spin 4s linear infinite reverse;
+}
+.ds-track {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 6;
+}
+.ds-progress {
+  stroke: #fff;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 110px 110px;
+  transition: stroke-dashoffset 0.8s linear;
+  filter: drop-shadow(0 0 8px rgba(255, 60, 80, 0.9));
+}
+.ds-steps {
+  list-style: none;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-align: center;
+}
+/* purge log scrolling in the lower left */
+.ds-log {
+  position: absolute;
+  left: clamp(12px, 3vw, 40px);
+  bottom: 44px;
+  z-index: 1;
+  margin: 0;
+  font: 11px/1.5 'IBM Plex Mono', monospace;
+  letter-spacing: 0.05em;
+  color: rgba(255, 210, 210, 0.75);
+  text-shadow: none;
+  white-space: pre;
+  pointer-events: none;
+  mask-image: linear-gradient(to top, #000 60%, transparent);
+}
+@media (max-width: 720px) {
+  .ds-log {
+    font-size: 9px;
+    left: 12px;
+    right: 12px;
+    overflow: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-band,
+  .ds-sweep,
+  .ds-ring {
+    animation: none;
   }
 }
