@@ -30,7 +30,13 @@ const FILTERS = ['Alle', 'Offen', 'Abgeschlossen'] as const;
 
 export default function ReportList({ go }: { go: Go }) {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>('Alle');
-  const items = REPORTS.filter((r) => filter === 'Alle' || r.status === filter);
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
+  const items = REPORTS.filter(
+    (r) =>
+      (filter === 'Alle' || r.status === filter) &&
+      (!q || [r.id, r.title, r.summary, personById(r.author)?.name ?? ''].some((s) => s.toLowerCase().includes(q))),
+  );
 
   return (
     <div className="page page-top">
@@ -42,6 +48,15 @@ export default function ReportList({ go }: { go: Go }) {
             {REPORTS.length} Berichte · {REPORTS.filter((r) => r.status === 'Offen').length} offen
           </p>
         </div>
+      </div>
+
+      <div className="archive-tools">
+        <input
+          className="search"
+          placeholder="Suche nach Kennung, Titel, Verfasser…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
         <div className="chips">
           {FILTERS.map((f) => (
             <button key={f} className={filter === f ? 'chip active' : 'chip'} onClick={() => setFilter(f)}>
@@ -85,6 +100,7 @@ export default function ReportList({ go }: { go: Go }) {
           })}
         </AnimatePresence>
       </div>
+      {!items.length && <p className="dim">Keine Einträge gefunden.</p>}
     </div>
   );
 }

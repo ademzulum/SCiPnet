@@ -5392,7 +5392,7 @@ button.skip {
   border: 1px solid var(--line);
   border-bottom: none;
   border-radius: var(--radius) var(--radius) 0 0;
-  background: color-mix(in srgb, var(--st) 14%, var(--bg));
+  background: color-mix(in srgb, var(--st) 14%, transparent);
   color: var(--hi);
 }
 .folder-body {
@@ -5435,9 +5435,21 @@ button.skip {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.folder-info strong {
-  color: var(--hi);
+.folder-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
   margin-bottom: 0.15rem;
+}
+.folder-name strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--hi);
+}
+.folder-name .status {
+  flex: none;
+  line-height: 1.4;
 }
 .folder-foot {
   display: flex;
@@ -5498,20 +5510,6 @@ button.skip {
   background: var(--st, var(--accent));
   border-color: transparent;
   box-shadow: 0 0 5px color-mix(in srgb, var(--st, var(--accent)) 60%, transparent);
-}
-
-.stamp {
-  padding: 0.05rem 0.45rem;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--st);
-  border: 1.5px solid var(--st);
-  border-radius: 3px;
-  transform: rotate(-6deg);
-  text-shadow: none;
-  pointer-events: none;
 }
 
 .bio-chip {
@@ -5584,22 +5582,6 @@ button.skip {
   margin: 0.1rem 0 0;
   color: var(--hi);
 }
-.dossier-sheet > .stamp {
-  position: absolute;
-  top: 2.8rem;
-  right: 1.4rem;
-  z-index: 1;
-  padding: 0.15rem 0.6rem;
-  font-size: 18px;
-  border-width: 2px;
-  opacity: 0.8;
-  animation: stampin 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both 0.2s;
-}
-@keyframes stampin {
-  from { transform: rotate(-12deg) scale(2.4); opacity: 0; }
-  to { transform: rotate(-12deg) scale(1); opacity: 0.8; }
-}
-
 .dossier-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -5660,9 +5642,22 @@ button.skip {
 @media (max-width: 720px) {
   .dossier-stats { grid-template-columns: repeat(2, 1fr); }
   .dossier-strip > :last-child { display: none; }
-  .dossier-sheet > .stamp { font-size: 13px; top: 2.6rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .folder:hover::before,
-  .dossier-sheet > .stamp { animation: none; }
+  .folder:hover::before { animation: none; }
+}
+
+/* folders get the same see-through surface as report and archive cards */
+.crt[data-theme='scip'] .folder {
+  background-color: color-mix(in srgb, color-mix(in srgb, var(--fg) 4%, var(--bg)) 78%, transparent);
+  background-image: var(--surface);
+}
+.crt[data-theme='scip'][data-mode='light'] .folder {
+  background-color: rgba(255, 255, 255, 0.72);
+}
+.crt[data-theme='scip'] .admin-folder {
+  background-image: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--st) 7%, transparent) 10px 20px), var(--surface);
+}
+.crt[data-theme='scip'] .folder.admin-card {
+  background-image: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--accent) 7%, transparent) 10px 20px), var(--surface);
 }

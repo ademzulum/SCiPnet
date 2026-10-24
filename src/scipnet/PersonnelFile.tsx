@@ -78,7 +78,6 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
             ABGERUFEN: {account.name.toUpperCase()} · {opened}
           </span>
         </div>
-        {p.status !== 'Aktiv' && <span className="stamp">{p.status}</span>}
         <div className="dossier">
           <Portrait person={p} />
           <div className="dossier-main">

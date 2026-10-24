@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { motion } from 'motion/react';
-import { ADMIN_PERSON, PERSONNEL, type Person } from '../data/personnel';
+import { AnimatePresence, motion } from 'motion/react';
+import { ADMIN_PERSON, PERSONNEL } from '../data/personnel';
 import { biometric, useAccount, useAdminUnlocked } from './session';
 import type { Go } from './routes';
 import { Corrupt } from './Admin';
@@ -27,21 +27,12 @@ export default function PersonnelList({ go }: { go: Go }) {
   const admin = useAccount().id === 'admin';
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<(typeof STATUSES)[number]>('Alle');
-  const [pulling, setPulling] = useState<string | null>(null);
   const q = query.trim().toLowerCase();
   const items = PERSONNEL.filter(
     (p) =>
       (status === 'Alle' || p.status === status) &&
       (!q || [p.id, p.name, p.role, p.department].some((s) => s.toLowerCase().includes(q))),
   );
-
-  // the folder slides out of the cabinet before the file opens
-  const open = (p: Person) => {
-    if (pulling) return;
-    // the click sound comes from the global button handler (App.tsx)
-    setPulling(p.id);
-    setTimeout(() => go({ view: 'person', id: p.id }), 420);
-  };
 
   return (
     <div className="page page-top">
@@ -76,14 +67,17 @@ export default function PersonnelList({ go }: { go: Go }) {
       </div>
 
       <div className="folder-grid">
-        {items.map((p) => (
+        <AnimatePresence mode="popLayout" initial={false}>
+          {items.map((p) => (
             <motion.button
+              layout
               key={p.id}
-              initial={{ opacity: 0 }}
-              animate={pulling === p.id ? { opacity: 0, y: -24, rotate: -1.5 } : { opacity: 1, y: 0 }}
-              transition={{ duration: pulling === p.id ? 0.4 : 0.2 }}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.8, 0.25, 1] }}
               className={`folder st-${p.status}${p.id.startsWith('X-') ? ' external' : ''}`}
-              onClick={() => open(p)}
+              onClick={() => go({ view: 'person', id: p.id })}
             >
               <span className="folder-tab">{p.id}</span>
               <span className="folder-body">
@@ -91,7 +85,10 @@ export default function PersonnelList({ go }: { go: Go }) {
                   {p.photo ? <img src={p.photo} alt="" /> : initials(p.name)}
                 </span>
                 <span className="folder-info">
-                  <strong>{p.name}</strong>
+                  <span className="folder-name">
+                    <strong>{p.name}</strong>
+                    {p.status !== 'Aktiv' && <span className={`status status-${p.status}`}>{p.status}</span>}
+                  </span>
                   <span className="small">{p.role}</span>
                   <span className="dim small">{p.department}</span>
                 </span>
@@ -100,16 +97,13 @@ export default function PersonnelList({ go }: { go: Go }) {
                 <ClearancePips c={p.clearance} />
                 <span className="small">{p.clearance}</span>
                 <span className="folder-end">
-                  {p.status !== 'Aktiv' ? (
-                    <span className="stamp">{p.status}</span>
-                  ) : (
-                    <span className="folder-seal">{admin || biometric.has(p.id) ? '◉ OFFEN' : '⬢ VERSIEGELT'}</span>
-                  )}
+                  <span className="folder-seal">{admin || biometric.has(p.id) ? '◉ OFFEN' : '⬢ VERSIEGELT'}</span>
                   <span className="folder-hover">ÖFFNEN ▸</span>
                 </span>
               </span>
             </motion.button>
           ))}
+        </AnimatePresence>
 
         {solved ? (
           <button className="folder admin-folder" onClick={() => go({ view: 'admin' })}>

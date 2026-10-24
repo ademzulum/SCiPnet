@@ -5,7 +5,7 @@ import UiuLogo from '../components/UiuLogo';
 // Power-on screen. Browsers block sound until the first click or key press, so
 // if the anthem can't autoplay, a minimal "connect" gate comes first: the
 // gesture there starts the anthem and the seal animation together. Once both
-// have finished the terminal powers on by itself; Enter / tap skips ahead.
+// have finished the terminal powers on by itself; Enter (or a tap on touch screens) skips ahead.
 const SEAL_MS = 5200; // seal assembly plus the shine (see .seal-intro in styles.css)
 const MAX_WAIT_MS = 15000; // in case the anthem never reports its end
 
@@ -51,15 +51,19 @@ export default function PowerOn({ onStart }: { onStart: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.repeat) return;
-      // any key opens the gate; powering on needs Enter or Space
-      if (phaseRef.current !== 'seal' || e.key === 'Enter' || e.key === ' ') pressRef.current();
+      // any key opens the gate; skipping the seal needs Enter
+      if (phaseRef.current !== 'seal' || e.key === 'Enter') pressRef.current();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   return (
-    <div className="power" onClick={() => pressRef.current()}>
+    <div
+      className="power"
+      // mouse clicks only open the gate; on touch screens a tap also skips the seal
+      onPointerUp={(e) => (phaseRef.current !== 'seal' || e.pointerType === 'touch') && pressRef.current()}
+    >
       {phase === 'seal' ? (
         <>
           <UiuLogo className="seal-intro" />
