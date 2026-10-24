@@ -11,7 +11,7 @@ import ReportView from './ReportView';
 import Comms from './Comms';
 import ThreadView from './ThreadView';
 import GlitchLayer from './GlitchLayer';
-import { AdminFile, ScipaDestruct, SelfDestruct } from './Admin';
+import { ScipaDestruct, SelfDestruct } from './Admin';
 import { ADMIN_PERSON } from '../data/personnel';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
@@ -119,8 +119,12 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   // Once the Administrator file is opened there is no way out.
   const [hacking, setHacking] = useState(false);
   const adminSolved = useAdminUnlocked();
-  // Before the puzzle is solved the Administrator file triggers the meltdown.
+  // Before the puzzle is solved, opening the Administrator file goes straight
+  // into the self-destruct countdown.
   const meltdown = (route.view === 'admin' && !adminSolved) || destruct !== 'none';
+  useEffect(() => {
+    if (route.view === 'admin' && !adminSolved && destruct === 'none') setDestruct('countdown');
+  }, [route.view, adminSolved, destruct]);
   const locked = meltdown || hacking;
   const notes = useNotifications(locked);
   const go = (r: Route) => {
@@ -151,7 +155,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
         // the minigame itself is a full-screen overlay, see below
         return <PersonnelList go={go} />;
       case 'admin':
-        return adminSolved ? <PersonnelFile id={ADMIN_PERSON.id} go={go} /> : <AdminFile onDone={() => setDestruct('countdown')} />;
+        return adminSolved ? <PersonnelFile id={ADMIN_PERSON.id} go={go} /> : null;
       case 'reports':
         return <ReportList go={go} />;
       case 'report':
@@ -171,7 +175,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
 
   return (
     <motion.div
-      className={meltdown && destruct !== 'collapse' ? 'shell meltdown' : 'shell'}
+      className="shell"
       animate={
         destruct === 'collapse'
           ? { scaleY: [1, 0.004, 0.004], scaleX: [1, 1, 0], opacity: [1, 1, 0] }
@@ -303,7 +307,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
         )}
       </AnimatePresence>
 
-      <GlitchLayer pulse={route} storm={meltdown && destruct !== 'collapse'} />
+      <GlitchLayer pulse={route} storm={false} />
       {destruct === 'scipa' && <ScipaDestruct onDone={() => setDestruct('collapse')} />}
       {destruct === 'countdown' && <SelfDestruct onDone={() => setDestruct('collapse')} />}
     </motion.div>
