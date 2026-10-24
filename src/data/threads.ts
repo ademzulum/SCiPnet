@@ -2,7 +2,9 @@
 // reader picks a choice, which posts `reply` (or the label) and jumps to `next`.
 // A node without choices ends the conversation.
 
-export type Msg = { from: 'me' | string; text: string; time?: string };
+// voice: a recording under sounds/communications/, e.g. 'timothy_quebec/guten_tag_maynard.mp3';
+// the message then shows as a voice message with `text` as its transcript.
+export type Msg = { from: 'me' | string; text: string; time?: string; voice?: string };
 export type Choice = { label: string; reply?: string; next: string };
 export type Node = { msgs: Msg[]; choices?: Choice[] };
 
@@ -61,12 +63,30 @@ export const THREADS: Thread[] = [
     nodes: {
       a: {
         msgs: [
-          { from: Q, text: 'Guten Morgen, Doktor! Ich habe großartige Neuigkeiten.' },
-          { from: Q, text: 'Die Proben von SCP-8041 sind stabil. Im Gegensatz zu meiner Geduld mit Hofstetter.' },
+          {
+            from: Q,
+            voice: 'timothy_quebec/guten_tag_maynard.mp3',
+            text: 'Guten Tag Maynard, du altes Haus. Weißt du, ich verstehe echt nicht, warum Frau Hofstetter hier noch arbeitet, die macht doch eh nichts… Achso, ich hab vergessen, was ich eigentlich sagen wollte.',
+          },
+          {
+            from: Q,
+            voice: 'timothy_quebec/jetzt_weiss_ichs_wieder.mp3',
+            text: 'Jetzt weiß ich wieder, was ich sagen wollte: Diese verdammte Frau hat meinen Joghurt aufgegessen. Da war sogar extra mein Name draufgeschrieben. Wie kann man nur so räudig sein?',
+          },
+          {
+            from: Q,
+            voice: 'timothy_quebec/lena_die_kleine.mp3',
+            text: 'Achso, dich interessiert bestimmt auch, wie es mit den SCP-Proben aussieht. Keine der Proben ist brauchbar, genau so wie Lena, die kleine Schlam–',
+          },
+          {
+            from: Q,
+            voice: 'timothy_quebec/und_jetzt_schrei_nicht_so.mp3',
+            text: 'Sorry für die vielen Sprachnachrichten, ich schaue nebenbei eine Serie, deswegen habe ich keine Lust zu schreiben. Gib mir Bescheid, wenn du dich entschieden hast, was du gegen Hofstetter unternimmst.',
+          },
         ],
         choices: [
-          { label: 'Was ist passiert?', reply: 'Was hat sie diesmal getan?', next: 'rant' },
-          { label: 'Zu den Proben.', reply: 'Erzählen Sie mir lieber von den Proben.', next: 'samples' },
+          { label: 'Ich rede mit ihr.', reply: 'Ich rede mit Hofstetter. Wegen des Joghurts.', next: 'rant' },
+          { label: 'Gar nichts.', reply: 'Ich unternehme gar nichts, Timothy.', next: 'defend' },
           { label: 'Ein Witz bitte.', reply: 'Ich brauche einen Witz, Timothy.', next: 'joke' },
         ],
       },
@@ -96,14 +116,6 @@ export const THREADS: Thread[] = [
         choices: [{ label: 'Viel Glück.', reply: 'Viel Glück damit.', next: 'luck' }],
       },
       luck: { msgs: [{ from: Q, text: 'Glück brauche ich nicht. Ich habe Bürokratie. Und Rachegelüste. Kleine. Professionelle.' }] },
-      samples: {
-        msgs: [
-          { from: Q, text: 'Langweilig, aber gut: keine Mutation, keine Ausbrüche, keine Tentakel.' },
-          { from: Q, text: 'Ich bin fast enttäuscht. Ich hatte mir schon einen Namen für die Tentakel ausgedacht.' },
-        ],
-        choices: [{ label: 'Welchen Namen?', reply: 'Welchen Namen denn?', next: 'name' }],
-      },
-      name: { msgs: [{ from: Q, text: 'Lena. Aus keinem bestimmten Grund. 😇' }] },
       joke: {
         msgs: [
           { from: Q, text: 'Warum hat SCP-173 keine Freunde?' },

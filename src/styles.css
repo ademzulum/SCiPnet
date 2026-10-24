@@ -5661,3 +5661,97 @@ button.skip {
 .crt[data-theme='scip'] .folder.admin-card {
   background-image: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--accent) 7%, transparent) 10px 20px), var(--surface);
 }
+
+/* ---- voice messages -------------------------------------------------- */
+
+.msg.voice-msg {
+  width: min(360px, 78%);
+  white-space: normal;
+}
+.voice {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.voice-play {
+  all: unset;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--bg);
+  background: var(--accent);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.voice-play:hover { transform: scale(1.06); }
+.voice-play:disabled { opacity: 0.4; cursor: default; }
+.voice-play svg { width: 16px; height: 16px; fill: currentColor; }
+.voice.playing .voice-play {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.voice-wave {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 30px;
+  cursor: pointer;
+}
+.voice-wave span {
+  flex: 1;
+  min-width: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--fg) 30%, transparent);
+  transition: background 0.15s;
+}
+.voice-wave span.on { background: var(--accent); }
+.voice.playing .voice-wave span.on:last-of-type { animation: none; }
+.voice-time {
+  flex: none;
+  min-width: 2.6em;
+  text-align: right;
+  font-size: 11px;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+.voice-transcript {
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed var(--line);
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+.voice-transcript .label {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+.caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: blink 0.8s steps(1) infinite;
+}
+.recording-bubble {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 12px;
+  opacity: 0.8;
+}
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5a5f;
+  animation: recpulse 1s ease-in-out infinite;
+}
+@keyframes recpulse {
+  50% { opacity: 0.25; transform: scale(0.8); }
+}

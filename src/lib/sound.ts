@@ -1,27 +1,30 @@
 // Small Web Audio player: buffers are decoded once, every play is a fresh
 // source so rapid clicks can overlap. Audio unlocks on the first key/click.
-import biometric from '../../sounds/biometric_scan.mp3';
-import click from '../../sounds/click.mp3';
-import enter from '../../sounds/enter.wav';
-import anthemUrl from '../../sounds/national_anthem.mp3';
-import frequencyFound from '../../sounds/frequency_found.mp3';
-import error from '../../sounds/error.wav';
-import commsLogin from '../../sounds/communications_hub_login.wav';
-import memetic from '../../sounds/memetic_agent_detected.wav';
-import selfDestruct from '../../sounds/self_destruct.mp3';
-import startup from '../../sounds/scipnet_startup.mp3';
-import negative from '../../sounds/ui_negative.mp3';
-import notify from '../../sounds/new_notify.mp3';
-import receivedMessage from '../../sounds/recieved_message.mp3';
-import sentMessage from '../../sounds/sent_message.mp3';
-import terminalNoise from '../../sounds/uiu_terminal_background_noise.mp3';
-import uiuSuccess from '../../sounds/uiu_success.wav';
-// Section sounds (files use an uppercase .MP3 extension, so import them as URLs).
-import tabArchive from '../../sounds/archive.MP3?url';
-import tabComms from '../../sounds/communications_hub.MP3?url';
-import tabOverview from '../../sounds/overview.MP3?url';
-import tabPersonnel from '../../sounds/personell_files.MP3?url';
-import tabReports from '../../sounds/field_reports.MP3?url';
+// sounds/ui: generic interface feedback
+import click from '../../sounds/ui/click.mp3';
+import enter from '../../sounds/ui/enter.wav';
+import error from '../../sounds/ui/error.wav';
+import negative from '../../sounds/ui/negative.mp3';
+import notify from '../../sounds/ui/notification.mp3';
+import receivedMessage from '../../sounds/ui/message_received.mp3';
+import sentMessage from '../../sounds/ui/message_sent.mp3';
+// sounds/uiu_terminal: the FBI field terminal and the breach
+import anthemUrl from '../../sounds/uiu_terminal/national_anthem.mp3';
+import frequencyFound from '../../sounds/uiu_terminal/frequency_found.mp3';
+import memetic from '../../sounds/uiu_terminal/memetic_agent_detected.wav';
+import terminalNoise from '../../sounds/uiu_terminal/background_noise.mp3';
+import uiuSuccess from '../../sounds/uiu_terminal/breach_success.wav';
+// sounds/scipnet: SCiPnet itself
+import biometric from '../../sounds/scipnet/biometric_scan.mp3';
+import commsLogin from '../../sounds/scipnet/comms_login.wav';
+import selfDestruct from '../../sounds/scipnet/self_destruct.mp3';
+import startup from '../../sounds/scipnet/startup.mp3';
+// sounds/tabs: one per dock section
+import tabArchive from '../../sounds/tabs/archive.mp3';
+import tabComms from '../../sounds/tabs/communications.mp3';
+import tabOverview from '../../sounds/tabs/overview.mp3';
+import tabPersonnel from '../../sounds/tabs/personnel_files.mp3';
+import tabReports from '../../sounds/tabs/field_reports.mp3';
 
 const URLS = { biometric, click, commsLogin, enter, error, frequencyFound, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, tabArchive, tabComms, tabOverview, tabPersonnel, tabReports, terminalNoise, uiuSuccess };
 export type SoundName = keyof typeof URLS;

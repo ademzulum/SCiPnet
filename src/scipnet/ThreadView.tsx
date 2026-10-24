@@ -1,12 +1,20 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { personById } from '../data/personnel';
-import { threadById, type Choice, type Thread } from '../data/threads';
+import { threadById, type Choice, type Msg, type Thread } from '../data/threads';
 import type { Go } from './routes';
 import { threadState, type ThreadState } from './session';
 import { initials } from './Comms';
 import Redacted from './Redacted';
 import { play } from '../lib/sound';
+
+// Voice messages: recordings in sounds/communications/<contact>/, keyed by that relative path.
+const VOICES = Object.fromEntries(
+  Object.entries(
+    import.meta.glob('../../sounds/communications/**/*', { eager: true, query: '?url', import: 'default' }) as Record<string, string>,
+  ).map(([path, url]) => [path.split('/communications/')[1], url]),
+);
+let playing: HTMLAudioElement | null = null; // one voice message at a time
 
 const clock = () => new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
@@ -19,6 +27,7 @@ export default function ThreadView({ id, go }: { id: string; go: Go }) {
 function Conversation({ t, go }: { t: Thread; go: Go }) {
   const [st, setSt] = useState<ThreadState>(() => threadState.get(t));
   const logRef = useRef<HTMLDivElement>(null);
+  const seen = useRef(st.log.length); // messages before this index were already there on open
   const contact = personById(t.contact);
 
   useEffect(() => {
@@ -29,7 +38,7 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
   useEffect(() => {
     const next = st.queue[0];
     if (!next) return;
-    const delay = next.from === 'me' ? 250 : Math.min(2400, 500 + next.text.length * 22);
+    const delay = next.from === 'me' ? 250 : next.voice ? 1800 : Math.min(2400, 500 + next.text.length * 22);
     const timer = setTimeout(() => {
       play(next.from === 'me' ? 'sentMessage' : 'receivedMessage', 0.7);
       setSt((s) => ({ ...s, log: [...s.log, { ...s.queue[0], time: clock() }], queue: s.queue.slice(1) }));
@@ -42,6 +51,7 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
   }, [st.log.length, st.queue.length]);
 
   const typing = st.queue.length > 0 && st.queue[0].from !== 'me';
+  const recording = typing && !!st.queue[0].voice;
   const node = t.nodes[st.node];
   const choices = st.queue.length ? undefined : node.choices;
   const ended = !st.queue.length && !node.choices;
@@ -56,7 +66,9 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
   };
 
   const reset = () => {
+    playing?.pause();
     threadState.reset(t.id);
+    seen.current = 0;
     setSt(threadState.get(t));
   };
 
@@ -103,21 +115,27 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
             {st.log.map((m, i) => (
               <motion.div
                 key={i}
-                className={m.from === 'me' ? 'msg me' : 'msg'}
+                className={m.from === 'me' ? 'msg me' : m.voice ? 'msg voice-msg' : 'msg'}
                 initial={{ opacity: 0, y: 8, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
               >
-                <Redacted text={m.text} />
+                {m.voice ? <VoiceMessage m={m} fresh={i >= seen.current} /> : <Redacted text={m.text} />}
                 {m.time && <span className="msg-time">{m.time}</span>}
               </motion.div>
             ))}
           </AnimatePresence>
-          {typing && (
-            <div className="msg typing-bubble" aria-label={`${contact?.name ?? 'Kontakt'} schreibt`}>
-              <span />
-              <span />
-              <span />
+          {recording ? (
+            <div className="msg recording-bubble" aria-label={`${contact?.name ?? 'Kontakt'} nimmt eine Sprachnachricht auf`}>
+              <span className="rec-dot" /> nimmt Sprachnachricht auf…
             </div>
+          ) : (
+            typing && (
+              <div className="msg typing-bubble" aria-label={`${contact?.name ?? 'Kontakt'} schreibt`}>
+                <span />
+                <span />
+                <span />
+              </div>
+            )
           )}
           {ended && <div className="chat-day">Verbindung beendet</div>}
         </div>
@@ -153,5 +171,92 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
         </div>
       </div>
     </div>
+  );
+}
+
+const BARS = 36;
+const fmtSec = (t: number) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
+
+// Player bubble with a waveform drawn from the file name (stable per message)
+// and the transcript underneath, which "types" itself when the message is new.
+function VoiceMessage({ m, fresh }: { m: Msg; fresh: boolean }) {
+  const url = VOICES[m.voice!];
+  const audio = useRef<HTMLAudioElement | null>(null);
+  const [on, setOn] = useState(false);
+  const [pos, setPos] = useState(0);
+  const [len, setLen] = useState(0);
+  const [shown, setShown] = useState(fresh ? 0 : m.text.length);
+
+  useEffect(() => {
+    if (!url) return;
+    const a = new Audio(url);
+    a.preload = 'metadata';
+    a.onloadedmetadata = () => setLen(a.duration);
+    a.ontimeupdate = () => setPos(a.currentTime);
+    a.onplay = () => setOn(true);
+    a.onpause = () => setOn(false);
+    a.onended = () => {
+      setOn(false);
+      setPos(0);
+    };
+    audio.current = a;
+    return () => a.pause();
+  }, [url]);
+
+  // transcript appears after a short "Transkribiere…" pause
+  useEffect(() => {
+    if (shown >= m.text.length) return;
+    const timer = setTimeout(() => setShown((n) => Math.min(m.text.length, n + 2)), shown === 0 ? 700 : 18);
+    return () => clearTimeout(timer);
+  }, [shown, m.text.length]);
+
+  const toggle = () => {
+    const a = audio.current;
+    if (!a) return;
+    if (!a.paused) return a.pause();
+    if (playing && playing !== a) playing.pause();
+    playing = a;
+    void a.play().catch(() => {});
+  };
+  const seek = (e: MouseEvent<HTMLDivElement>) => {
+    const a = audio.current;
+    if (!a || !len) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    a.currentTime = ((e.clientX - r.left) / r.width) * len;
+    setPos(a.currentTime);
+  };
+
+  const seed = [...(m.voice ?? '')].reduce((n, c) => n * 31 + c.charCodeAt(0), 7);
+  const progress = len ? pos / len : 0;
+
+  return (
+    <>
+      <div className={on ? 'voice playing' : 'voice'}>
+        <button className="voice-play" data-sound="none" onClick={toggle} disabled={!url} aria-label={on ? 'Pause' : 'Abspielen'}>
+          {on ? (
+            <svg viewBox="0 0 24 24" aria-hidden>
+              <rect x="6" y="5" width="4" height="14" rx="1" />
+              <rect x="14" y="5" width="4" height="14" rx="1" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" aria-hidden>
+              <path d="M8 5.5v13l11-6.5z" />
+            </svg>
+          )}
+        </button>
+        <div className="voice-wave" onClick={seek} role="presentation">
+          {Array.from({ length: BARS }, (_, i) => {
+            const h = 25 + (Math.abs(Math.sin(seed * 0.001 + i * 1.7) * 61 + Math.sin(i * 0.6) * 14) % 75);
+            return <span key={i} className={i / BARS < progress ? 'on' : ''} style={{ height: `${h}%` }} />;
+          })}
+        </div>
+        <span className="voice-time">{fmtSec(on || pos ? pos : len)}</span>
+      </div>
+      <div className="voice-transcript">
+        <span className="label">{shown < m.text.length && shown === 0 ? 'Transkribiere…' : 'Transkript'}</span>
+        <Redacted text={m.text.slice(0, shown)} />
+        {shown < m.text.length && shown > 0 && <span className="caret" />}
+      </div>
+    </>
   );
 }
