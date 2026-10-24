@@ -1,4 +1,5 @@
 import corvusFinch from '../../images/personell_pictures/corvus_finch.png';
+import duncanMaynard from '../../images/personell_pictures/duncan_maynard.png';
 // Personnel files. Text may contain [[...]] for redacted passages.
 
 export type Person = {
@@ -71,6 +72,7 @@ export const PERSONNEL: Person[] = [
   {
     id: 'P-80-0117',
     name: 'Dr. Duncan Maynard',
+    photo: duncanMaynard,
     role: 'Leitender Forscher',
     department: 'Anomalienforschung / RAISA-Verbindung',
     clearance: 'RAISA',
