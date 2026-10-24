@@ -18,7 +18,7 @@ import Archive, { ScpView } from './Archive';
 import Assistant from './Assistant';
 import Hack from './Hack';
 import Sessions from './Sessions';
-import { adminAccess, commsAuth, useAdminUnlocked } from './session';
+import { adminAccess, commsAuth, switchAccount, useAdminUnlocked } from './session';
 import { Bell, Toast, useNotifications } from './Notifications';
 import { play, type SoundName } from '../lib/sound';
 import { savedSession, SESSION_MS } from '../lib/persist';
@@ -294,7 +294,10 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
           <Hack
             key="hack"
             onActive={setHacking}
-            onWin={() => adminAccess.grant()}
+            onWin={() => {
+              adminAccess.grant();
+              switchAccount('admin'); // a win logs straight into the Administrator account
+            }}
             onOpen={() => {
               setHacking(false);
               setRoute({ view: 'admin' });

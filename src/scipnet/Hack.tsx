@@ -455,7 +455,7 @@ export default function Hack({
               <span className="hack-won-icon">✓</span>
               <div className="label">Administrator-Ebene</div>
               <h2>ZUGRIFF GEWÄHRT</h2>
-              <p className="dim">Signal durchgestellt. Der Administrator gewährt Ihnen Einblick in seine Akte.</p>
+              <p className="dim">Signal durchgestellt. Sie sind jetzt als Der Administrator angemeldet.</p>
               <p className="small hack-soon">[ GESPERRTE AKTEN SIND JETZT LESBAR ]</p>
               <button className="card action" onClick={onOpen}>
                 AKTE ÖFFNEN
