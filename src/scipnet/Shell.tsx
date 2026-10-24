@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import ScpLogo from '../components/ScpLogo';
+import scpLogo from '../../images/scp_logo.png';
 import { STOLEN } from '../lib/creds';
 import type { Route } from './routes';
 import Overview from './Overview';
@@ -184,6 +185,9 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       transition={{ duration: 0.7, times: [0, 0.55, 1], ease: 'easeIn' }}
       onAnimationComplete={() => destruct === 'collapse' && onLogout()}
     >
+      <div className="emboss" style={{ '--emboss-logo': `url(${scpLogo})` } as React.CSSProperties} aria-hidden>
+        <span />
+      </div>
       <header className="topbar">
         <div className="brand">
           <ScpLogo size={38} />

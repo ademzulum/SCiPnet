@@ -1,4 +1,9 @@
 // Field reports. Text may contain [[...]] for redacted passages.
+//
+// Each report follows the same structure (sections are optional, empty ones
+// are skipped): Ausgangslage, Verlauf (timeline), Maßnahmen, Bewertung.
+// Images: put files into images/reports/ and reference them by URL in `src`;
+// without `src` a placeholder frame with the caption is shown.
 
 export type Report = {
   id: string;
@@ -9,7 +14,12 @@ export type Report = {
   classification: 'Vertraulich' | 'Geheim' | 'Streng geheim';
   status: 'Offen' | 'Abgeschlossen';
   summary: string;
-  body: string[];
+  situation: string[]; // Ausgangslage
+  timeline?: { time: string; text: string }[]; // Verlauf
+  measures?: string[]; // Maßnahmen (bullet list)
+  assessment: string[]; // Bewertung und Empfehlung
+  images?: { src?: string; caption: string }[];
+  involved?: string[]; // personnel ids
 };
 
 export const REPORTS: Report[] = [
@@ -22,11 +32,16 @@ export const REPORTS: Report[] = [
     classification: 'Streng geheim',
     status: 'Offen',
     summary: 'Hinweise auf verdeckte Aufklärung durch eine staatliche Stelle.',
-    body: [
-      'Um 23:58 Uhr wurde ein schwaches Signal an der Netzwerkgrenze registriert. Ursprung nicht eindeutig bestimmbar.',
-      'Mehrere Indizien deuten auf die [[Behörde geschwärzt]]. RAISA wurde informiert.',
-      'Empfehlung: erhöhte Wachsamkeit bei Anmeldungen von Forschungspersonal.',
+    situation: ['Seit Anfang Oktober registriert die Netzwerküberwachung vereinzelte Verbindungsversuche von außerhalb der Foundation-Infrastruktur.'],
+    timeline: [
+      { time: '23:58', text: 'Schwaches Signal an der Netzwerkgrenze registriert. Ursprung nicht eindeutig bestimmbar.' },
+      { time: '00:04', text: 'Signal bricht ab. Muster ähnelt früheren Vorfällen.' },
+      { time: '07:30', text: 'Auswertung durch RAISA: Mehrere Indizien deuten auf die [[Behörde geschwärzt]].' },
     ],
+    measures: ['RAISA informiert und Überwachung der Netzwerkgrenze verdoppelt.', 'Anmeldungen von Forschungspersonal werden zusätzlich protokolliert.'],
+    assessment: ['Gezielte Aufklärung durch eine externe Stelle ist wahrscheinlich. Empfehlung: erhöhte Wachsamkeit bei Anmeldungen von Forschungspersonal.'],
+    images: [{ caption: 'Signalverlauf an der Netzwerkgrenze, 23:58 Uhr' }],
+    involved: ['P-80-0001', 'X-80-0003'],
   },
   {
     id: 'FB-80-2026-028',
@@ -37,11 +52,16 @@ export const REPORTS: Report[] = [
     classification: 'Geheim',
     status: 'Offen',
     summary: 'Drei Mitarbeiter können sich nicht an den Inhalt eines bestimmten Regals erinnern.',
-    body: [
-      'Archivbestand 7 enthält ein Regal, das in keinem Verzeichnis geführt wird.',
-      'Mitarbeiter, die das Regal betrachten, verlieren nach etwa 40 Sekunden jede Erinnerung daran.',
-      'Dr. Reyes führte eine Untersuchung mit antimemetischem Filter durch. Ergebnis: [[REDACTED]].',
+    situation: ['Archivbestand 7 enthält ein Regal, das in keinem Verzeichnis geführt wird.'],
+    timeline: [
+      { time: '09:15', text: 'Archivarin Hofstetter meldet ein Regal ohne Verzeichniseintrag.' },
+      { time: '09:40', text: 'Drei Mitarbeiter betrachten das Regal und verlieren nach etwa 40 Sekunden jede Erinnerung daran.' },
+      { time: '14:00', text: 'Dr. Reyes untersucht das Regal mit antimemetischem Filter. Ergebnis: [[REDACTED]].' },
     ],
+    measures: ['Archiv 7 bis auf Weiteres gesperrt.', 'Zutritt nur mit Filter und zweiter Begleitperson.'],
+    assessment: ['Antimemetische Eigenschaft bestätigt. Weitere Untersuchung erforderlich.'],
+    images: [{ caption: 'Archiv 7, Regal ohne Verzeichniseintrag' }, { caption: 'Filteraufnahme, Dr. Reyes' }],
+    involved: ['P-80-1024', 'P-80-0588'],
   },
   {
     id: 'FB-80-2026-019',
@@ -52,11 +72,16 @@ export const REPORTS: Report[] = [
     classification: 'Vertraulich',
     status: 'Abgeschlossen',
     summary: 'Wiederkehrende Lichter über einem Waldsee. Ursache geborgen und eingedämmt.',
-    body: [
-      'Anwohner meldeten über drei Wochen hinweg blaue Lichter über einem Waldsee.',
-      'Das Bergungsteam fand am Seegrund ein metallisches Objekt mit gleichmäßigem Puls.',
-      'Objekt nach Site-80 überführt. Zivile Zeugen erhielten Amnestika Klasse A.',
+    situation: ['Anwohner meldeten über drei Wochen hinweg blaue Lichter über einem Waldsee.'],
+    timeline: [
+      { time: '21:00', text: 'Einsatzteam erreicht den See. Lichter in regelmäßigen Abständen sichtbar.' },
+      { time: '23:40', text: 'Bergungsteam findet am Seegrund ein metallisches Objekt mit gleichmäßigem Puls.' },
+      { time: '03:10', text: 'Objekt geborgen und nach Site-80 überführt.' },
     ],
+    measures: ['Zivile Zeugen erhielten Amnestika Klasse A.', 'Deckgeschichte: Untersuchung von Methangas am Seeufer.'],
+    assessment: ['Objekt eingedämmt als SCP-8041. Fall abgeschlossen.'],
+    images: [{ caption: 'Waldsee bei Nacht, Lichter über der Wasseroberfläche' }, { caption: 'Bergung des Objekts' }],
+    involved: ['P-80-0342'],
   },
   {
     id: 'FB-80-2026-011',
@@ -67,11 +92,16 @@ export const REPORTS: Report[] = [
     classification: 'Geheim',
     status: 'Abgeschlossen',
     summary: 'Kurzzeitiger Ausfall der Eindämmung während Routinewartung.',
-    body: [
-      'Während einer Wartung fiel die Stromversorgung von Zelle 14-B für 11 Sekunden aus.',
-      'Das Objekt zeigte in dieser Zeit keine Aktivität. Die Aufzeichnung zeigt jedoch [[Inhalt entfernt]].',
-      'Wartungsprotokolle wurden angepasst. Keine Verletzten.',
+    situation: ['Routinewartung der Stromversorgung in Sektor 14.'],
+    timeline: [
+      { time: '10:12', text: 'Stromversorgung von Zelle 14-B fällt für 11 Sekunden aus.' },
+      { time: '10:13', text: 'Notstrom greift. Das Objekt zeigt keine Aktivität.' },
+      { time: '11:30', text: 'Auswertung der Aufzeichnung zeigt jedoch [[Inhalt entfernt]].' },
     ],
+    measures: ['Wartungsprotokolle angepasst.', 'Wartung nur noch mit zweitem, unabhängigem Stromkreis.'],
+    assessment: ['Keine Verletzten. Ursache des Aufzeichnungsinhalts ungeklärt.'],
+    images: [{ caption: 'Kamera 3, Zelle 14-B, 10:12 Uhr' }],
+    involved: ['P-80-0117'],
   },
 ];
 

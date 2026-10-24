@@ -4811,7 +4811,6 @@ button.skip {
   letter-spacing: 0.22em;
   text-transform: uppercase;
   white-space: nowrap;
-  transform: rotate(-6deg);
   opacity: 0.9;
   box-shadow: 0 0 18px color-mix(in srgb, var(--cl) 25%, transparent);
 }
@@ -4920,7 +4919,6 @@ button.skip {
     align-self: flex-start;
     font-size: 11px;
     letter-spacing: 0.14em;
-    transform: rotate(-3deg);
   }
   .rv-text {
     padding: 1rem;
@@ -4986,4 +4984,157 @@ button.skip {
   place-items: center;
   padding: 0 1rem;
   border-radius: var(--radius);
+}
+
+/* report sections, numbered by CSS counters */
+.rv-text {
+  counter-reset: rv-sec;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+.rv-section h3 {
+  counter-increment: rv-sec;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+}
+.rv-section h3::before {
+  content: counter(rv-sec);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  font-size: 11px;
+  color: var(--cl);
+  border: 1px solid color-mix(in srgb, var(--cl) 60%, transparent);
+}
+.rv-sec-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 15px;
+  line-height: 1.7;
+}
+/* Verlauf: timestamps on a vertical line */
+.rv-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 0.4rem;
+  border-left: 2px solid color-mix(in srgb, var(--cl) 45%, transparent);
+}
+.rv-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 0.6rem;
+  padding: 0.35rem 0 0.35rem 0.8rem;
+}
+.rv-timeline li::before {
+  content: '';
+  position: absolute;
+  left: -0.4rem;
+  top: 0.95rem;
+  width: 9px;
+  height: 9px;
+  margin-left: -5.5px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--cl);
+}
+.rv-timeline time {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--cl);
+  padding-top: 0.2rem;
+}
+.rv-list {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+.rv-list li::marker {
+  color: var(--cl);
+}
+/* Bildmaterial: real images or placeholder frames */
+.rv-images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+.rv-images figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.rv-images img,
+.rv-img-empty {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  object-fit: cover;
+}
+.rv-img-empty {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  border-style: dashed;
+  background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--fg) 3%, transparent) 0 8px, transparent 8px 16px);
+}
+.rv-img-empty svg {
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+.rv-images figcaption {
+  font-size: 11px;
+  opacity: 0.65;
+}
+.rv-people {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+@media (max-width: 720px) {
+  .rv-timeline li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
+
+/* ---- embossed Foundation emblem behind SCiPnet ---------------------------- */
+/* Outer element casts the highlight/shadow pair, inner one is the logo cut out
+   of a fill just above the background (mask), so it reads as pressed relief. */
+.emboss {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  filter: drop-shadow(-1px -1px 0 rgba(255, 255, 255, 0.07)) drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.85));
+}
+.emboss span {
+  width: min(70vmin, 640px);
+  aspect-ratio: 1;
+  background: color-mix(in srgb, var(--fg) 4%, var(--bg));
+  -webkit-mask: var(--emboss-logo) center / contain no-repeat;
+  mask: var(--emboss-logo) center / contain no-repeat;
+}
+.shell {
+  isolation: isolate; /* lets the emblem sit at z-index -1 above the CRT background */
 }
