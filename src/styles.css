@@ -1959,7 +1959,10 @@ button.skip {
   position: relative;
   overflow: hidden;
   border-color: var(--accent) !important;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent) !important;
+  background:
+    repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--accent) 7%, transparent) 10px 20px),
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent),
+    color-mix(in srgb, color-mix(in srgb, var(--fg) 4%, var(--bg)) 90%, transparent) !important;
   animation: cardglitch 2.2s infinite, borderpulse 1.1s steps(2) infinite;
 }
 .admin-card .corrupt::before,
@@ -5298,13 +5301,15 @@ button.skip {
 }
 /* Locked entries keep their warning stripes on top of the solid surface. */
 .crt[data-theme='scip'] .scp-card.locked,
-.crt[data-theme='scip'] .admin-card {
+.crt[data-theme='scip'] .admin-card,
+.crt[data-theme='scip'] .locked-box,
+.crt[data-theme='scip'] .denied-doc {
   background-image: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--accent) 7%, transparent) 10px 20px),
     var(--surface);
 }
 .crt[data-theme='scip'] .dock,
 .crt[data-theme='scip'] .topbar {
-  background-color: var(--bg);
+  background-color: color-mix(in srgb, var(--bg) 90%, transparent);
 }
 .crt[data-theme='scip'][data-mode='light'] .box,
 .crt[data-theme='scip'][data-mode='light'] .card,
