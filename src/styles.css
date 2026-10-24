@@ -5126,12 +5126,16 @@ button.skip {
   display: grid;
   place-items: center;
   pointer-events: none;
-  filter: drop-shadow(-1px -1px 0 rgba(255, 255, 255, 0.07)) drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.85));
+  /* debossed: dark rim on the upper left, light rim on the lower right */
+  filter: drop-shadow(-1.5px -1.5px 0.5px rgba(0, 0, 0, 0.9)) drop-shadow(1px 1px 0 rgba(255, 255, 255, 0.09));
 }
 .emboss span {
   width: min(70vmin, 640px);
   aspect-ratio: 1;
-  background: color-mix(in srgb, var(--fg) 4%, var(--bg));
+  /* recessed fill with a faint brushed-metal sheen */
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0%, transparent 40%, rgba(255, 255, 255, 0.04) 55%, transparent 70%),
+    color-mix(in srgb, #000 35%, var(--bg));
   -webkit-mask: var(--emboss-logo) center / contain no-repeat;
   mask: var(--emboss-logo) center / contain no-repeat;
 }
@@ -5226,10 +5230,12 @@ button.skip {
   box-shadow: 0 1px 2px rgba(20, 30, 40, 0.06);
 }
 .crt[data-mode='light'] .emboss {
-  filter: drop-shadow(-1px -1px 0 rgba(255, 255, 255, 0.9)) drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.12));
+  filter: drop-shadow(-1.5px -1.5px 0.5px rgba(20, 30, 40, 0.28)) drop-shadow(1px 1px 0 rgba(255, 255, 255, 1));
 }
 .crt[data-mode='light'] .emboss span {
-  background: color-mix(in srgb, var(--fg) 5%, var(--bg));
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, transparent 45%, rgba(255, 255, 255, 0.4) 60%, transparent 75%),
+    color-mix(in srgb, var(--fg) 7%, var(--bg));
 }
 .crt[data-mode='light'] .scp-logo {
   filter: none;
@@ -5256,4 +5262,41 @@ button.skip {
 }
 .notify-actions {
   white-space: nowrap;
+}
+
+/* Opaque surfaces: panels must not let the emblem or anything behind shine
+   through, or their text gets hard to read. */
+.crt[data-theme='scip'] {
+  --surface: linear-gradient(180deg, #13181c, #0f1316);
+}
+.crt[data-theme='scip'][data-mode='light'] {
+  --surface: linear-gradient(180deg, #ffffff, #f6f8fa);
+}
+.crt[data-theme='scip'] .box,
+.crt[data-theme='scip'] .card,
+.crt[data-theme='scip'] .chip,
+.crt[data-theme='scip'] .report-card,
+.crt[data-theme='scip'] .scp-card,
+.crt[data-theme='scip'] .linked-scp,
+.crt[data-theme='scip'] .notify-panel,
+.crt[data-theme='scip'] .toast,
+.crt[data-theme='scip'] .msg {
+  background-color: color-mix(in srgb, var(--fg) 4%, var(--bg));
+}
+.crt[data-theme='scip'] .box,
+.crt[data-theme='scip'] .card,
+.crt[data-theme='scip'] .report-card,
+.crt[data-theme='scip'] .scp-card,
+.crt[data-theme='scip'] .linked-scp {
+  background-image: var(--surface);
+}
+.crt[data-theme='scip'] .dock,
+.crt[data-theme='scip'] .topbar {
+  background-color: var(--bg);
+}
+.crt[data-theme='scip'][data-mode='light'] .box,
+.crt[data-theme='scip'][data-mode='light'] .card,
+.crt[data-theme='scip'][data-mode='light'] .chip,
+.crt[data-theme='scip'][data-mode='light'] .msg {
+  background-color: #ffffff;
 }
