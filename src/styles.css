@@ -6049,3 +6049,123 @@ button.skip {
 @media (prefers-reduced-motion: reduce) {
   .cg-scope span { animation: none; }
 }
+
+/* ---- reply composer: fixed height, so the chat above never jumps ------ */
+
+.composer {
+  min-height: 9.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.composer .label {
+  margin: 0;
+}
+.composer .choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.composer .choices.n1 {
+  grid-template-columns: minmax(0, 1fr);
+}
+.composer .choice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.6rem;
+  box-sizing: border-box;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+  transition: border-color 0.2s, background 0.2s;
+}
+.composer .choice:hover,
+.composer .choice:focus-visible {
+  transform: none;
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.choice-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.choice-arrow {
+  font-size: 11px;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.composer .choice:hover .choice-arrow {
+  opacity: 1;
+  transform: none;
+}
+.composer .choice:hover .choice-key {
+  border-color: var(--accent);
+  color: var(--accent);
+  opacity: 1;
+}
+.composer-state {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.composer-state .waiting {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.typing-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+.typing-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: typing 1s ease-in-out infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+.reset-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 1rem;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  transition: background 0.2s, color 0.2s;
+}
+.reset-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.reset-btn:hover {
+  color: var(--bg);
+  background: var(--accent);
+}
+.reset-btn:hover svg {
+  transform: rotate(-300deg);
+}
+@media (max-width: 560px) {
+  .composer .choices { grid-template-columns: minmax(0, 1fr); }
+  .composer { min-height: 0; }
+}

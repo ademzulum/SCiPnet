@@ -179,8 +179,8 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
           </AnimatePresence>
           {choices?.length ? (
             <>
-              <div className="label">Antwort wählen</div>
-              <div className="choices">
+              <div className="label">Antwort wählen · Taste 1–{choices.length}</div>
+              <div className={`choices n${choices.length}`}>
                 {choices.map((c, i) => (
                   <motion.button
                     key={c.label}
@@ -192,17 +192,38 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
                     transition={{ delay: i * 0.06 }}
                   >
                     <span className="choice-key">{i + 1}</span>
-                    {c.label}
+                    <span className="choice-text">{c.label}</span>
+                    <span className="choice-arrow" aria-hidden>
+                      ➤
+                    </span>
                   </motion.button>
                 ))}
               </div>
             </>
           ) : ended ? (
-            <button className="link small" onClick={reset}>
-              Verlauf zurücksetzen
-            </button>
+            <div className="composer-state">
+              <div>
+                <div className="label">Verbindung beendet</div>
+                <div className="dim small">{contact?.name ?? 'Der Kontakt'} hat das Gespräch beendet.</div>
+              </div>
+              <button className="reset-btn" onClick={reset}>
+                <svg viewBox="0 0 24 24" aria-hidden>
+                  <path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5" />
+                </svg>
+                NEU STARTEN
+              </button>
+            </div>
           ) : (
-            <div className="dim small">Warte auf Antwort…</div>
+            <div className="composer-state">
+              <div className="dim small waiting">
+                <span className="typing-dots" aria-hidden>
+                  <span />
+                  <span />
+                  <span />
+                </span>
+                {contact?.name ?? 'Kontakt'} {typing ? (recording ? 'nimmt auf' : 'schreibt') : 'ist dran'}…
+              </div>
+            </div>
           )}
         </div>
       </div>
