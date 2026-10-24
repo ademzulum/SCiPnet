@@ -36,7 +36,7 @@ export const REPORTS: Report[] = [
     timeline: [
       { time: '23:58', text: 'Schwaches Signal an der Netzwerkgrenze registriert. Ursprung nicht eindeutig bestimmbar.' },
       { time: '00:04', text: 'Signal bricht ab. Muster ähnelt früheren Vorfällen.' },
-      { time: '07:30', text: 'Auswertung durch RAISA: Mehrere Indizien deuten auf die [[Behörde geschwärzt]].' },
+      { time: '07:30', text: 'Auswertung durch RAISA: Mehrere Indizien deuten auf die [[Unusual Incidents Unit des FBI]].' },
     ],
     measures: ['RAISA informiert und Überwachung der Netzwerkgrenze verdoppelt.', 'Anmeldungen von Forschungspersonal werden zusätzlich protokolliert.'],
     assessment: ['Gezielte Aufklärung durch eine externe Stelle ist wahrscheinlich. Empfehlung: erhöhte Wachsamkeit bei Anmeldungen von Forschungspersonal.'],
@@ -56,7 +56,7 @@ export const REPORTS: Report[] = [
     timeline: [
       { time: '09:15', text: 'Archivarin Hofstetter meldet ein Regal ohne Verzeichniseintrag.' },
       { time: '09:40', text: 'Drei Mitarbeiter betrachten das Regal und verlieren nach etwa 40 Sekunden jede Erinnerung daran.' },
-      { time: '14:00', text: 'Dr. Reyes untersucht das Regal mit antimemetischem Filter. Ergebnis: [[REDACTED]].' },
+      { time: '14:00', text: 'Dr. Reyes untersucht das Regal mit antimemetischem Filter. Ergebnis: [[sieben Fächer, in jedem eine Personalakte von Site-80, darunter seine eigene]].' },
     ],
     measures: ['Archiv 7 bis auf Weiteres gesperrt.', 'Zutritt nur mit Filter und zweiter Begleitperson.'],
     assessment: ['Antimemetische Eigenschaft bestätigt. Weitere Untersuchung erforderlich.'],
@@ -68,7 +68,7 @@ export const REPORTS: Report[] = [
     title: 'Lichtphänomene im Schwarzwald',
     date: '2026-06-03',
     author: 'P-80-0342',
-    location: 'Schwarzwald, nahe [[Ortschaft entfernt]]',
+    location: 'Schwarzwald, nahe [[Triberg]]',
     classification: 'Vertraulich',
     status: 'Abgeschlossen',
     summary: 'Wiederkehrende Lichter über einem Waldsee. Ursache geborgen und eingedämmt.',
@@ -96,7 +96,7 @@ export const REPORTS: Report[] = [
     timeline: [
       { time: '10:12', text: 'Stromversorgung von Zelle 14-B fällt für 11 Sekunden aus.' },
       { time: '10:13', text: 'Notstrom greift. Das Objekt zeigt keine Aktivität.' },
-      { time: '11:30', text: 'Auswertung der Aufzeichnung zeigt jedoch [[Inhalt entfernt]].' },
+      { time: '11:30', text: 'Auswertung der Aufzeichnung zeigt jedoch [[eine zweite Gestalt in Zelle 14-B, die vor dem Ausfall nicht da war]].' },
     ],
     measures: ['Wartungsprotokolle angepasst.', 'Wartung nur noch mit zweitem, unabhängigem Stromkreis.'],
     assessment: ['Keine Verletzten. Ursache des Aufzeichnungsinhalts ungeklärt.'],

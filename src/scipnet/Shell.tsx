@@ -208,7 +208,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       transition={{ duration: 0.7, times: [0, 0.55, 1], ease: 'easeIn' }}
       onAnimationComplete={() => destruct === 'collapse' && onLogout()}
     >
-      <div className="emboss" style={{ '--emboss-logo': `url(${scpLogo})` } as React.CSSProperties} aria-hidden>
+      <div className="emboss" style={{ '--emboss-logo': `url("${scpLogo}")` } as React.CSSProperties} aria-hidden>
         <span />
       </div>
       <header className="topbar">

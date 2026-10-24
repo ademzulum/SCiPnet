@@ -5614,7 +5614,6 @@ button.skip {
 }
 
 /* redactions: the Administrator can lift them */
-.redact { display: inline-block; }
 .redact.can-reveal {
   cursor: pointer;
   transition: box-shadow 0.15s;
@@ -5626,8 +5625,7 @@ button.skip {
   animation: redactdeny 0.4s;
 }
 @keyframes redactdeny {
-  20%, 60% { transform: translateX(-3px); background: var(--warn, #ff4b3a); }
-  40%, 80% { transform: translateX(3px); }
+  20%, 60% { background: var(--warn, #ff4b3a); color: var(--warn, #ff4b3a); }
 }
 .declassified {
   color: #b58cff;
@@ -5802,30 +5800,22 @@ button.skip {
   align-items: center;
 }
 .brain-stage {
-  position: relative;
-  aspect-ratio: 511 / 456;
   color: var(--fg);
 }
-.brain-svg,
-.brain-art {
-  position: absolute;
-  inset: 0;
+.brain-svg {
+  display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
 }
-/* the supplied line art, tinted with the theme colour through a mask */
+/* the supplied line art, in the theme colour */
 .brain-art {
-  background: var(--fg);
+  fill: currentColor;
   opacity: 0.85;
   pointer-events: none;
-  mask-size: 100% 100%;
-  -webkit-mask-size: 100% 100%;
 }
-.brain-top {
+.brain-sweep,
+.brain-line {
   pointer-events: none;
-}
-.brain-top .brain-node {
-  pointer-events: auto;
 }
 .brain-region {
   fill: transparent;
@@ -5857,7 +5847,6 @@ button.skip {
 }
 .brain-line {
   stroke: var(--accent);
-  stroke-width: 1;
 }
 .brain-side {
   display: flex;

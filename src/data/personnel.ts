@@ -38,14 +38,14 @@ export const PERSONNEL: Person[] = [
     summary:
       'Leitet Site-80 seit der Neustrukturierung von 2014. Verantwortlich für sämtliche Eindämmungs- und Forschungsprotokolle am Standort.',
     notes: [
-      'Hat die Zusammenarbeit mit [[Dienststelle entfernt]] im Jahr 2019 persönlich beendet.',
+      'Hat die Zusammenarbeit mit [[der Global Occult Coalition]] im Jahr 2019 persönlich beendet.',
       'Zugriff auf O5-Korrespondenz über gesicherten Kanal.',
     ],
     timeline: [
-      { year: '2009', text: 'Eintritt als Forscherin, Site-[[XX]].' },
+      { year: '2009', text: 'Eintritt als Forscherin, Site-[[19]].' },
       { year: '2012', text: 'Beförderung zur Abteilungsleiterin Eindämmungstechnik.' },
       { year: '2014', text: 'Ernennung zur Standortdirektorin von Site-80.' },
-      { year: '2019', text: 'Leitung der internen Untersuchung [[Akte entfernt]].' },
+      { year: '2019', text: 'Leitung der internen Untersuchung [[zum Verschwinden von Seite 4, Akte 80-117]].' },
     ],
     psych: {
       access: 'denied',
@@ -79,7 +79,7 @@ export const PERSONNEL: Person[] = [
       'Verbindungsoffizier zwischen der Forschungsabteilung und RAISA. Verwaltet die Aktenführung zu Feldeinsätzen in Mitteleuropa.',
     notes: [
       'Letzte Anmeldung von ungewöhnlichem Endpunkt. Sicherheitsprüfung angeordnet.',
-      'Ausbildung: Promotion in Informationswissenschaft, [[Universität geschwärzt]].',
+      'Ausbildung: Promotion in Informationswissenschaft, [[Universität Heidelberg]].',
     ],
     timeline: [
       { year: '2016', text: 'Rekrutierung nach Kontakt mit einem anomalen Dokument.' },
@@ -95,7 +95,7 @@ export const PERSONNEL: Person[] = [
       text: [
         'Ruhig, methodisch, neigt zu übermäßiger Dokumentation.',
         'Zeigt geringe Toleranz gegenüber unvollständigen Akten.',
-        'Empfehlung: keine Einschränkungen. [[Nachtrag entfernt]].',
+        'Empfehlung: keine Einschränkungen. [[Nachtrag RAISA: Kontakte zur UIU sind unverzüglich zu melden]].',
       ],
     },
     incidents: ['2021: Verspätete Abgabe eines Berichts. Ermahnung.'],
@@ -110,9 +110,9 @@ export const PERSONNEL: Person[] = [
     since: '2018',
     quote: 'Rein, raus, keiner merkt was.',
     summary: 'Leitet die Bergungsteams im süddeutschen Raum. Über 40 erfolgreiche Bergungen ohne zivile Zwischenfälle.',
-    notes: ['Ausgezeichnet nach Vorfall [[Akte 80-17]].'],
+    notes: ['Ausgezeichnet nach Vorfall [[80-17, Eindämmungsbruch in Sektor 9]].'],
     timeline: [
-      { year: '2014', text: 'Dienst bei der Bundespolizei, GSG [[geschwärzt]].' },
+      { year: '2014', text: 'Dienst bei der Bundespolizei, GSG [[9]].' },
       { year: '2018', text: 'Rekrutierung durch die Foundation.' },
       { year: '2021', text: 'Einsatzleiterin der Bergungsteams Süd.' },
       { year: '2026', text: 'Bergung im Schwarzwald (FB-80-2026-019).' },
@@ -139,7 +139,7 @@ export const PERSONNEL: Person[] = [
     since: '2020',
     quote: 'Man kann nicht vergessen, was man nie gesehen hat. Oder?',
     summary: 'Spezialist für antimemetische Filter. Derzeit beurlaubt bis zum Abschluss einer kognitiven Beurteilung.',
-    notes: ['Beurlaubung angeordnet nach Feldbericht FB-80-2026-028.', 'Wiedereingliederung geplant: [[Datum entfernt]].'],
+    notes: ['Beurlaubung angeordnet nach Feldbericht FB-80-2026-028.', 'Wiedereingliederung geplant: [[03.11.2026]].'],
     timeline: [
       { year: '2020', text: 'Eintritt in die Abteilung Memetik.' },
       { year: '2024', text: 'Entwicklung eines tragbaren antimemetischen Filters.' },
@@ -153,7 +153,7 @@ export const PERSONNEL: Person[] = [
       text: [
         'Seit Archiv 7: wiederholte Fragen nach Personen, die nicht existieren.',
         'Schreibt Notizen an sich selbst, die er später nicht erkennt.',
-        'Beurteilung: [[REDACTED]].',
+        'Beurteilung: [[antimemetische Kontamination durch SCP-8007, Rückkehr in den Dienst nicht empfohlen]].',
       ],
     },
     incidents: ['2026: Unerlaubtes Mitnehmen eines Filterprototyps nach Hause.'],

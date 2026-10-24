@@ -45,7 +45,7 @@ export const SCP: ScpObject[] = [
         title: 'Testprotokoll 80-041-T3',
         body: [
           'Wassertemperatur auf 12 °C erhöht. Pulsintervall sank auf 19 Minuten.',
-          'Test nach [[Vorfall geschwärzt]] abgebrochen.',
+          'Test nach [[Vorfall 80-041-Δ (Verlust einer Messsonde)]] abgebrochen.',
         ],
       },
     ],
@@ -67,7 +67,7 @@ export const SCP: ScpObject[] = [
       'SCP-8007 ist ein Stahlregal mit sieben Fächern in Archiv 7 von Site-80.',
       'Personen, die SCP-8007 betrachten, verlieren nach etwa 40 Sekunden jede Erinnerung daran.',
       'Der Inhalt der Fächer ist unbekannt. Drei Versuche, ihn zu dokumentieren, ergaben leere Seiten.',
-      'Auf einer dieser Seiten fand sich nachträglich der Satz: [[REDACTED]].',
+      'Auf einer dieser Seiten fand sich nachträglich der Satz: [[„Ihr habt mich gelesen. Jetzt lese ich euch.“]].',
     ],
     addenda: [
       {
