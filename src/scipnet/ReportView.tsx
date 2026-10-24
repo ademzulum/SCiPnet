@@ -13,90 +13,98 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
   const author = personById(r.author);
   const scp = scpForReport(r.id);
 
+  const paragraphs = r.body.length;
+
   return (
-    <div className="page">
+    <div className="page page-wide page-top">
       <button className="link back" onClick={() => go({ view: 'reports' })}>
         ← Feldberichte
       </button>
 
-      <article className={`report-doc cl-${classKey(r.classification)}`}>
-        <header className="box report-head">
-          <div>
-            <div className="label">Feldbericht · {r.id}</div>
+      <article className={`report-doc rv cl-${classKey(r.classification)}`}>
+        <header className="box rv-head">
+          <div className="rv-head-text">
+            <div className="label">
+              Feldbericht · {r.id} · {paragraphs} Abschnitte
+            </div>
             <h2>{r.title}</h2>
+            <p className="dim">{r.summary}</p>
           </div>
-          <span className="stamp">{r.classification}</span>
+          <span className="rv-stamp" aria-label={`Klassifizierung: ${r.classification}`}>
+            {r.classification}
+          </span>
         </header>
 
-        <div className="report-meta">
-          <div className="box meta-tile">
-            <span className="label">Datum</span>
-            <strong>{new Date(r.date).toLocaleDateString('de-DE')}</strong>
-          </div>
-          <div className="box meta-tile">
-            <span className="label">Einsatzort</span>
-            <strong>
-              <Redacted text={r.location} />
-            </strong>
-          </div>
-          <div className="box meta-tile">
-            <span className="label">Status</span>
-            <span className={`status status-${r.status}`}>{r.status}</span>
-          </div>
-        </div>
+        <div className="rv-body">
+          <aside className="rv-aside">
+            <dl className="box rv-facts">
+              <div>
+                <dt>Datum</dt>
+                <dd>{new Date(r.date).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })}</dd>
+              </div>
+              <div>
+                <dt>Einsatzort</dt>
+                <dd>
+                  <Redacted text={r.location} />
+                </dd>
+              </div>
+              <div>
+                <dt>Status</dt>
+                <dd>
+                  <span className={`status status-${r.status}`}>{r.status}</span>
+                </dd>
+              </div>
+              <div>
+                <dt>Klassifizierung</dt>
+                <dd className="rv-cl">{r.classification}</dd>
+              </div>
+            </dl>
 
-        <div className="box callout">
-          <span className="label">Zusammenfassung</span>
-          <p>{r.summary}</p>
-        </div>
+            {scp && (
+              <button className={`box linked-scp class-edge-${scp.objectClass}`} onClick={() => go({ view: 'scp', id: scp.id })}>
+                <span>
+                  <span className="label">Verknüpftes Objekt</span>
+                  <strong>{scp.id}</strong>
+                  <span className="dim small">{scp.name}</span>
+                </span>
+                <ClassBadge c={scp.objectClass} />
+              </button>
+            )}
 
-        <section className="box doc-section">
-          <h3>Bericht</h3>
-          <ol className="paragraphs">
-            {r.body.map((para, i) => (
-              <li key={i}>
-                <span className="para-num">§{i + 1}</span>
-                <p>
-                  <Redacted text={para} />
-                </p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {scp && (
-          <button className={`box linked-scp class-edge-${scp.objectClass}`} onClick={() => go({ view: 'scp', id: scp.id })}>
-            <span>
-              <span className="label">Verknüpftes Objekt</span>
-              <strong>
-                {scp.id} · {scp.name}
-              </strong>
-            </span>
-            <ClassBadge c={scp.objectClass} />
-            <span className="linked-arrow">→</span>
-          </button>
-        )}
-
-        <footer className="box signature">
-          <div className="sig-author">
-            <span className="avatar">{initials(author?.name ?? '?')}</span>
-            <div>
+            <div className="box rv-sign">
               <span className="label">Gezeichnet</span>
-              {author ? (
-                <button className="link sig-name" onClick={() => go({ view: 'person', id: author.id })}>
-                  {author.name}
-                </button>
-              ) : (
-                r.author
-              )}
-              <div className="dim small">{author?.role}</div>
+              <div className="sig-author">
+                <span className="avatar">{initials(author?.name ?? '?')}</span>
+                <div>
+                  {author ? (
+                    <button className="link sig-name" onClick={() => go({ view: 'person', id: author.id })}>
+                      {author.name}
+                    </button>
+                  ) : (
+                    r.author
+                  )}
+                  <div className="dim small">{author?.role}</div>
+                </div>
+              </div>
+              <span className="dim small">Verteiler: Standortleitung · RAISA · Archiv</span>
             </div>
-          </div>
-          <div className="sig-dist">
-            <span className="label">Verteiler</span>
-            <span className="small">Standortleitung · RAISA · Archiv</span>
-          </div>
-        </footer>
+          </aside>
+
+          <section className="box rv-text">
+            <h3>Bericht</h3>
+            <ol className="rv-paras">
+              {r.body.map((para, i) => (
+                <li key={i}>
+                  <span className="rv-num">§{String(i + 1).padStart(2, '0')}</span>
+                  <p>
+                    <Redacted text={para} />
+                  </p>
+                </li>
+              ))}
+            </ol>
+            <p className="rv-end">— Ende des Berichts —</p>
+          </section>
+        </div>
       </article>
     </div>
   );

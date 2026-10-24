@@ -18,6 +18,9 @@ export function ReportRow({ report: r, go }: { report: Report; go: Go }) {
       <span className="row-meta">
         <span className="dim small">{fmt(r.date)}</span>
         <span className={`status status-${r.status}`}>{r.status}</span>
+        <span className="row-arrow" aria-hidden>
+          →
+        </span>
       </span>
     </button>
   );
