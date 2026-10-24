@@ -23,6 +23,29 @@ import { adminAccess, commsAuth, switchAccount, useAdminUnlocked } from './sessi
 import { Bell, Toast, useNotifications } from './Notifications';
 import { play, type SoundName } from '../lib/sound';
 import { savedSession, SESSION_MS } from '../lib/persist';
+import { setPref, usePrefs } from '../lib/prefs';
+
+function ThemeToggle() {
+  const { light } = usePrefs();
+  return (
+    <button
+      className="bell theme-toggle"
+      onClick={() => setPref('light', !light)}
+      title={light ? 'Dunkles Design' : 'Helles Design'}
+      aria-label={light ? 'Dunkles Design' : 'Helles Design'}
+    >
+      <svg viewBox="0 0 24 24" aria-hidden>
+        <path
+          d={
+            light
+              ? 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z'
+              : 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M12 2v2 M12 20v2 M4.9 4.9l1.4 1.4 M17.7 17.7l1.4 1.4 M2 12h2 M20 12h2 M4.9 19.1l1.4-1.4 M17.7 6.3l1.4-1.4'
+          }
+        />
+      </svg>
+    </button>
+  );
+}
 
 const WARN_S = 30;
 
@@ -208,6 +231,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
           <span className="hdr-sep" />
           <Clock />
           <span className="hdr-sep" />
+          <ThemeToggle />
           <Bell api={notes} go={go} disabled={locked} />
           <Sessions disabled={locked} onAdmin={() => go(adminSolved ? { view: 'admin' } : { view: 'hack' })} />
           <button className="logout" onClick={onLogout} disabled={locked} title="Abmelden" aria-label="Abmelden">

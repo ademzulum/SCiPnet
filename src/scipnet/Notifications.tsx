@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { THREADS } from '../data/threads';
 import { personById } from '../data/personnel';
 import { play } from '../lib/sound';
+import { getPrefs, setPref, usePrefs } from '../lib/prefs';
 import { threadState } from './session';
 import type { Go, Route } from './routes';
 
@@ -83,8 +84,11 @@ export function useNotifications(paused: boolean) {
     const n: Notice = { ...t, id: nextId.current++, time: clock(), read: false };
     recent.current = [`${t.title}: ${t.text}`, ...recent.current].slice(0, 8);
     setItems((l) => [n, ...l].slice(0, 30));
+    // muted notifications still land in the bell list
+    const { noticeSound, noticePopups } = getPrefs();
+    if (noticeSound) play('notify', 0.7);
+    if (!noticePopups) return;
     setToast(n);
-    play('notify', 0.7);
     clearTimeout(hideTimer.current);
     hideTimer.current = setTimeout(() => setToast(null), 6000);
   };
@@ -216,6 +220,7 @@ export function Bell({ api, go, disabled }: { api: Api; go: Go; disabled: boolea
           >
             <div className="notify-head">
               <span className="label">Benachrichtigungen</span>
+              <NoticeToggles />
               <span className="notify-actions">
                 <button className="link small" onClick={api.markAll} disabled={!api.unread}>
                   Alle gelesen
@@ -255,5 +260,36 @@ export function Bell({ api, go, disabled }: { api: Api; go: Go; disabled: boolea
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+// Mute switches for notification sound and pop-ups (independent of each other).
+function NoticeToggles() {
+  const { noticeSound, noticePopups } = usePrefs();
+  return (
+    <span className="notify-toggles">
+      <button
+        className={`icon-toggle${noticeSound ? '' : ' off'}`}
+        onClick={() => setPref('noticeSound', !noticeSound)}
+        aria-pressed={!noticeSound}
+        title={noticeSound ? 'Ton stummschalten' : 'Ton einschalten'}
+        aria-label={noticeSound ? 'Ton stummschalten' : 'Ton einschalten'}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden>
+          <path d={noticeSound ? 'M4 9h4l5-4v14l-5-4H4z M16 9a4 4 0 0 1 0 6 M18.5 6.5a7.5 7.5 0 0 1 0 11' : 'M4 9h4l5-4v14l-5-4H4z M16 9l5 6 M21 9l-5 6'} />
+        </svg>
+      </button>
+      <button
+        className={`icon-toggle${noticePopups ? '' : ' off'}`}
+        onClick={() => setPref('noticePopups', !noticePopups)}
+        aria-pressed={!noticePopups}
+        title={noticePopups ? 'Pop-ups ausblenden' : 'Pop-ups einblenden'}
+        aria-label={noticePopups ? 'Pop-ups ausblenden' : 'Pop-ups einblenden'}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden>
+          <path d={noticePopups ? 'M4 5h16v10H9l-5 4z M8 9h8 M8 12h5' : 'M4 5h16v10H9l-5 4z M3 3l18 18'} />
+        </svg>
+      </button>
+    </span>
   );
 }

@@ -5138,3 +5138,122 @@ button.skip {
 .shell {
   isolation: isolate; /* lets the emblem sit at z-index -1 above the CRT background */
 }
+
+/* ---- notification mute toggles ------------------------------------------ */
+
+.notify-toggles {
+  display: inline-flex;
+  gap: 0.3rem;
+  margin-left: auto;
+  margin-right: 0.6rem;
+}
+.icon-toggle {
+  all: unset;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, opacity 0.2s;
+}
+.icon-toggle:hover {
+  border-color: var(--accent);
+}
+.icon-toggle.off {
+  opacity: 0.55;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.icon-toggle svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---- light mode (SCiPnet only) ------------------------------------------ */
+/* Most colours derive from --fg/--bg, so swapping those does the bulk; the
+   rest are the few hard-coded dark tints and the CRT overlays. */
+
+.crt[data-theme='scip'][data-mode='light'] {
+  --bg: #eef1f4;
+  --fg: #1b232b;
+  --hi: #000000;
+  --glow: transparent;
+  --accent: #c01d33;
+  --line: color-mix(in srgb, var(--fg) 16%, transparent);
+  --surface: linear-gradient(180deg, #ffffff, #f6f8fa);
+  background: radial-gradient(ellipse at center, #ffffff 0%, #e3e8ed 80%);
+}
+.crt[data-mode='light']::before {
+  opacity: 0.12;
+}
+.crt[data-mode='light']::after {
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.12) 100%);
+}
+.crt[data-mode='light'] .screen,
+.crt[data-mode='light'] .shell {
+  text-shadow: none;
+}
+.crt[data-mode='light'] .topbar {
+  background: rgba(255, 255, 255, 0.85);
+}
+.crt[data-mode='light'] .dock {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 30px rgba(20, 30, 40, 0.18);
+}
+.crt[data-mode='light'] .notify-panel,
+.crt[data-mode='light'] .toast {
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(20, 30, 40, 0.18);
+}
+.crt[data-mode='light'] .box,
+.crt[data-mode='light'] .card {
+  box-shadow: 0 1px 2px rgba(20, 30, 40, 0.06);
+}
+.crt[data-mode='light'] .emboss {
+  filter: drop-shadow(-1px -1px 0 rgba(255, 255, 255, 0.9)) drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.12));
+}
+.crt[data-mode='light'] .emboss span {
+  background: color-mix(in srgb, var(--fg) 5%, var(--bg));
+}
+.crt[data-mode='light'] .scp-logo {
+  filter: none;
+  mix-blend-mode: multiply;
+}
+.crt[data-mode='light'] .msg {
+  background: #ffffff;
+}
+.crt[data-mode='light'] .msg.me {
+  background: color-mix(in srgb, var(--accent) 8%, #ffffff);
+}
+.crt[data-mode='light'] .scipa-input textarea,
+.crt[data-mode='light'] .scipa-input input,
+.crt[data-mode='light'] .archive-search,
+.crt[data-mode='light'] input[type='search'] {
+  background: #ffffff;
+  color: var(--fg);
+}
+.notify-panel {
+  width: 380px;
+}
+.notify-head {
+  gap: 0.5rem;
+}
+.notify-actions {
+  white-space: nowrap;
+}
