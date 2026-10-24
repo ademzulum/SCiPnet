@@ -5262,6 +5262,12 @@ button.skip {
 }
 .notify-actions {
   white-space: nowrap;
+  gap: 0.4rem;
+}
+.icon-toggle:disabled {
+  opacity: 0.35;
+  cursor: default;
+  border-color: var(--line);
 }
 
 /* Opaque surfaces: panels must not let the emblem or anything behind shine

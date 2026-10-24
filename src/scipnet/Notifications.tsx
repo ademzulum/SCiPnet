@@ -222,11 +222,15 @@ export function Bell({ api, go, disabled }: { api: Api; go: Go; disabled: boolea
               <span className="label">Benachrichtigungen</span>
               <NoticeToggles />
               <span className="notify-actions">
-                <button className="link small" onClick={api.markAll} disabled={!api.unread}>
-                  Alle gelesen
+                <button className="icon-toggle" onClick={api.markAll} disabled={!api.unread} title="Alle gelesen" aria-label="Alle gelesen">
+                  <svg viewBox="0 0 24 24" aria-hidden>
+                    <path d="M2 12l5 5L18 6 M12 16l1 1L22 8" />
+                  </svg>
                 </button>
-                <button className="link small" onClick={api.clear} disabled={!api.items.length}>
-                  Leeren
+                <button className="icon-toggle" onClick={api.clear} disabled={!api.items.length} title="Leeren" aria-label="Leeren">
+                  <svg viewBox="0 0 24 24" aria-hidden>
+                    <path d="M4 7h16 M9 7V4h6v3 M6 7l1 13h10l1-13 M10 11v6 M14 11v6" />
+                  </svg>
                 </button>
               </span>
             </div>
