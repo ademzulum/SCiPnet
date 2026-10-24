@@ -1,3 +1,4 @@
+import corvusFinch from '../../images/personell_pictures/corvus_finch.png';
 // Personnel files. Text may contain [[...]] for redacted passages.
 
 export type Person = {
@@ -9,6 +10,7 @@ export type Person = {
   status: 'Aktiv' | 'Beurlaubt' | 'Vermisst' | 'Beobachtung';
   since: string;
   photo?: string; // optional image URL; a generated portrait is shown otherwise
+  eyeBar?: boolean; // black censor bar over the eyes of the photo
   quote?: string;
   summary: string;
   notes: string[];
@@ -218,6 +220,8 @@ export const PERSONNEL: Person[] = [
   {
     id: 'X-80-0003',
     name: 'Corvus Finch',
+    photo: corvusFinch,
+    eyeBar: true,
     role: 'Externe Person von Interesse',
     department: 'FBI / Unusual Incidents Unit',
     clearance: 'Keine',

@@ -1,5 +1,5 @@
-import raw from '../../images/uiu_logo.svg?raw';
-import url from '../../images/uiu_logo.svg?url';
+import raw from '../../images/uiu_terminal/uiu_logo.svg?raw';
+import url from '../../images/uiu_terminal/uiu_logo.svg?url';
 
 // The UIU seal, inlined so its named groups (outer_ring, illuminati, eagle with
 // wing_left/wing_right, sword, compass, unusual, incidents, unit, stars) can be

@@ -2,12 +2,12 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { Person } from '../data/personnel';
 import { play } from '../lib/sound';
-import brainSvg from '../../images/brain_2d_scan_with_regions.svg?raw';
+import brainSvg from '../../images/scipnet_terminal/brain_2d_scan_with_regions.svg?raw';
 
 type Metric = { label: string; value: number };
 type Tone = 'ok' | 'warn' | 'bad';
 
-// images/brain_2d_scan_with_regions.svg: side view, forehead on the left. The
+// images/scipnet_terminal/brain_2d_scan_with_regions.svg: side view, forehead on the left. The
 // "regionen" group holds one path per lobe (by id), "gehirn" is the line art.
 const pathById = (id: string) => brainSvg.match(new RegExp(`id="${id}"[^>]*? d="([^"]+)"`))?.[1] ?? '';
 const [, , W, H] = (brainSvg.match(/viewBox="([^"]+)"/)?.[1] ?? '0 0 1448.56 1293.23').split(/\s+/).map(Number);

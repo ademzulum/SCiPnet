@@ -6178,3 +6178,16 @@ button.skip {
   .composer .choices { grid-template-columns: minmax(0, 1fr); }
   .composer { min-height: 0; }
 }
+
+/* censor bar over the eyes; tuned for a centred, cover-cropped portrait */
+.folder-photo,
+.portrait-frame { position: relative; }
+.eye-bar {
+  position: absolute;
+  top: 16.5%;
+  left: 34%;
+  width: 34%;
+  height: 7%;
+  background: #000;
+  pointer-events: none;
+}

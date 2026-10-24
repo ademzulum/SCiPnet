@@ -7,7 +7,10 @@ export default function Portrait({ person }: { person: Person }) {
     <figure className="portrait">
       <div className="portrait-frame">
         {person.photo ? (
-          <img src={person.photo} alt={person.name} />
+          <>
+            <img src={person.photo} alt={person.name} />
+            {person.eyeBar && <span className="eye-bar" />}
+          </>
         ) : (
           <svg viewBox="0 0 100 120" aria-hidden>
             <defs>

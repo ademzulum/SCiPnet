@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import ScpLogo from '../components/ScpLogo';
-import scpLogo from '../../images/scp_logo.svg';
+import scpLogo from '../../images/scipnet_terminal/scp_logo.svg';
 import { STOLEN } from '../lib/creds';
 import type { Route } from './routes';
 import Overview from './Overview';
