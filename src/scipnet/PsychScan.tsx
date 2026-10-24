@@ -98,6 +98,10 @@ export function BrainScan({ p }: { p: Person }) {
               <pattern id="brain-grid" width={16 * U} height={16 * U} patternUnits="userSpaceOnUse">
                 <path d={`M${16 * U} 0H0V${16 * U}`} fill="none" stroke="currentColor" strokeOpacity="0.1" strokeWidth={U} />
               </pattern>
+              <linearGradient id="brain-trail" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stopColor="var(--accent)" stopOpacity="0" />
+                <stop offset="1" stopColor="var(--accent)" stopOpacity="0.35" />
+              </linearGradient>
             </defs>
             <rect width={W} height={H} fill="url(#brain-grid)" />
             {/* heat overlay under the line art */}
@@ -121,8 +125,14 @@ export function BrainScan({ p }: { p: Person }) {
             {/* sweep and hotspots above the line art */}
             {phase === 'scan' && (
               <>
-                <rect x={sweepX - 40 * U} y="0" width={40 * U} height={H} className="brain-sweep" />
-                <line x1={sweepX} x2={sweepX} y1="0" y2={H} className="brain-line" strokeWidth={U} />
+                {/* fading trail, a glowing beam and a reticle riding along it */}
+                <rect x={sweepX - 120 * U} y="0" width={120 * U} height={H} fill="url(#brain-trail)" />
+                <line x1={sweepX} x2={sweepX} y1="0" y2={H} className="brain-glow" strokeWidth={8 * U} />
+                <line x1={sweepX} x2={sweepX} y1="0" y2={H} className="brain-line" strokeWidth={1.5 * U} />
+                {[0.2, 0.4, 0.6, 0.8].map((t) => (
+                  <line key={t} x1={sweepX - 6 * U} x2={sweepX + 6 * U} y1={H * t} y2={H * t} className="brain-line" strokeWidth={U} />
+                ))}
+                <circle cx={sweepX} cy={H * (0.5 + Math.sin(pct / 6) * 0.3)} r={6 * U} className="brain-reticle" strokeWidth={1.5 * U} />
               </>
             )}
             {phase === 'done' &&

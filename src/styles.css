@@ -5848,11 +5848,20 @@ button.skip {
   cursor: pointer;
   animation: recpulse 1.6s ease-in-out infinite;
 }
-.brain-sweep {
-  fill: color-mix(in srgb, var(--accent) 35%, transparent);
-}
 .brain-line {
+  stroke: var(--hi);
+  pointer-events: none;
+}
+.brain-glow {
   stroke: var(--accent);
+  opacity: 0.35;
+  filter: blur(3px);
+  pointer-events: none;
+}
+.brain-reticle {
+  fill: none;
+  stroke: var(--hi);
+  pointer-events: none;
 }
 .brain-side {
   display: flex;
