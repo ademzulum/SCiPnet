@@ -625,6 +625,11 @@ button.skip {
 .shell-main > * > .page {
   margin-inline: auto;
 }
+/* Pages whose height changes in place (tabs, filters) stay top-aligned so
+   the content above doesn't jump when switching. */
+.shell-main > *:has(> .page-top) {
+  margin-block: 0 auto;
+}
 
 /* ---- dock (section navigation) ---------------------------------------- */
 /* Floating bar at the bottom centre: icon + short label per section. Icons

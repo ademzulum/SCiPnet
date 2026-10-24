@@ -47,7 +47,7 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
   ];
 
   return (
-    <div className="page">
+    <div className="page page-top">
       <button className="link back" onClick={() => go({ view: 'personnel' })}>
         ← Personalakten
       </button>

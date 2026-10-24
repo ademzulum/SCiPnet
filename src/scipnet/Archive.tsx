@@ -27,7 +27,7 @@ export default function Archive({ go }: { go: Go }) {
   );
 
   return (
-    <div className="page">
+    <div className="page page-top">
       <div className="box archive-hero">
         <div>
           <div className="label">Anomaliendatenbank · Site-80</div>

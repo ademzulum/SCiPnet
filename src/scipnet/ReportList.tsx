@@ -30,7 +30,7 @@ export default function ReportList({ go }: { go: Go }) {
   const items = REPORTS.filter((r) => filter === 'Alle' || r.status === filter);
 
   return (
-    <div className="page">
+    <div className="page page-top">
       <div className="box archive-hero">
         <div>
           <div className="label">Einsatzdokumentation · Site-80</div>
