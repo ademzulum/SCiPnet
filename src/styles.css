@@ -5273,10 +5273,10 @@ button.skip {
 /* Opaque surfaces: panels must not let the emblem or anything behind shine
    through, or their text gets hard to read. */
 .crt[data-theme='scip'] {
-  --surface: linear-gradient(180deg, #13181c, #0f1316);
+  --surface: linear-gradient(180deg, rgba(19, 24, 28, 0.9), rgba(15, 19, 22, 0.9));
 }
 .crt[data-theme='scip'][data-mode='light'] {
-  --surface: linear-gradient(180deg, #ffffff, #f6f8fa);
+  --surface: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 248, 250, 0.9));
 }
 .crt[data-theme='scip'] .box,
 .crt[data-theme='scip'] .card,
@@ -5287,7 +5287,7 @@ button.skip {
 .crt[data-theme='scip'] .notify-panel,
 .crt[data-theme='scip'] .toast,
 .crt[data-theme='scip'] .msg {
-  background-color: color-mix(in srgb, var(--fg) 4%, var(--bg));
+  background-color: color-mix(in srgb, color-mix(in srgb, var(--fg) 4%, var(--bg)) 90%, transparent);
 }
 .crt[data-theme='scip'] .box,
 .crt[data-theme='scip'] .card,
@@ -5295,6 +5295,12 @@ button.skip {
 .crt[data-theme='scip'] .scp-card,
 .crt[data-theme='scip'] .linked-scp {
   background-image: var(--surface);
+}
+/* Locked entries keep their warning stripes on top of the solid surface. */
+.crt[data-theme='scip'] .scp-card.locked,
+.crt[data-theme='scip'] .admin-card {
+  background-image: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--accent) 7%, transparent) 10px 20px),
+    var(--surface);
 }
 .crt[data-theme='scip'] .dock,
 .crt[data-theme='scip'] .topbar {
@@ -5304,5 +5310,5 @@ button.skip {
 .crt[data-theme='scip'][data-mode='light'] .card,
 .crt[data-theme='scip'][data-mode='light'] .chip,
 .crt[data-theme='scip'][data-mode='light'] .msg {
-  background-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.9);
 }
