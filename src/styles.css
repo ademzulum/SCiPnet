@@ -5299,6 +5299,12 @@ button.skip {
 .crt[data-theme='scip'] .linked-scp {
   background-image: var(--surface);
 }
+.crt[data-theme='scip'] .notify-panel {
+  background-color: var(--bg);
+}
+.crt[data-theme='scip'][data-mode='light'] .notify-panel {
+  background-color: #ffffff;
+}
 /* Locked entries keep their warning stripes on top of the solid surface. */
 .crt[data-theme='scip'] .scp-card.locked,
 .crt[data-theme='scip'] .admin-card,
