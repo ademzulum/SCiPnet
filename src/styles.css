@@ -5324,42 +5324,46 @@ button.skip {
   background-color: rgba(255, 255, 255, 0.72);
 }
 
+
 /* ---- personnel folders ----------------------------------------------- */
 
 .folder-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.4rem 0.9rem;
-  padding-top: 0.9rem;
+  gap: 2rem 1rem; /* row gap leaves room for the folder tab */
+  margin-top: 1.4rem;
 }
 .folder {
   all: unset;
+  box-sizing: border-box;
   --st: #7fe0a8;
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
-  padding: 1rem 1.1rem 0.85rem;
+  gap: 0.85rem;
+  min-width: 0;
+  padding: 1rem 1.1rem 0.8rem;
   border: 1px solid var(--line);
   border-radius: 0 var(--radius) var(--radius) var(--radius);
   background: var(--surface);
   cursor: pointer;
-  overflow: visible;
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 .folder.st-Beurlaubt,
 .folder.st-Beobachtung { --st: #e8b85a; }
 .folder.st-Vermisst { --st: #ff5a5f; }
-.folder.external { --st: #b58cff; }
+.folder.external,
+.admin-folder { --st: #b58cff; }
 .folder::before {
-  /* scanline that sweeps on hover */
+  /* scanline that keeps sweeping while hovered */
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, transparent 45%, color-mix(in srgb, var(--st) 22%, transparent) 50%, transparent 55%);
-  background-size: 100% 220%;
-  background-position: 0 -120%;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: var(--st);
+  box-shadow: 0 0 12px 2px color-mix(in srgb, var(--st) 50%, transparent);
   opacity: 0;
   pointer-events: none;
 }
@@ -5370,18 +5374,20 @@ button.skip {
   box-shadow: 0 8px 28px color-mix(in srgb, var(--st) 16%, transparent);
 }
 .folder:hover::before {
-  opacity: 1;
-  animation: folderscan 1.1s ease-in-out;
+  opacity: 0.8;
+  animation: folderscan 1.6s ease-in-out infinite alternate;
 }
 @keyframes folderscan {
-  to { background-position: 0 120%; }
+  from { top: 0; }
+  to { top: calc(100% - 2px); }
 }
 .folder-tab {
   position: absolute;
   bottom: 100%;
   left: -1px;
-  padding: 0.2rem 0.7rem;
+  padding: 0.15rem 0.7rem;
   font-size: 10px;
+  line-height: 1.6;
   letter-spacing: 0.15em;
   border: 1px solid var(--line);
   border-bottom: none;
@@ -5391,8 +5397,9 @@ button.skip {
 }
 .folder-body {
   display: flex;
-  gap: 0.85rem;
+  gap: 0.9rem;
   align-items: center;
+  min-width: 0;
 }
 .folder-photo {
   flex: none;
@@ -5401,12 +5408,13 @@ button.skip {
   width: 52px;
   height: 62px;
   overflow: hidden;
-  font-size: 16px;
+  border-radius: 4px;
+  font-size: 15px;
   letter-spacing: 0.05em;
   color: var(--st);
   border: 1px solid color-mix(in srgb, var(--st) 45%, transparent);
   background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--st) 22%, transparent), transparent 70%);
-  filter: grayscale(0.6);
+  filter: grayscale(0.7);
   transition: filter 0.2s;
 }
 .folder-photo img {
@@ -5418,40 +5426,58 @@ button.skip {
 .folder-info {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.1rem;
   min-width: 0;
+  line-height: 1.35;
 }
-.folder-info strong { color: var(--hi); }
+.folder-info > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.folder-info strong {
+  color: var(--hi);
+  margin-bottom: 0.15rem;
+}
 .folder-foot {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding-top: 0.6rem;
+  margin-top: auto;
+  padding-top: 0.65rem;
   border-top: 1px dashed var(--line);
 }
-.folder-seal {
+/* seal/stamp and the hover label share one slot at the right */
+.folder-end {
+  display: grid;
   margin-left: auto;
+  justify-items: end;
+  align-items: center;
+}
+.folder-end > * {
+  grid-area: 1 / 1;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.folder-seal {
   font-size: 10px;
   letter-spacing: 0.12em;
   opacity: 0.7;
 }
 .folder-hover {
-  position: absolute;
-  right: 0.9rem;
-  top: 0.8rem;
   font-size: 10px;
   letter-spacing: 0.15em;
   color: var(--st);
   opacity: 0;
   transform: translateX(-6px);
-  transition: opacity 0.2s, transform 0.2s;
+}
+.folder:hover .folder-end > :not(.folder-hover) {
+  opacity: 0;
 }
 .folder:hover .folder-hover {
   opacity: 1;
   transform: none;
 }
 .admin-folder {
-  --st: #b58cff;
   background: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--st) 6%, transparent) 10px 20px), var(--surface);
 }
 
@@ -5475,36 +5501,17 @@ button.skip {
 }
 
 .stamp {
-  position: absolute;
-  right: 0.8rem;
-  bottom: 2.6rem;
-  padding: 0.15rem 0.55rem;
-  font-size: 12px;
+  padding: 0.05rem 0.45rem;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--st);
-  border: 2px solid var(--st);
+  border: 1.5px solid var(--st);
   border-radius: 3px;
-  transform: rotate(-12deg);
-  opacity: 0.75;
-  mix-blend-mode: screen;
-  pointer-events: none;
+  transform: rotate(-6deg);
   text-shadow: none;
-}
-.dossier { position: relative; --st: #7fe0a8; }
-.dossier.st-Beurlaubt,
-.dossier.st-Beobachtung { --st: #e8b85a; }
-.dossier.st-Vermisst { --st: #ff5a5f; }
-.dossier .stamp {
-  top: 1rem;
-  bottom: auto;
-  font-size: 18px;
-  animation: stampin 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both 0.2s;
-}
-@keyframes stampin {
-  from { transform: rotate(-12deg) scale(2.4); opacity: 0; }
-  to { transform: rotate(-12deg) scale(1); opacity: 0.75; }
+  pointer-events: none;
 }
 
 .bio-chip {
@@ -5517,10 +5524,114 @@ button.skip {
   border: 1px solid var(--line);
   border-radius: 999px;
   color: #e8b85a;
+  white-space: nowrap;
 }
 .bio-chip.ok { color: #7fe0a8; }
 
+/* ---- personnel dossier ----------------------------------------------- */
+
+.dossier-sheet {
+  --st: #7fe0a8;
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  border-top: 3px solid var(--st);
+}
+.dossier-sheet.st-Beurlaubt,
+.dossier-sheet.st-Beobachtung { --st: #e8b85a; }
+.dossier-sheet.st-Vermisst { --st: #ff5a5f; }
+.dossier-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.45rem 1.25rem;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  opacity: 0.75;
+  border-bottom: 1px dashed var(--line);
+  background: color-mix(in srgb, var(--st) 6%, transparent);
+}
+.barcode {
+  letter-spacing: -0.05em;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.6;
+}
+.dossier-sheet .dossier {
+  padding: 1.3rem 1.25rem 1.2rem;
+}
+.dossier-sheet .dossier-main h2 {
+  margin: 0;
+}
+.dossier-sheet .quote {
+  margin: 0.4rem 0 0;
+  padding-left: 0.8rem;
+  border-left: 2px solid color-mix(in srgb, var(--st) 50%, transparent);
+}
+.dossier-sheet .fields {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+}
+.dossier-sheet .fields > div {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+}
+.dossier-sheet .fields dd {
+  margin: 0.1rem 0 0;
+  color: var(--hi);
+}
+.dossier-sheet > .stamp {
+  position: absolute;
+  top: 2.8rem;
+  right: 1.4rem;
+  z-index: 1;
+  padding: 0.15rem 0.6rem;
+  font-size: 18px;
+  border-width: 2px;
+  opacity: 0.8;
+  animation: stampin 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both 0.2s;
+}
+@keyframes stampin {
+  from { transform: rotate(-12deg) scale(2.4); opacity: 0; }
+  to { transform: rotate(-12deg) scale(1); opacity: 0.8; }
+}
+
+.dossier-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+}
+.dstat {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.dstat:hover,
+.dstat.active {
+  border-color: var(--accent);
+}
+.dstat:hover { transform: translateY(-2px); }
+.dstat .label { margin: 0; }
+.dstat-value {
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--hi);
+}
+
 /* redactions: the Administrator can lift them */
+.redact { display: inline-block; }
 .redact.can-reveal {
   cursor: pointer;
   transition: box-shadow 0.15s;
@@ -5535,7 +5646,6 @@ button.skip {
   20%, 60% { transform: translateX(-3px); background: var(--warn, #ff4b3a); }
   40%, 80% { transform: translateX(3px); }
 }
-.redact { display: inline-block; }
 .declassified {
   color: #b58cff;
   background: color-mix(in srgb, #b58cff 12%, transparent);
@@ -5543,11 +5653,16 @@ button.skip {
   padding: 0 0.15em;
 }
 .declass-hint {
-  margin: 0.4rem 0 0;
+  margin: 0.8rem 0 0;
   color: #b58cff;
 }
 
-@media (max-width: 520px) {
-  .stamp { font-size: 10px; }
-  .dossier .stamp { font-size: 13px; }
+@media (max-width: 720px) {
+  .dossier-stats { grid-template-columns: repeat(2, 1fr); }
+  .dossier-strip > :last-child { display: none; }
+  .dossier-sheet > .stamp { font-size: 13px; top: 2.6rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .folder:hover::before,
+  .dossier-sheet > .stamp { animation: none; }
 }

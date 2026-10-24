@@ -17,12 +17,17 @@ const TABS = ['Akte', 'Werdegang', 'Psychologie', 'Vorfälle', 'Berichte'] as co
 type Tab = (typeof TABS)[number];
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// Bars from the character codes of the id, so every file has its own code.
+const barcode = (id: string) =>
+  [...id].map((c, i) => (c.charCodeAt(0) + i) % 3 ? '▌' : '▍').join('');
 const fmtDate = (d: string) => new Date(d).toLocaleDateString('de-DE');
 
 export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
   const p = personById(id);
   const [tab, setTab] = useState<Tab>('Akte');
-  const admin = useAccount().id === 'admin';
+  const account = useAccount();
+  const admin = account.id === 'admin';
+  const [opened] = useState(() => new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
   const [verified, setVerified] = useState(() => biometric.has(id));
   if (!p) return <p className="page">Akte nicht gefunden.</p>;
   // the Administrator's clearance overrides the biometric check
@@ -49,43 +54,72 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
     ['Im Dienst seit', p.since],
   ];
 
+  const years = /^\d{4}$/.test(p.since) ? new Date().getFullYear() - Number(p.since) : '—';
+  const stats: [string, string | number, Tab][] = [
+    ['Dienstjahre', years, 'Werdegang'],
+    ['Stationen', p.timeline.length, 'Werdegang'],
+    ['Vorfälle', p.incidents.filter((n) => !/^Keine/.test(n)).length, 'Vorfälle'],
+    ['Feldberichte', REPORTS.filter((r) => r.author === p.id).length, 'Berichte'],
+  ];
+
   return (
     <div className="page page-top">
       <button className="link back" onClick={() => go({ view: 'personnel' })}>
         ← Personalakten
       </button>
 
-      <div className={`dossier box st-${p.status}`}>
+      <div className={`dossier-sheet box st-${p.status}`}>
+        <div className="dossier-strip">
+          <span>PERSONALAKTE · SITE-80</span>
+          <span className="barcode" aria-hidden>
+            {barcode(p.id)}
+          </span>
+          <span>
+            ABGERUFEN: {account.name.toUpperCase()} · {opened}
+          </span>
+        </div>
         {p.status !== 'Aktiv' && <span className="stamp">{p.status}</span>}
-        <Portrait person={p} />
-        <div className="dossier-main">
-          <div className="dossier-title">
-            <h2>{p.name}</h2>
-            <span className={`status status-${p.status}`}>{p.status}</span>
-          </div>
-          {p.quote && <p className="quote">„{p.quote}“</p>}
-          <dl className="fields">
-            {fields.map(([k, v]) => (
-              <div key={k}>
-                <dt>{k}</dt>
-                <dd>
-                  {v}
-                  {k === 'Freigabe' && <ClearancePips c={v} />}
-                </dd>
-              </div>
-            ))}
-          </dl>
-          {admin && <p className="declass-hint small">◉ Freigabe Stufe 6 · Geschwärzte Passagen anklicken, um sie aufzuheben.</p>}
-          <div className="actions">
-            <button
-              className="card action"
-              disabled={!thread}
-              onClick={() => thread && go({ view: 'thread', id: thread.id })}
-            >
-              {thread ? 'NACHRICHT SENDEN' : 'KEIN KANAL'}
-            </button>
+        <div className="dossier">
+          <Portrait person={p} />
+          <div className="dossier-main">
+            <div className="label">{p.department}</div>
+            <div className="dossier-title">
+              <h2>{p.name}</h2>
+              <span className={`status status-${p.status}`}>{p.status}</span>
+            </div>
+            {p.quote && <p className="quote">„{p.quote}“</p>}
+            <dl className="fields">
+              {fields.map(([k, v]) => (
+                <div key={k}>
+                  <dt>{k}</dt>
+                  <dd>
+                    {v}
+                    {k === 'Freigabe' && <ClearancePips c={v} />}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            {admin && <p className="declass-hint small">◉ Freigabe Stufe 6 · Geschwärzte Passagen anklicken, um sie aufzuheben.</p>}
+            <div className="actions">
+              <button
+                className="card action"
+                disabled={!thread}
+                onClick={() => thread && go({ view: 'thread', id: thread.id })}
+              >
+                {thread ? 'NACHRICHT SENDEN' : 'KEIN KANAL'}
+              </button>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div className="dossier-stats">
+        {stats.map(([label, value, target]) => (
+          <button key={label} className={tab === target ? 'dstat active' : 'dstat'} onClick={() => setTab(target)}>
+            <span className="dstat-value">{value}</span>
+            <span className="label">{label}</span>
+          </button>
+        ))}
       </div>
 
       <Tabs tabs={TABS} value={tab} onChange={setTab} />
