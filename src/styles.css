@@ -6191,3 +6191,7 @@ button.skip {
   background: #000;
   pointer-events: none;
 }
+/* hover scanline stays above the photo */
+.folder::before { z-index: 2; }
+.dossier-sheet .dossier { align-items: center; }
+.dossier-sheet .portrait { width: 190px; }

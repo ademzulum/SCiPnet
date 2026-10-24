@@ -1,15 +1,17 @@
 import type { Person } from '../data/personnel';
 import { initials } from './Comms';
+import { useAccount } from './session';
 
 // ID photo: uses person.photo when set, otherwise a generated silhouette.
 export default function Portrait({ person }: { person: Person }) {
+  const admin = useAccount().id === 'admin';
   return (
     <figure className="portrait">
       <div className="portrait-frame">
         {person.photo ? (
           <>
             <img src={person.photo} alt={person.name} />
-            {person.eyeBar && <span className="eye-bar" />}
+            {person.eyeBar && !admin && <span className="eye-bar" />}
           </>
         ) : (
           <svg viewBox="0 0 100 120" aria-hidden>
