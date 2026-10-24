@@ -113,6 +113,13 @@ export function respond(input: string): Reply {
       audio: RETRIEVING[0].audio,
       action: { label: 'Akte öffnen', route: { view: 'admin' } },
     };
+  // The Administrator needs no biometric scan.
+  if (best?.id === 'personnel' && currentAccount() === 'admin')
+    return {
+      text: `${RETRIEVING[0].text} ${PERSONNEL.length + 1} Personalakten, Administrator. Die biometrische Prüfung entfällt für Ihre Freigabe, sämtliche Schwärzungen lassen sich aufheben.`,
+      audio: RETRIEVING[0].audio,
+      action: best.action,
+    };
   if (best) return { ...pick(best.answers), action: best.action, destruct: best.destruct };
 
   // Nothing scripted matched: the model answers (see ask()); the lines below

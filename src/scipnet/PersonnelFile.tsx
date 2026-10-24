@@ -6,7 +6,8 @@ import { threadForContact } from '../data/threads';
 import type { Go } from './routes';
 import Redacted from './Redacted';
 import { ReportRow } from './ReportList';
-import { adminAccess, biometric, psychAccess } from './session';
+import { adminAccess, biometric, psychAccess, useAccount } from './session';
+import { ClearancePips } from './PersonnelList';
 import Tabs from './Tabs';
 import BiometricGate from './BiometricGate';
 import Portrait from './Portrait';
@@ -21,9 +22,11 @@ const fmtDate = (d: string) => new Date(d).toLocaleDateString('de-DE');
 export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
   const p = personById(id);
   const [tab, setTab] = useState<Tab>('Akte');
+  const admin = useAccount().id === 'admin';
   const [verified, setVerified] = useState(() => biometric.has(id));
   if (!p) return <p className="page">Akte nicht gefunden.</p>;
-  if (!verified)
+  // the Administrator's clearance overrides the biometric check
+  if (!verified && !admin)
     return (
       <BiometricGate
         key={p.id}
@@ -52,7 +55,8 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
         ← Personalakten
       </button>
 
-      <div className="dossier box">
+      <div className={`dossier box st-${p.status}`}>
+        {p.status !== 'Aktiv' && <span className="stamp">{p.status}</span>}
         <Portrait person={p} />
         <div className="dossier-main">
           <div className="dossier-title">
@@ -64,10 +68,14 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
             {fields.map(([k, v]) => (
               <div key={k}>
                 <dt>{k}</dt>
-                <dd>{v}</dd>
+                <dd>
+                  {v}
+                  {k === 'Freigabe' && <ClearancePips c={v} />}
+                </dd>
               </div>
             ))}
           </dl>
+          {admin && <p className="declass-hint small">◉ Freigabe Stufe 6 · Geschwärzte Passagen anklicken, um sie aufzuheben.</p>}
           <div className="actions">
             <button
               className="card action"
