@@ -76,19 +76,18 @@ export default function PersonnelList({ go }: { go: Go }) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ duration: 0.25, ease: [0.25, 0.8, 0.25, 1] }}
+              whileHover={{ y: -2 }}
               className={`folder st-${p.status}${p.id.startsWith('X-') ? ' external' : ''}`}
               onClick={() => go({ view: 'person', id: p.id })}
             >
               <span className="folder-tab">{p.id}</span>
+              {p.status !== 'Aktiv' && <span className={`folder-status status-${p.status}`}>{p.status}</span>}
               <span className="folder-body">
                 <span className="folder-photo" aria-hidden>
                   {p.photo ? <img src={p.photo} alt="" /> : initials(p.name)}
                 </span>
                 <span className="folder-info">
-                  <span className="folder-name">
-                    <strong>{p.name}</strong>
-                    {p.status !== 'Aktiv' && <span className={`status status-${p.status}`}>{p.status}</span>}
-                  </span>
+                  <strong className="folder-name">{p.name}</strong>
                   <span className="small">{p.role}</span>
                   <span className="dim small">{p.department}</span>
                 </span>
@@ -97,16 +96,19 @@ export default function PersonnelList({ go }: { go: Go }) {
                 <ClearancePips c={p.clearance} />
                 <span className="small">{p.clearance}</span>
                 <span className="folder-end">
-                  <span className="folder-seal">{admin || biometric.has(p.id) ? '◉ OFFEN' : '⬢ VERSIEGELT'}</span>
+                  {admin || biometric.has(p.id) ? (
+                    <span className="folder-seal open">◉ OFFEN</span>
+                  ) : (
+                    <span className="folder-seal">⬢ VERSIEGELT</span>
+                  )}
                   <span className="folder-hover">ÖFFNEN ▸</span>
                 </span>
               </span>
             </motion.button>
           ))}
-        </AnimatePresence>
 
         {solved ? (
-          <button className="folder admin-folder" onClick={() => go({ view: 'admin' })}>
+          <motion.button layout key="admin" whileHover={{ y: -2 }} className="folder admin-folder" onClick={() => go({ view: 'admin' })}>
             <span className="folder-tab">{ADMIN_PERSON.id}</span>
             <span className="folder-body">
               <span className="folder-photo" aria-hidden>
@@ -122,13 +124,13 @@ export default function PersonnelList({ go }: { go: Go }) {
               <ClearancePips c={ADMIN_PERSON.clearance} />
               <span className="small">{ADMIN_PERSON.clearance}</span>
               <span className="folder-end">
-                <span className="folder-seal">◉ OFFEN</span>
+                <span className="folder-seal open">◉ OFFEN</span>
                 <span className="folder-hover">ÖFFNEN ▸</span>
               </span>
             </span>
-          </button>
+          </motion.button>
         ) : (
-          <button className="folder admin-card" onClick={() => go({ view: 'admin' })}>
+          <motion.button layout key="admin-locked" whileHover={{ y: -2 }} className="folder admin-card" onClick={() => go({ view: 'admin' })}>
             <span className="folder-tab">
               <Corrupt text="A-00-0000" amount={0.2} every={400} />
             </span>
@@ -148,8 +150,9 @@ export default function PersonnelList({ go }: { go: Go }) {
                 <Corrupt text="??????" amount={0.5} every={300} />
               </span>
             </span>
-          </button>
+          </motion.button>
         )}
+        </AnimatePresence>
       </div>
       {!items.length && <p className="dim">Keine Einträge gefunden.</p>}
     </div>

@@ -5328,6 +5328,7 @@ button.skip {
 /* ---- personnel folders ----------------------------------------------- */
 
 .folder-grid {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 2rem 1rem; /* row gap leaves room for the folder tab */
@@ -5347,7 +5348,7 @@ button.skip {
   border-radius: 0 var(--radius) var(--radius) var(--radius);
   background: var(--surface);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  transition: box-shadow 0.2s, border-color 0.2s; /* motion handles transform (layout + hover) */
 }
 .folder.st-Beurlaubt,
 .folder.st-Beobachtung { --st: #e8b85a; }
@@ -5369,7 +5370,6 @@ button.skip {
 }
 .folder:hover,
 .folder:focus-visible {
-  transform: translateY(-3px);
   border-color: color-mix(in srgb, var(--st) 60%, transparent);
   box-shadow: 0 8px 28px color-mix(in srgb, var(--st) 16%, transparent);
 }
@@ -5436,20 +5436,8 @@ button.skip {
   white-space: nowrap;
 }
 .folder-name {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
   margin-bottom: 0.15rem;
-}
-.folder-name strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
   color: var(--hi);
-}
-.folder-name .status {
-  flex: none;
-  line-height: 1.4;
 }
 .folder-foot {
   display: flex;
@@ -5474,6 +5462,19 @@ button.skip {
   font-size: 10px;
   letter-spacing: 0.12em;
   opacity: 0.7;
+}
+.folder-seal.open {
+  color: #7fe0a8;
+  opacity: 1;
+}
+/* non-active status sits as a second tab on the right, clear of the name */
+.folder-status {
+  position: absolute;
+  bottom: calc(100% + 3px);
+  right: 0;
+  padding: 0.05rem 0.55rem !important;
+  font-size: 9px !important;
+  line-height: 1.6;
 }
 .folder-hover {
   font-size: 10px;
@@ -5900,4 +5901,18 @@ button.skip {
 }
 @media (prefers-reduced-motion: reduce) {
   .brain-node { animation: none; }
+}
+
+/* status pill on one line with the name inside the dossier */
+.dossier-sheet .dossier-title {
+  align-items: center;
+  flex-wrap: nowrap;
+}
+.dossier-sheet .dossier-title h2 {
+  min-width: 0;
+  line-height: 1.2;
+}
+.dossier-sheet .dossier-title .status {
+  flex: none;
+  line-height: 1.5;
 }
