@@ -5755,3 +5755,149 @@ button.skip {
 @keyframes recpulse {
   50% { opacity: 0.25; transform: scale(0.8); }
 }
+
+/* "new messages" pill above the reply choices */
+.composer {
+  position: relative;
+}
+.new-pill {
+  all: unset;
+  position: absolute;
+  bottom: calc(100% + 0.6rem);
+  left: 50%;
+  z-index: 2;
+  padding: 0.3rem 0.85rem;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 999px;
+  color: var(--bg);
+  background: var(--accent);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.new-pill:hover {
+  filter: brightness(1.1);
+}
+
+/* ---- psych: neural scan and EEG -------------------------------------- */
+
+.brain-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+.brain-pct {
+  font-size: 18px;
+  color: var(--hi);
+  font-variant-numeric: tabular-nums;
+}
+.brain-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 1.2rem;
+  align-items: center;
+}
+.brain-svg {
+  width: 100%;
+  height: auto;
+  color: var(--fg);
+}
+.brain-region {
+  fill: color-mix(in srgb, var(--fg) 6%, transparent);
+  stroke: color-mix(in srgb, var(--fg) 45%, transparent);
+  stroke-width: 0.8;
+  transition: fill 0.4s, fill-opacity 0.4s, stroke 0.2s;
+}
+.brain-scan.done .brain-region:not(.cerebellum) {
+  cursor: pointer;
+}
+.brain-scan.done .brain-region:not(.cerebellum):hover,
+.brain-region.sel {
+  stroke: var(--hi);
+  stroke-width: 1.4;
+}
+.brain-stem,
+.brain-fold {
+  fill: none;
+  stroke: color-mix(in srgb, var(--fg) 30%, transparent);
+  stroke-width: 0.8;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.brain-node {
+  fill: var(--hi);
+  cursor: pointer;
+  animation: recpulse 1.6s ease-in-out infinite;
+}
+.brain-sweep {
+  fill: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.brain-line {
+  stroke: var(--accent);
+  stroke-width: 1;
+}
+.brain-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.brain-value {
+  font-size: 34px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.brain-value span {
+  font-size: 14px;
+  opacity: 0.6;
+}
+.brain-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 10px;
+  opacity: 0.7;
+}
+.brain-ramp {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, hsl(0 80% 55%), hsl(60 80% 55%), hsl(120 80% 55%));
+}
+.eeg-row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr;
+  align-items: center;
+  gap: 0.6rem;
+}
+.eeg-row svg {
+  width: 100%;
+  height: 36px;
+  overflow: visible;
+}
+.eeg-row path {
+  fill: none;
+  stroke: #7fe0a8;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.eeg-warn .eeg-row path { stroke: #e8b85a; }
+.eeg-bad .eeg-row path { stroke: #ff5a5f; }
+.eeg-row + .eeg-row {
+  border-top: 1px dashed var(--line);
+}
+.incident-no {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  opacity: 0.6;
+  margin-bottom: 0.2rem;
+}
+@media (max-width: 720px) {
+  .brain-body { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brain-node { animation: none; }
+}

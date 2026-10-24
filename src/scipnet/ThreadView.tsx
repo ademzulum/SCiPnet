@@ -46,9 +46,29 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
     return () => clearTimeout(timer);
   }, [st.queue]);
 
-  useLayoutEffect(() => {
+  // Only the reader's own replies scroll the chat; messages from the contact
+  // that land below the fold raise a "new messages" pill instead.
+  const [unread, setUnread] = useState(0);
+  const lastLen = useRef(st.log.length);
+  const atBottom = () => {
+    const el = logRef.current;
+    return !el || el.scrollHeight - el.scrollTop - el.clientHeight < 40;
+  };
+  const toBottom = () => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: 'smooth' });
-  }, [st.log.length, st.queue.length]);
+    setUnread(0);
+  };
+  useLayoutEffect(() => {
+    const added = st.log.slice(lastLen.current);
+    lastLen.current = st.log.length;
+    if (!added.length) return;
+    if (added.some((m) => m.from === 'me')) toBottom();
+    else if (!atBottom()) setUnread((n) => n + added.length);
+  }, [st.log.length]);
+  useLayoutEffect(() => {
+    // jump to the end once when the channel opens
+    logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
+  }, []);
 
   const typing = st.queue.length > 0 && st.queue[0].from !== 'me';
   const recording = typing && !!st.queue[0].voice;
@@ -69,6 +89,8 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
     playing?.pause();
     threadState.reset(t.id);
     seen.current = 0;
+    lastLen.current = 0;
+    setUnread(0);
     setSt(threadState.get(t));
   };
 
@@ -109,7 +131,7 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
           <span className="secure-tag">GESICHERT</span>
         </div>
 
-        <div className="chat" ref={logRef}>
+        <div className="chat" ref={logRef} onScroll={() => unread && atBottom() && setUnread(0)}>
           <div className="chat-day">Kanal geöffnet</div>
           <AnimatePresence initial={false}>
             {st.log.map((m, i) => (
@@ -141,6 +163,20 @@ function Conversation({ t, go }: { t: Thread; go: Go }) {
         </div>
 
         <div className="composer">
+          <AnimatePresence>
+            {unread > 0 && (
+              <motion.button
+                className="new-pill"
+                data-sound="none"
+                onClick={toBottom}
+                initial={{ opacity: 0, y: 8, x: '-50%' }}
+                animate={{ opacity: 1, y: 0, x: '-50%' }}
+                exit={{ opacity: 0, y: 8, x: '-50%' }}
+              >
+                ↓ {unread === 1 ? 'Neue Nachricht' : `${unread} neue Nachrichten`}
+              </motion.button>
+            )}
+          </AnimatePresence>
           {choices?.length ? (
             <>
               <div className="label">Antwort wählen</div>

@@ -21,10 +21,11 @@ export type Intent = {
   destruct?: boolean; // answering starts S.C.I.P.A.'s self-destruct screen instead
 };
 
-export const GREETING: Answer = {
-  text: 'S.C.I.P.A. online. Mit was kann ich helfen?',
-  audio: 'how_can_i_help.mp3',
-};
+// First greeting of a page load; one is picked at random.
+export const GREETINGS: Answer[] = [
+  { text: 'S.C.I.P.A. online. Mit was kann ich helfen?', audio: 'how_can_i_help.mp3' },
+  { text: 'Mein Name ist S.C.I.P.A. Wie kann ich Ihnen assistieren?', audio: 'my_name_scipa.mp3' },
+];
 
 // Greeting on later visits to the tab in the same session.
 export const WELCOME_BACK: Answer = { text: 'Willkommen zurück.', audio: 'welcome_back.mp3' };

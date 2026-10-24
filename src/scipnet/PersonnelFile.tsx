@@ -11,6 +11,7 @@ import { ClearancePips } from './PersonnelList';
 import Tabs from './Tabs';
 import BiometricGate from './BiometricGate';
 import Portrait from './Portrait';
+import { BrainScan, Eeg } from './PsychScan';
 import { play } from '../lib/sound';
 
 const TABS = ['Akte', 'Werdegang', 'Psychologie', 'Vorfälle', 'Berichte'] as const;
@@ -156,11 +157,18 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
           {tab === 'Psychologie' && <PsychTab key={p.id} p={p} />}
           {tab === 'Vorfälle' && (
             <div className="incidents">
-              {p.incidents.map((n) => (
-                <div key={n} className={/^Keine/.test(n) ? 'incident none' : 'incident'}>
-                  <Redacted text={n} />
-                </div>
-              ))}
+              {p.incidents.map((n, i) =>
+                /^Keine/.test(n) ? (
+                  <div key={n} className="incident none">
+                    <Redacted text={n} />
+                  </div>
+                ) : (
+                  <div key={n} className="incident">
+                    <span className="incident-no">VF-{p.id.slice(-4)}-{String(i + 1).padStart(2, '0')}</span>
+                    <Redacted text={n} />
+                  </div>
+                ),
+              )}
             </div>
           )}
           {tab === 'Berichte' && <ReportsTab p={p} go={go} />}
@@ -223,6 +231,9 @@ function PsychTab({ p }: { p: Person }) {
             </div>
           )}
         </div>
+
+        <BrainScan p={p} />
+        <Eeg tone={verdict?.tone} />
 
         {metrics.length > 0 && (
           <div className="metrics">

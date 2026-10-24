@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  GREETING,
+  GREETINGS,
   INTENTS,
   REFUSE,
   RETRIEVING,
@@ -256,7 +256,7 @@ function applyCommands(text: string, notes: Notices): Reply {
 }
 
 export default function Assistant({ go, onSelfDestruct, notes }: { go: Go; onSelfDestruct: () => void; notes: Notices }) {
-  const [greeting] = useState(() => (visited ? WELCOME_BACK : GREETING));
+  const [greeting] = useState(() => (visited ? WELCOME_BACK : pick(GREETINGS)));
   const [log, setLog] = useState<Msg[]>([{ from: 'scipa', text: greeting.text }]);
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);

@@ -56,8 +56,8 @@ export const THREADS: Thread[] = [
     contact: Q,
     subject: 'Dringend!!! (nicht wirklich)',
     history: [
-      { from: Q, text: 'Maynard! Wer hat schon wieder meinen Joghurt aus dem Kühlschrank in Labor 2 gegessen?', time: '20.10. 16:42' },
-      { from: Q, text: 'Ich habe einen Verdacht. Er beginnt mit H und endet mit ofstetter.', time: '20.10. 16:43' },
+      { from: 'me', text: 'Timothy, sind die Laborwerte von gestern schon da?', time: '20.10. 16:40' },
+      { from: Q, text: 'Fast. Ich schick dir später alles. Muss vorher noch was Wichtiges klären.', time: '20.10. 16:42' },
     ],
     start: 'a',
     nodes: {
@@ -85,44 +85,70 @@ export const THREADS: Thread[] = [
           },
         ],
         choices: [
-          { label: 'Ich rede mit ihr.', reply: 'Ich rede mit Hofstetter. Wegen des Joghurts.', next: 'rant' },
-          { label: 'Gar nichts.', reply: 'Ich unternehme gar nichts, Timothy.', next: 'defend' },
-          { label: 'Ein Witz bitte.', reply: 'Ich brauche einen Witz, Timothy.', next: 'joke' },
+          { label: 'Ich rede mit ihr.', reply: 'Ich rede mit Hofstetter. Wegen des Joghurts.', next: 'talk' },
+          { label: 'Lass es gut sein.', reply: 'Timothy, es ist ein Joghurt. Lass es gut sein.', next: 'letgo' },
+          { label: 'Was ist mit den Proben?', reply: 'Moment. Keine einzige Probe ist brauchbar?', next: 'samples' },
+          { label: 'Pass auf, was du sagst.', reply: 'Lena, die kleine was? Pass auf, was du sagst.', next: 'careful' },
         ],
       },
-      rant: {
+      talk: {
         msgs: [
-          { from: Q, text: 'Sie hat meinen Bericht zurückgeschickt. Wegen EINES Kommafehlers.' },
-          { from: Q, text: 'Mit rotem Stift. Doktor, sie besitzt einen eigenen roten Stift. Nur dafür.' },
-          { from: Q, text: 'Meine Großmutter in Lagos hat mir beigebracht, jedem zu verzeihen. Sie kannte Hofstetter nicht.' },
+          { from: Q, text: 'Endlich jemand mit Rückgrat.' },
+          { from: Q, text: 'Sag ihr, es war Stracciatella. Sie soll wissen, was sie mir genommen hat.' },
+          { from: Q, text: 'Und frag sie bei der Gelegenheit nach meinem Kugelschreiber.' },
         ],
         choices: [
-          { label: 'Sie meint es nicht böse.', reply: 'Sie meint es bestimmt nicht böse.', next: 'defend' },
-          { label: 'Der Kugelschreiber?', reply: 'Geht es immer noch um den Kugelschreiber?', next: 'pen' },
-        ],
-      },
-      defend: {
-        msgs: [
-          { from: Q, text: 'Das sagen alle. Auch über SCP-8002. Und das ruft vor Erdbeben an.' },
-          { from: Q, text: 'Ich behalte sie im Auge. Mit beiden Augen. Und einer Kamera.' },
+          { label: 'Welcher Kugelschreiber?', reply: 'Welcher Kugelschreiber denn jetzt?', next: 'pen' },
+          { label: 'Ein Problem nach dem anderen.', reply: 'Ein Problem nach dem anderen, Timothy.', next: 'onebyone' },
         ],
       },
       pen: {
         msgs: [
-          { from: Q, text: 'Es war ein GUTER Kugelschreiber, Doktor. Aus Kapstadt. Mit Gravur.' },
+          { from: Q, text: 'Ein GUTER Kugelschreiber, Maynard. Aus Kapstadt. Mit Gravur.' },
           { from: Q, text: 'Sie sagt, sie hat ihn "archiviert". Wer archiviert einen Kugelschreiber?!' },
           { from: Q, text: 'Ich habe einen Antrag auf Herausgabe gestellt. Formular 27-B. In dreifacher Ausführung.' },
         ],
         choices: [{ label: 'Viel Glück.', reply: 'Viel Glück damit.', next: 'luck' }],
       },
       luck: { msgs: [{ from: Q, text: 'Glück brauche ich nicht. Ich habe Bürokratie. Und Rachegelüste. Kleine. Professionelle.' }] },
-      joke: {
+      onebyone: { msgs: [{ from: Q, text: 'Gut. Erst der Joghurt. Dann der Kugelschreiber. Dann die Weltherrschaft. Melde dich.' }] },
+      letgo: {
         msgs: [
-          { from: Q, text: 'Warum hat SCP-173 keine Freunde?' },
-          { from: Q, text: 'Weil niemand wegschauen will, um ihn kennenzulernen.' },
-          { from: Q, text: 'Hofstetter hat übrigens auch nicht gelacht. Das beweist, dass er gut ist.' },
+          { from: Q, text: 'Ein Joghurt mit NAMEN drauf, Maynard.' },
+          { from: Q, text: 'Das ist kein Mundraub mehr. Das ist Identitätsdiebstahl.' },
+          { from: Q, text: 'Schon gut. Ich behalte sie im Auge. Mit beiden Augen. Und einer Kamera.' },
         ],
       },
+      samples: {
+        msgs: [
+          { from: Q, text: 'Kontaminiert. Alle zwölf.' },
+          { from: Q, text: 'Und rate mal, wer als Letzte im Probenraum war, um angeblich "Etiketten zu prüfen".' },
+        ],
+        choices: [
+          { label: 'Hofstetter?', reply: 'Lass mich raten. Hofstetter?', next: 'suspect' },
+          { label: 'Das melde ich.', reply: 'Das muss ich der Direktorin melden.', next: 'report' },
+        ],
+      },
+      suspect: { msgs: [{ from: Q, text: 'Bingo. Ich schreibe einen Bericht. Mit Kommafehlern, aus Prinzip. Soll sie ruhig ihren roten Stift holen.' }] },
+      report: {
+        msgs: [
+          { from: Q, text: 'Brandt? Bloß nicht. Die mag Hofstetter.' },
+          { from: Q, text: 'Gib mir zwei Tage. Ich nehme neue Proben. Diesmal schließe ich ab.' },
+        ],
+      },
+      careful: {
+        msgs: [
+          { from: Q, text: 'Ich hab gar nichts gesagt. Die Aufnahme ist abgebrochen. Zufällig.' },
+          { from: Q, text: 'Diese Kanäle werden doch nicht protokolliert, oder?' },
+          { from: Q, text: '…Oder?' },
+        ],
+        choices: [
+          { label: 'Doch. Von RAISA.', reply: 'Doch. RAISA liest mit.', next: 'raisa' },
+          { label: 'Nein, keine Sorge.', reply: 'Nein, keine Sorge.', next: 'relief' },
+        ],
+      },
+      raisa: { msgs: [{ from: Q, text: 'Super. Dann hiermit offiziell: Frau Hofstetter ist eine geschätzte Kollegin. Ende der Durchsage.' }] },
+      relief: { msgs: [{ from: Q, text: 'Gut. Dann bleibt das unter uns. Und unter Hofstetter, falls sie mal wieder an meinen Kühlschrank geht.' }] },
     },
   },
 ];

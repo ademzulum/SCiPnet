@@ -5,7 +5,7 @@ import { STOLEN } from '../lib/creds';
 import { play } from '../lib/sound';
 
 // SCiPnet boot after a successful login: logo locks in with the chime,
-// modules load, then hands over to the shell. Click or Enter skips.
+// modules load, then hands over to the shell. It cannot be skipped.
 
 const MODULES = ['Identität', 'Personalakten', 'Feldberichte', 'Kommunikation', 'Sicherheitsprotokolle'];
 const CHIME_AT = 650;
@@ -26,20 +26,8 @@ export default function Startup({ onDone }: { onDone: () => void }) {
       setTimeout(() => setLeaving(true), TOTAL - 450),
       setTimeout(() => done.current(), TOTAL),
     ];
-    const skip = (e: Event) => {
-      if (e instanceof KeyboardEvent && e.key !== 'Enter' && e.key !== 'Escape') return;
-      done.current();
-    };
-    // Defer so the Enter that submitted the login does not skip straight away.
-    const arm = setTimeout(() => {
-      window.addEventListener('keydown', skip);
-      window.addEventListener('pointerdown', skip);
-    }, 400);
     return () => {
       timers.forEach(clearTimeout);
-      clearTimeout(arm);
-      window.removeEventListener('keydown', skip);
-      window.removeEventListener('pointerdown', skip);
     };
   }, []);
 
