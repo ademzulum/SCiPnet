@@ -5800,6 +5800,9 @@ button.skip {
   align-items: center;
 }
 .brain-stage {
+  width: 100%;
+  max-width: 340px;
+  justify-self: center;
   color: var(--fg);
 }
 .brain-svg {
@@ -5838,6 +5841,9 @@ button.skip {
   pointer-events: none;
 }
 .brain-node {
+  /* scale around the dot itself, not the SVG origin */
+  transform-box: fill-box;
+  transform-origin: center;
   fill: var(--hi);
   cursor: pointer;
   animation: recpulse 1.6s ease-in-out infinite;
