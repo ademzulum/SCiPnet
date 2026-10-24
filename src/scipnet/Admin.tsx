@@ -31,24 +31,71 @@ const WARNINGS = [
   'ZUGRIFF PROTOKOLLIERT',
 ];
 
+const FILE_MS = 3600;
+
 export function AdminFile({ onDone }: { onDone: () => void }) {
   const [name, setName] = useState(0);
   const [warn, setWarn] = useState<string[]>([]);
+  const [heat, setHeat] = useState(0); // 0..1, rises until the countdown takes over
   const done = useRef(onDone);
   done.current = onDone;
+  const root = useRef<HTMLDivElement>(null);
+  const layers = useRef<(HTMLDivElement | null)[]>([]);
+  const blocks = useRef<(HTMLSpanElement | null)[]>([]);
+  const integrity = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const stopSound = play('selfDestruct');
+    const t0 = performance.now();
     const n = setInterval(() => setName((i) => (i + 1) % NAMES.length), 420);
-    const w = setInterval(() => setWarn((l) => [...l, WARNINGS[l.length % WARNINGS.length]].slice(-6)), 380);
+    const w = setInterval(() => setWarn((l) => [...l, WARNINGS[l.length % WARNINGS.length]].slice(-7)), 300);
+    const h = setInterval(() => setHeat(Math.min(1, (performance.now() - t0) / FILE_MS)), 150);
+
+    // Per-frame tearing, written straight to the DOM: offset slices of the
+    // colour-split copies, flashing blocks, shake and the integrity counter.
+    let raf = 0;
+    let last = 0;
+    const frame = (now: number) => {
+      raf = requestAnimationFrame(frame);
+      if (now - last < 70) return;
+      last = now;
+      const k = Math.min(1, (now - t0) / FILE_MS);
+      const amp = 4 + k * 26;
+      layers.current.forEach((el) => {
+        if (!el) return;
+        const top = Math.random() * 90;
+        const hgt = 4 + Math.random() * (10 + k * 30);
+        el.style.clipPath = `inset(${top}% 0 ${Math.max(0, 100 - top - hgt)}% 0)`;
+        el.style.transform = `translateX(${(Math.random() - 0.5) * 2 * amp}px)`;
+        el.style.opacity = Math.random() < 0.2 + k * 0.6 ? '1' : '0';
+      });
+      blocks.current.forEach((el) => {
+        if (!el) return;
+        const on = Math.random() < 0.15 + k * 0.5;
+        el.style.opacity = on ? String(0.4 + Math.random() * 0.6) : '0';
+        el.style.left = `${Math.random() * 95}%`;
+        el.style.top = `${Math.random() * 95}%`;
+        el.style.width = `${10 + Math.random() * (40 + k * 160)}px`;
+        el.style.height = `${3 + Math.random() * (8 + k * 30)}px`;
+      });
+      if (root.current) {
+        const s = k * 7;
+        root.current.style.transform = `translate(${(Math.random() - 0.5) * s}px, ${(Math.random() - 0.5) * s}px)`;
+      }
+      if (integrity.current) integrity.current.textContent = `${Math.max(0, Math.round((1 - k) * 100 - Math.random() * 6))}%`;
+    };
+    raf = requestAnimationFrame(frame);
+
     let finished = false;
     const end = setTimeout(() => {
       finished = true;
       done.current();
-    }, 3600);
+    }, FILE_MS);
     return () => {
       clearInterval(n);
       clearInterval(w);
+      clearInterval(h);
+      cancelAnimationFrame(raf);
       clearTimeout(end);
       // keep playing into the countdown; only cut it if the file is torn down early
       if (!finished) stopSound();
@@ -61,28 +108,46 @@ export function AdminFile({ onDone }: { onDone: () => void }) {
     ['Freigabe', 'Stufe 6'],
     ['Status', 'Unbekannt'],
   ];
+  const amount = (base: number) => Math.min(0.95, base + heat * 0.6);
+
+  const dossier = (
+    <div className="dossier">
+      <div className="photo admin-photo">
+        <Corrupt text="▓▓▓▓" amount={0.9} every={140} />
+      </div>
+      <div className="dossier-main">
+        <h2>
+          <Corrupt text={NAMES[name]} amount={amount(0.25)} every={110} />
+        </h2>
+        <dl className="fields">
+          {fields.map(([k, v]) => (
+            <div key={k}>
+              <dt>{k}</dt>
+              <dd>
+                <Corrupt text={v} amount={amount(0.4)} every={120} />
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="page admin">
-      <div className="dossier">
-        <div className="photo admin-photo">
-          <Corrupt text="▓▓▓▓" amount={0.9} every={140} />
-        </div>
-        <div className="dossier-main">
-          <h2>
-            <Corrupt text={NAMES[name]} amount={0.25} every={120} />
-          </h2>
-          <dl className="fields">
-            {fields.map(([k, v]) => (
-              <div key={k}>
-                <dt>{k}</dt>
-                <dd>
-                  <Corrupt text={v} amount={0.5} every={140} />
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
+    <div className="page admin admin-live" ref={root}>
+      <div className="admin-stack">
+        {dossier}
+        {['r', 'c'].map((c, i) => (
+          <div key={c} className={`admin-tear tear-${c}`} ref={(el) => void (layers.current[i] = el)} aria-hidden>
+            {dossier}
+          </div>
+        ))}
+        {Array.from({ length: 10 }, (_, i) => (
+          <span key={i} className="admin-block" ref={(el) => void (blocks.current[i] = el)} aria-hidden />
+        ))}
+      </div>
+      <div className="admin-integrity">
+        AKTENINTEGRITÄT <span ref={integrity}>100%</span>
       </div>
       <div className="admin-warnings">
         {warn.map((w, i) => (
@@ -210,7 +275,7 @@ const PURGE = [
   '/terminal/schluessel',
 ];
 
-// Shared countdown stage for both self-destructs: hazard bands, a rotating
+// Shared countdown stage for both self-destructs: a rotating
 // radar sweep, counter-rotating rings with a draining progress arc around the
 // number, a fast purge log and a jolt on every tick.
 function DestructStage({ title, count, total, steps }: { title: string; count: number; total: number; steps: string[] }) {
@@ -231,8 +296,6 @@ function DestructStage({ title, count, total, steps }: { title: string; count: n
 
   return (
     <div className="ds">
-      <div className="ds-band top" aria-hidden />
-      <div className="ds-band bottom" aria-hidden />
       <div className="ds-sweep" aria-hidden />
       <motion.div key={count} className="ds-jolt" initial={{ x: -8, y: 4 }} animate={{ x: 0, y: 0 }} transition={{ duration: 0.25 }}>
         <div className="destruct-title">{title}</div>

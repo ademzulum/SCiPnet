@@ -4667,28 +4667,6 @@ button.skip {
   align-items: center;
   gap: 1rem;
 }
-/* moving hazard stripes along the top and bottom edge */
-.ds-band {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 26px;
-  background: repeating-linear-gradient(-45deg, #ffcc00 0 18px, #120000 18px 36px);
-  opacity: 0.85;
-  animation: ds-stripes 0.6s linear infinite;
-}
-.ds-band.top {
-  top: 0;
-}
-.ds-band.bottom {
-  bottom: 0;
-  animation-direction: reverse;
-}
-@keyframes ds-stripes {
-  to {
-    background-position: 51px 0;
-  }
-}
 /* rotating warning-light sweep */
 .ds-sweep {
   position: absolute;
@@ -4775,9 +4753,55 @@ button.skip {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ds-band,
   .ds-sweep,
   .ds-ring {
     animation: none;
+  }
+}
+
+/* ---- Administrator file: escalating corruption ------------------------- */
+
+.admin-stack {
+  position: relative;
+}
+.admin-tear {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+.admin-tear.tear-r {
+  color: #ff2a3a;
+  text-shadow: 2px 0 #ff2a3a;
+}
+.admin-tear.tear-c {
+  color: #23f0ff;
+  text-shadow: -2px 0 #23f0ff;
+}
+.admin-block {
+  position: absolute;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, #fff 0 2px, #ff2a3a 2px 4px, #23f0ff 4px 6px);
+  mix-blend-mode: difference;
+}
+.admin-live {
+  will-change: transform;
+}
+.admin-integrity {
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: #ff4b5c;
+}
+.admin-integrity span {
+  font-size: 20px;
+  margin-left: 0.6rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-tear,
+  .admin-block {
+    display: none;
   }
 }
