@@ -54,7 +54,8 @@ export function customCursor() {
   let theme: Element | null = null;
 
   const setTheme = (el: Element | null) => {
-    const crt = el?.closest('.crt') ?? null;
+    // the nearest screen with its own palette: the minigame overlay, else the CRT
+    const crt = el?.closest('.hack-overlay, .crt') ?? null;
     if (crt === theme && crt) return;
     theme = crt;
     const cs = getComputedStyle(crt ?? document.body);
