@@ -8128,3 +8128,10 @@ html:not(.cur-lock) .cur-ring i {
     align-items: center;
   }
 }
+@media (min-width: 1500px) {
+  /* each rail sits in the middle of the free space on its side */
+  .rail-left,
+  .rail-right {
+    justify-self: center;
+  }
+}
