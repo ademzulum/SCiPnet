@@ -33,7 +33,13 @@ export function customCursor() {
     mx = e.clientX;
     my = e.clientY;
     const el = e.target as Element;
-    target = el.closest?.(CLICKABLE) ?? null;
+    const next = el.closest?.(CLICKABLE) ?? null;
+    // the framed element squares its corners to match the frame (styles.css)
+    if (next !== target) {
+      target?.classList.remove('cur-target');
+      next?.classList.add('cur-target');
+    }
+    target = next;
     root.classList.toggle('cur-lock', !!target);
     // a count badge (the bell) takes the place of the top-right bracket
     root.classList.toggle('cur-badge', !!target?.querySelector('.bell-count'));

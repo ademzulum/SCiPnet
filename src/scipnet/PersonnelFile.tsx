@@ -222,22 +222,33 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
 
 function FileTab({ p }: { p: Person }) {
   return (
-    <div className="stack">
-      <section className="box">
-        <h3>Zusammenfassung</h3>
-        <p>
+    <div className="file-split">
+      <section className="box file-panel">
+        <div className="box-head">
+          <h3>Zusammenfassung</h3>
+          <span className="dim small">{p.id}</span>
+        </div>
+        <p className="file-lead">
           <Redacted text={p.summary} />
         </p>
       </section>
-      <section className="box">
-        <h3>Vermerke</h3>
-        <ul className="notices">
-          {p.notes.map((n) => (
-            <li key={n}>
-              <Redacted text={n} />
-            </li>
+      <section className="box file-panel">
+        <div className="box-head">
+          <h3>Vermerke</h3>
+          <span className="dim small">{p.notes.length} Einträge</span>
+        </div>
+        <div className="inc-list">
+          {p.notes.map((n, i) => (
+            <div key={n} className="inc note">
+              <span className="inc-icon" aria-hidden>
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span className="inc-body">
+                <Redacted text={n} />
+              </span>
+            </div>
           ))}
-        </ul>
+        </div>
       </section>
     </div>
   );
@@ -259,77 +270,107 @@ function PsychTab({ p }: { p: Person }) {
 
   if (phase === 'granted') {
     const { verdict, date, metrics = [], text } = p.psych;
+    const avg = metrics.length ? Math.round(metrics.reduce((n, m) => n + m.value, 0) / metrics.length) : null;
     return (
       <div className="stack">
-        <div className="box psych-head">
-          <div>
-            <div className="label">Gesamtbeurteilung</div>
-            {verdict && <span className={`verdict verdict-${verdict.tone}`}>{verdict.label}</span>}
-          </div>
-          {date && (
-            <div className="psych-date">
-              <div className="label">Letzte Beurteilung</div>
-              {fmtDate(date)}
+        <div className="psych-top">
+          <section className={`box file-panel psych-verdict tone-${verdict?.tone ?? 'ok'}`}>
+            <div className="box-head">
+              <h3>Gesamtbeurteilung</h3>
+              {date && <span className="dim small">Stand {fmtDate(date)}</span>}
             </div>
+            {verdict && <span className={`verdict verdict-${verdict.tone}`}>{verdict.label}</span>}
+            <div className="psych-facts">
+              <span>
+                <span className="label">Index</span>
+                <strong>{avg ?? '–'}</strong>
+              </span>
+              <span>
+                <span className="label">Kennwerte</span>
+                <strong>{metrics.length}</strong>
+              </span>
+              <span>
+                <span className="label">Befunde</span>
+                <strong>{text.length}</strong>
+              </span>
+            </div>
+          </section>
+
+          {metrics.length > 0 && (
+            <section className="box file-panel">
+              <div className="box-head">
+                <h3>Kennwerte</h3>
+                <span className="dim small">0–100</span>
+              </div>
+              <div className="psych-metrics">
+                {metrics.map((m, i) => (
+                  <div key={m.label} className="pm-row">
+                    <span className="pm-label">{m.label}</span>
+                    <div className="meter">
+                      <motion.div
+                        className={m.value < 40 ? 'meter-fill low' : 'meter-fill'}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${m.value}%` }}
+                        transition={{ duration: 0.8, delay: 0.1 + i * 0.1, ease: 'easeOut' }}
+                      />
+                    </div>
+                    <span className={m.value < 40 ? 'pm-value low' : 'pm-value'}>{m.value}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
         </div>
 
-        <BrainScan p={p} />
-        <Eeg tone={verdict?.tone} />
+        <div className="psych-scans">
+          <BrainScan p={p} />
+          <Eeg tone={verdict?.tone} />
+        </div>
 
-        {metrics.length > 0 && (
-          <div className="metrics">
-            {metrics.map((m, i) => (
-              <div key={m.label} className="box metric">
-                <div className="metric-top">
-                  <span className="label">{m.label}</span>
-                  <span className="metric-value">{m.value}</span>
-                </div>
-                <div className="meter">
-                  <motion.div
-                    className={m.value < 40 ? 'meter-fill low' : 'meter-fill'}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${m.value}%` }}
-                    transition={{ duration: 0.8, delay: 0.1 + i * 0.1, ease: 'easeOut' }}
-                  />
-                </div>
+        <section className="box file-panel">
+          <div className="box-head">
+            <h3>Beobachtungen</h3>
+            <span className="dim small">{text.length} Einträge</span>
+          </div>
+          <div className="inc-list">
+            {text.map((n, i) => (
+              <div key={n} className="inc note">
+                <span className="inc-icon" aria-hidden>
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span className="inc-body">
+                  <Redacted text={n} />
+                </span>
               </div>
             ))}
           </div>
-        )}
-
-        <section className="box">
-          <h3>Beobachtungen</h3>
-          <ol className="observations">
-            {text.map((n, i) => (
-              <li key={n}>
-                <span className="obs-index">{String(i + 1).padStart(2, '0')}</span>
-                <span>
-                  <Redacted text={n} />
-                </span>
-              </li>
-            ))}
-          </ol>
         </section>
       </div>
     );
   }
 
+  const denied = phase === 'denied';
   return (
-    <div className={phase === 'denied' ? 'box locked-box denied' : 'box locked-box'}>
-      <span className="lock-icon" aria-hidden>
-        ⬢
+    <section className={denied ? 'box psych-lock denied' : 'box psych-lock'}>
+      <span className="psych-lock-icon" aria-hidden>
+        <svg viewBox="0 0 24 24">
+          <rect x="5" y="11" width="14" height="10" rx="2" />
+          <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </svg>
       </span>
-      <div>
-        <div className="label">Psychologisches Profil</div>
-        <p>{phase === 'denied' ? `Zugriff verweigert. Erforderlich: ${p.psych.required}.` : 'Diese Akte ist geschützt.'}</p>
-      </div>
-      {phase !== 'denied' && (
+      <div className="label">Psychologisches Profil · {p.id}</div>
+      <h3>{denied ? 'Zugriff verweigert' : 'Geschützte Akte'}</h3>
+      <p className="dim">
+        {denied
+          ? `Ihre Freigabe reicht nicht aus. Erforderlich: ${p.psych.required}.`
+          : 'Beurteilung, Kennwerte, Neuralscan und EEG sind nur auf Anfrage einsehbar.'}
+      </p>
+      {!denied && (
         <button className="card action" onClick={request} disabled={phase === 'asking'}>
           {phase === 'asking' ? <span className="dots">ANFRAGE LÄUFT</span> : 'ZUGRIFF ANFORDERN'}
         </button>
       )}
-    </div>
+    </section>
   );
 }
 
