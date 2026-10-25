@@ -26,8 +26,9 @@ function prepare(raw: string, scope: string, cover: boolean) {
   const shift = (width * 0.06).toFixed(1);
   const filter = `<filter id="${scope}scramble" x="-10%" y="-60%" width="120%" height="220%" color-interpolation-filters="sRGB">
 <feTurbulence type="fractalNoise" baseFrequency="0 ${(14 / width).toFixed(4)}" numOctaves="2" seed="4" result="n"/>
-<feOffset in="n" dy="0" result="m"><animate attributeName="dy" values="0;${(width * 0.4).toFixed(0)}" dur="6s" repeatCount="indefinite"/></feOffset>
-<feDisplacementMap in="SourceGraphic" in2="m" scale="${shift}" xChannelSelector="R" yChannelSelector="R"/>
+<feOffset in="n" dy="0" result="o"><animate attributeName="dy" values="0;${(width * 0.4).toFixed(0)}" dur="6s" repeatCount="indefinite"/></feOffset>
+<feColorMatrix in="o" type="matrix" values="1 0 0 0 0  0 0 0 0 0.5  0 0 0 0 0  0 0 0 0 1" result="m"/>
+<feDisplacementMap in="SourceGraphic" in2="m" scale="${shift}" xChannelSelector="R" yChannelSelector="G"/>
 </filter>`;
 
   let n = 0;
