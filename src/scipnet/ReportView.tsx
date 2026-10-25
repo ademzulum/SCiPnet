@@ -6,7 +6,7 @@ import Redacted from './Redacted';
 import { initials } from './Comms';
 import { classKey } from './ReportList';
 import { ClassBadge } from './Archive';
-import { barStyle, reportImageUrl } from '../data/photos';
+import { reportImageUrl } from '../data/photos';
 import { useAccount } from './session';
 
 export default function ReportView({ id, go }: { id: string; go: Go }) {
@@ -137,8 +137,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                     <figure key={i}>
                       {img.src ? (
                         <div className="rv-img">
-                          <img src={reportImageUrl(img.src)} alt={img.caption} loading="lazy" />
-                          {!admin && img.bars?.map((b, j) => <span key={j} className="eye-bar" style={barStyle(b)} />)}
+                          <img src={reportImageUrl(img.src, !admin)} alt={img.caption} loading="lazy" />
                         </div>
                       ) : (
                         <div className="rv-img-empty" aria-label="Kein Bild hinterlegt">

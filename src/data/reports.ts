@@ -5,7 +5,6 @@
 // Images: put files into images/field_reports/ and give the file name in `src`;
 // without `src` a placeholder frame with the caption is shown.
 
-import type { EyeBar } from './photos';
 
 export type Report = {
   id: string;
@@ -20,7 +19,7 @@ export type Report = {
   timeline?: { time: string; text: string }[]; // Verlauf
   measures?: string[]; // Maßnahmen (bullet list)
   assessment: string[]; // Bewertung und Empfehlung
-  images?: { src?: string; caption: string; bars?: EyeBar[] }[]; // bars: censor bars over faces
+  images?: { src?: string; caption: string }[]; // add <name>_censored.webp next to the file for a censored version
   involved?: string[]; // personnel ids
 };
 
@@ -55,10 +54,6 @@ export const REPORTS: Report[] = [
       {
         src: 'addendum.jpg',
         caption: 'Hallström und Truppführer am Lager, Nachtaufnahme',
-        bars: [
-          { top: 27.4, left: 42.4, width: 4.6, height: 2.8 },
-          { top: 9.4, left: 56.4, width: 3.6, height: 2.6 },
-        ],
       },
     ],
     involved: ['P-80-0912'],

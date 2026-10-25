@@ -6183,18 +6183,6 @@ button.skip {
   .composer { min-height: 0; }
 }
 
-/* censor bar over the eyes; tuned for a centred, cover-cropped portrait */
-.folder-photo,
-.portrait-frame { position: relative; }
-.eye-bar {
-  position: absolute;
-  top: 16.5%;
-  left: 34%;
-  width: 34%;
-  height: 7%;
-  background: #000;
-  pointer-events: none;
-}
 /* hover scanline stays above the photo */
 .folder::before { z-index: 2; }
 .dossier-sheet .dossier { align-items: center; }
@@ -6226,14 +6214,14 @@ button.skip {
   overflow: hidden;
 }
 
-/* report image with optional censor bars */
+/* report image wrapper */
 .rv-img {
   position: relative;
 }
 .rv-img img {
   display: block;
 }
-/* report photos: bigger and uncropped, so censor bars map to the source image */
+/* report photos: full width and uncropped */
 .rv-images {
   grid-template-columns: 1fr; /* one photo per row, full width */
 }

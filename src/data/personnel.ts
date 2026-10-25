@@ -1,6 +1,5 @@
 // Personnel files. Text may contain [[...]] for redacted passages.
 
-import type { EyeBar } from './photos';
 
 export type Person = {
   id: string;
@@ -11,7 +10,6 @@ export type Person = {
   status: 'Aktiv' | 'Beurlaubt' | 'Vermisst' | 'Beobachtung';
   since: string;
   photo?: string; // file name in images/personell_pictures/ (no extension); a generated portrait is shown otherwise
-  eyeBar?: EyeBar; // black censor bar over the eyes, hidden for the Administrator
   quote?: string;
   summary: string;
   notes: string[];
@@ -33,7 +31,6 @@ export const PERSONNEL: Person[] = [
     id: 'P-80-0001',
     name: 'Dr. Ilse Brandt',
     photo: 'ilse_brandt',
-    eyeBar: { top: 28.5, left: 33, width: 27 },
     role: 'Standortdirektorin',
     department: 'Standortleitung',
     clearance: 'Stufe 4',
@@ -226,7 +223,6 @@ export const PERSONNEL: Person[] = [
     id: 'P-80-0912',
     name: 'Halvard Hallström',
     photo: 'halvard_hallstroem',
-    eyeBar: { top: 25.5, left: 36, width: 24 },
     role: 'Operator, MTF Delta-5',
     department: 'Mobile Einsatzkräfte',
     clearance: 'Stufe 2',
@@ -267,7 +263,6 @@ export const PERSONNEL: Person[] = [
     id: 'X-80-0003',
     name: 'Corvus Finch',
     photo: 'corvus_finch',
-    eyeBar: { top: 16.5, left: 34, width: 34 },
     role: 'Externe Person von Interesse',
     department: 'FBI / Unusual Incidents Unit',
     clearance: 'Keine',
