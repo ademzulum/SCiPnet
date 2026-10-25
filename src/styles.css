@@ -7437,3 +7437,12 @@ button.skip {
 .brain-stage {
   max-width: 380px;
 }
+
+/* a redaction bar and the punctuation touching it never split across lines */
+.redact-glue {
+  white-space: nowrap;
+}
+/* revealed text inside still wraps normally */
+.redact-glue .declassified {
+  white-space: normal;
+}

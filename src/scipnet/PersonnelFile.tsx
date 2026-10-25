@@ -236,7 +236,7 @@ function FileTab({ p }: { p: Person }) {
       <section className="box file-panel">
         <div className="box-head">
           <h3>Vermerke</h3>
-          <span className="dim small">{p.notes.length} Einträge</span>
+          <span className="dim small">{p.notes.length} {p.notes.length === 1 ? 'Eintrag' : 'Einträge'}</span>
         </div>
         <div className="inc-list">
           {p.notes.map((n, i) => (
@@ -343,7 +343,7 @@ function PsychTab({ p, onGranted }: { p: Person; onGranted: () => void }) {
         <section className="box file-panel">
           <div className="box-head">
             <h3>Beobachtungen</h3>
-            <span className="dim small">{text.length} Einträge</span>
+            <span className="dim small">{text.length} {text.length === 1 ? 'Eintrag' : 'Einträge'}</span>
           </div>
           <div className="inc-list">
             {text.map((n, i) => (

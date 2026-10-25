@@ -4,14 +4,36 @@ import { play } from '../lib/sound';
 
 const GLYPHS = '█▓▒░#%&@$01';
 
+// Punctuation that must stay on the same line as the bar next to it.
+const CLOSE = /^[.,;:!?…)\]»“”"'’%-]+/;
+const OPEN = /[(\[„«"'‚]+$/;
+
 // Renders text, turning [[...]] into a redaction bar of similar length.
 // Logged in as the Administrator, a click declassifies the passage.
+// Each bar is glued to the punctuation around it ("[[x]]." or "([[x]])"), so
+// a line never breaks between the bar and a full stop or bracket.
 export default function Redacted({ text }: { text: string }) {
-  return (
-    <>
-      {text.split(/\[\[(.+?)\]\]/).map((part, i) => (i % 2 ? <Bar key={i} secret={part} /> : part))}
-    </>
-  );
+  const parts = text.split(/\[\[(.+?)\]\]/);
+  const out: React.ReactNode[] = [];
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      out.push(parts[i]);
+      continue;
+    }
+    const before = (out.pop() as string) ?? '';
+    const open = before.match(OPEN)?.[0] ?? '';
+    const close = parts[i + 1].match(CLOSE)?.[0] ?? '';
+    parts[i + 1] = parts[i + 1].slice(close.length);
+    out.push(
+      before.slice(0, before.length - open.length),
+      <span key={i} className="redact-glue">
+        {open}
+        <Bar secret={parts[i]} />
+        {close}
+      </span>,
+    );
+  }
+  return <>{out}</>;
 }
 
 function Bar({ secret }: { secret: string }) {
