@@ -29,7 +29,7 @@ function prepare(raw: string, scope: string, cover: boolean) {
 <feOffset in="n" dy="0" result="o"><animate attributeName="dy" values="0;${(width * 0.4).toFixed(0)}" dur="1.6s" repeatCount="indefinite"/></feOffset>
 <feColorMatrix in="o" type="matrix" values="1 0 0 0 0  0 0 0 0 0.5  0 0 0 0 0  0 0 0 0 1" result="m"/>
 <feDisplacementMap in="SourceGraphic" in2="m" scale="${shift}" xChannelSelector="R" yChannelSelector="G" result="d"/>
-<feGaussianBlur in="d" stdDeviation="${(width * 0.006).toFixed(1)} 0"/>
+<feGaussianBlur in="d" stdDeviation="${(width * 0.016).toFixed(1)} 0"/>
 </filter>`;
 
   let n = 0;
