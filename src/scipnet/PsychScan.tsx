@@ -42,6 +42,8 @@ export function BrainScan({ p }: { p: Person }) {
     if (phase !== 'scan') return;
     const start = performance.now();
     let raf = 0;
+    // the searching sweep from the UIU terminal, quiet, for as long as the scan runs
+    const stopSweep = play('triangulate', 0.25, true);
     const tick = (t: number) => {
       const n = Math.min(100, ((t - start) / 2600) * 100);
       setPct(n);
@@ -49,12 +51,21 @@ export function BrainScan({ p }: { p: Person }) {
       else {
         setPhase('done');
         setSel(0);
+        stopSweep(250);
         play('uiuSuccess', 0.35);
       }
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      stopSweep(150);
+    };
   }, [phase]);
+
+  const pick = (i: number) => {
+    play('click', 0.5);
+    setSel(i);
+  };
 
   const avg = metrics.length ? Math.round(metrics.reduce((n, m) => n + m.value, 0) / metrics.length) : 0;
   const m = sel !== null ? regionMetric(metrics, sel) : null;
@@ -117,7 +128,7 @@ export function BrainScan({ p }: { p: Person }) {
                   d={r.d}
                   className={`brain-region${sel === i ? ' sel' : ''}`}
                   style={revealed ? { fill: heat(v), fillOpacity: 0.25 + (v / 100) * 0.45 } : undefined}
-                  onClick={() => phase === 'done' && setSel(i)}
+                  onClick={() => phase === 'done' && pick(i)}
                 />
               );
             })}
@@ -143,7 +154,7 @@ export function BrainScan({ p }: { p: Person }) {
                   cy={n.y}
                   r={(sel === i ? 10 : 7) * U}
                   className="brain-node"
-                  onClick={() => setSel(i)}
+                  onClick={() => pick(i)}
                 />
               ))}
           </svg>

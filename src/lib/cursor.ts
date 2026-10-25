@@ -51,7 +51,8 @@ export function customCursor() {
     let tx = mx - SIZE / 2, ty = my - SIZE / 2, tw = SIZE, th = SIZE;
     if (target?.isConnected) {
       const r = target.getBoundingClientRect();
-      tx = r.left - 5; ty = r.top - 5; tw = r.width + 10; th = r.height + 10;
+      // exactly on the element's edges, so the frame never spills onto its neighbours
+      tx = r.left; ty = r.top; tw = r.width; th = r.height;
     }
     // the ring sits on the pointer; only the move into and out of a frame is eased
     const k = target || w > SIZE + 1 || h > SIZE + 1 ? 0.35 : 1;
