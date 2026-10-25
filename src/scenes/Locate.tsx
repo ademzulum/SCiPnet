@@ -177,9 +177,9 @@ export default function Locate({ onDone }: { onDone: () => void }) {
       }
       const nextStep = t < SPIN_MS ? 'spin' : t < SPIN_MS + FIX_MS ? 'fix' : t < SPIN_MS + FIX_MS + ZOOM_MS ? 'zoom' : 'lock';
       setStep(nextStep);
-      // search sound loops while the satellites triangulate and the globe
-      // zooms; the lock cuts it and plays the "found" tone
-      if (nextStep !== 'spin' && !searching) {
+      // search sound loops from just after the globe appears, through the
+      // triangulation and the zoom; the lock cuts it and plays the "found" tone
+      if (t > 300 && !searching) {
         searching = true;
         initAudio().then(() => {
           if (!locked && !finished) stopSearch = play('triangulate', 0.6, true);

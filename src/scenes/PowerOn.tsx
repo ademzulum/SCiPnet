@@ -42,6 +42,7 @@ export default function PowerOn({ onStart }: { onStart: () => void }) {
     }
     if (started.current) return;
     started.current = true;
+    anthem.fade(400); // skipped with Enter: don't let the anthem run on into the next scene
     initAudio().then(() => play('enter', 0.8));
     onStart();
   };
