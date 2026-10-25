@@ -47,9 +47,12 @@ export default function Globe({ geo }: { geo: Geo | null }) {
     const canvas = ref.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
+    // theme colours are re-read every frame so a light/dark switch applies at once
     const css = getComputedStyle(canvas);
-    const accent = css.getPropertyValue('--accent').trim() || '#e8b85a';
-    const fg = css.getPropertyValue('--fg').trim() || '#cfd8dc';
+    let accent = '#e8b85a';
+    let fg = '#cfd8dc';
+    let bg = '#07090b';
+    let light = false;
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let raf = 0;
@@ -79,11 +82,15 @@ export default function Globe({ geo }: { geo: Geo | null }) {
       if (!still) lon += dt * 0.012;
       projection.rotate([lon, tilt]);
       ctx.clearRect(0, 0, size, size);
+      accent = css.getPropertyValue('--accent').trim() || accent;
+      fg = css.getPropertyValue('--fg').trim() || fg;
+      bg = css.getPropertyValue('--bg').trim() || bg;
+      light = !!canvas.closest("[data-mode='light']");
 
       // sphere
       ctx.beginPath();
       path({ type: 'Sphere' });
-      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.fillStyle = light ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.35)';
       ctx.fill();
       ctx.strokeStyle = accent;
       ctx.globalAlpha = 0.5;
@@ -111,7 +118,6 @@ export default function Globe({ geo }: { geo: Geo | null }) {
       ctx.lineWidth = 0.6;
       ctx.stroke();
 
-      // pin, only while on the visible side
       // pin fades out over the last 30° before the horizon and back in after it
       const fade = pin ? Math.max(0, Math.min(1, (Math.PI / 2 - geoDistance(pin, [-lon, -tilt])) / (Math.PI / 6))) : 0;
       if (pin && fade > 0) {
@@ -120,14 +126,23 @@ export default function Globe({ geo }: { geo: Geo | null }) {
         ctx.globalAlpha = (1 - pulse) * fade;
         ctx.beginPath();
         ctx.arc(x, y, 4 + pulse * 18, 0, Math.PI * 2);
-        ctx.strokeStyle = '#ff5a5f';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = fg; // text colour: dark in light mode, light in dark mode
+        ctx.lineWidth = 2;
         ctx.stroke();
+        // red dot with a background-coloured halo and a text-coloured rim, so it
+        // stands out from the land outlines in both modes
         ctx.globalAlpha = fade;
         ctx.beginPath();
-        ctx.arc(x, y, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = '#ff5a5f';
+        ctx.arc(x, y, 7, 0, Math.PI * 2);
+        ctx.fillStyle = bg;
         ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = light ? '#d0001c' : '#ff5a5f';
+        ctx.fill();
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = fg;
+        ctx.stroke();
       }
       ctx.globalAlpha = 1;
       raf = requestAnimationFrame(draw);
