@@ -10,9 +10,11 @@ import './styles.css';
 import App from './App';
 import { blockInspect } from './lib/noInspect';
 import { customCursor } from './lib/cursor';
+import { repaintScrollbarsOnThemeChange } from './lib/scrollbars';
 
 blockInspect();
 customCursor();
+repaintScrollbarsOnThemeChange();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

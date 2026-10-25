@@ -7571,9 +7571,18 @@ html:not(.cur-lock) .cur-ring i {
 }
 
 /* ---- scrollbars: thin, square, in the theme colours ---------------------- */
+/* Plain colours per theme instead of var(--accent): Chrome does not repaint a
+   scrollbar when only a custom property behind it changes, so after a
+   light/dark switch the bar stayed invisible. */
 .crt * {
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--accent) 55%, transparent) transparent;
+  scrollbar-color: rgba(255, 176, 0, 0.55) transparent;
+}
+.crt[data-theme='scip'] * {
+  scrollbar-color: rgba(215, 38, 61, 0.55) transparent;
+}
+.crt[data-theme='scip'][data-mode='light'] * {
+  scrollbar-color: rgba(192, 29, 51, 0.5) transparent;
 }
 .crt ::-webkit-scrollbar {
   width: 8px;
