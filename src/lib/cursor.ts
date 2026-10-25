@@ -35,10 +35,7 @@ export function customCursor() {
     const el = e.target as Element;
     const next = el.closest?.(CLICKABLE) ?? null;
     // the framed element squares its corners to match the frame (styles.css)
-    if (next !== target) {
-      target?.classList.remove('cur-target');
-      next?.classList.add('cur-target');
-    }
+    if (next !== target) target?.removeAttribute('data-cur-target');
     target = next;
     root.classList.toggle('cur-lock', !!target);
     // a count badge (the bell) takes the place of the top-right bracket
@@ -53,6 +50,12 @@ export function customCursor() {
 
   const frame = () => {
     let tx = mx - SIZE / 2, ty = my - SIZE / 2, tw = SIZE, th = SIZE;
+    // a click can re-render or replace the framed element: find it again and
+    // keep it marked (an attribute, so React's className updates don't drop it)
+    if (target && !target.isConnected) {
+      target = document.elementFromPoint(mx, my)?.closest(CLICKABLE) ?? null;
+    }
+    if (target && !target.hasAttribute('data-cur-target')) target.setAttribute('data-cur-target', '');
     if (target?.isConnected) {
       const r = target.getBoundingClientRect();
       // exactly on the element's edges, so the frame never spills onto its neighbours

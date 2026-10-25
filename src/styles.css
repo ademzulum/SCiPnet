@@ -7294,8 +7294,8 @@ button.skip {
 }
 
 /* ---- the element under the cursor frame squares off to match it ----------- */
-.cur-target,
-.cur-target > .nav-indicator,
-.cur-target > .tab-pill {
+[data-cur-target],
+[data-cur-target] > .nav-indicator,
+[data-cur-target] > .tab-pill {
   border-radius: 4px !important;
 }
