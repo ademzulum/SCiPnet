@@ -19,7 +19,7 @@ export type Report = {
   timeline?: { time: string; text: string }[]; // Verlauf
   measures?: string[]; // Maßnahmen (bullet list)
   assessment: string[]; // Bewertung und Empfehlung
-  images?: { src?: string; caption: string }[]; // add <name>_censored.webp next to the file for a censored version
+  images?: { src?: string; caption: string }[]; // SVGs may hold "censor" elements, see photos.ts
   involved?: string[]; // personnel ids
 };
 
@@ -52,7 +52,7 @@ export const REPORTS: Report[] = [
     ],
     images: [
       {
-        src: 'addendum.jpg',
+        src: 'addendum.svg',
         caption: 'Hallström und Truppführer am Lager, Nachtaufnahme',
       },
     ],

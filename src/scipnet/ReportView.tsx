@@ -7,6 +7,7 @@ import { initials } from './Comms';
 import { classKey } from './ReportList';
 import { ClassBadge } from './Archive';
 import { reportImageUrl } from '../data/photos';
+import Picture from './Picture';
 import { useAccount } from './session';
 
 export default function ReportView({ id, go }: { id: string; go: Go }) {
@@ -137,7 +138,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                     <figure key={i}>
                       {img.src ? (
                         <div className="rv-img">
-                          <img src={reportImageUrl(img.src, !admin)} alt={img.caption} loading="lazy" />
+                          <Picture src={reportImageUrl(img.src)} alt={img.caption} censored={!admin} />
                         </div>
                       ) : (
                         <div className="rv-img-empty" aria-label="Kein Bild hinterlegt">

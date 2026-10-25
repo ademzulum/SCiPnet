@@ -2,24 +2,26 @@
 // personnel.ts and reports.ts are also loaded by the api/ functions, which run
 // as plain Node and can't import images.
 //
-// Censoring: put a second file next to the original with "_censored" before
-// the extension (e.g. corvus_finch_censored.webp). Everyone but the
-// Administrator sees that one; without it the original is shown.
-const PEOPLE = import.meta.glob<string>('../../images/personell_pictures/*.{png,jpg,webp}', { eager: true, import: 'default' });
-const REPORTS = import.meta.glob<string>('../../images/field_reports/*', { eager: true, import: 'default' });
+// Censoring: export the picture as an SVG with the black bars as elements
+// whose id starts with "censor" (censor, censor2, ...). The Administrator sees
+// the picture without them. An SVG is preferred over a png/jpg of the same name.
+const PEOPLE = import.meta.glob<string>('../../images/personell_pictures/*.{svg,png,jpg,webp}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
+const REPORTS = import.meta.glob<string>('../../images/field_reports/*.{svg,png,jpg,webp}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
 
-const find = (files: Record<string, string>, dir: string, base: string) =>
-  ['webp', 'png', 'jpg'].map((ext) => files[`${dir}${base}.${ext}`]).find(Boolean);
-
-const pick = (files: Record<string, string>, dir: string, file: string | undefined, censored: boolean) => {
+const pick = (files: Record<string, string>, dir: string, file?: string) => {
   if (!file) return undefined;
   const base = file.replace(/\.\w+$/, '');
-  return (censored && find(files, dir, `${base}_censored`)) || files[`${dir}${file}`] || find(files, dir, base);
+  return ['svg', 'png', 'jpg', 'webp'].map((ext) => files[`${dir}${base}.${ext}`]).find(Boolean);
 };
 
-// name without extension, e.g. 'corvus_finch'
-export const photoUrl = (name: string | undefined, censored: boolean) =>
-  pick(PEOPLE, '../../images/personell_pictures/', name, censored);
-// file name with extension, e.g. 'addendum.jpg'
-export const reportImageUrl = (file: string | undefined, censored: boolean) =>
-  pick(REPORTS, '../../images/field_reports/', file, censored);
+// name with or without extension, e.g. 'corvus_finch' or 'addendum.jpg'
+export const photoUrl = (name?: string) => pick(PEOPLE, '../../images/personell_pictures/', name);
+export const reportImageUrl = (file?: string) => pick(REPORTS, '../../images/field_reports/', file);

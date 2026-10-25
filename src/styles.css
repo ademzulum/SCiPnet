@@ -6229,3 +6229,24 @@ button.skip {
   aspect-ratio: auto;
   height: auto;
 }
+
+/* inlined SVG pictures; the Administrator sees them without the censor bars */
+.picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.picture svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.rv-img .picture,
+.rv-img .picture svg {
+  height: auto;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.picture.uncensored [id^='censor'] {
+  display: none;
+}
