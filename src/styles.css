@@ -6962,3 +6962,133 @@ button.skip {
   color: color-mix(in srgb, var(--fg) 70%, var(--bg));
   border-style: dashed;
 }
+
+/* ---- personnel file sections: one panel each, rows inside ---------------- */
+.file-panel .box-head {
+  margin-bottom: 0.9rem;
+}
+.career {
+  list-style: none;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+.career::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 14px;
+  bottom: 14px;
+  width: 2px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--fg) 18%, transparent), var(--accent));
+}
+.career li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 16px 4.2rem minmax(0, 1fr);
+  gap: 0 0.9rem;
+  align-items: start;
+  padding: 0.7rem 0.8rem 0.7rem 0;
+  border-radius: var(--radius);
+  opacity: 0;
+  animation: tlin 0.35s ease-out forwards;
+  transition: background 0.2s;
+}
+.career li + li {
+  border-top: 1px dashed var(--line);
+}
+.career li:hover {
+  background: color-mix(in srgb, var(--fg) 4%, transparent);
+}
+.career-node {
+  margin-top: 0.3rem;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--bg);
+  position: relative;
+  z-index: 1;
+}
+.career .latest .career-node,
+.career li.latest .career-node {
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.career-year {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--hi);
+}
+.career-text {
+  line-height: 1.6;
+}
+.career li.latest .career-text {
+  color: var(--hi);
+}
+
+.inc-list {
+  display: flex;
+  flex-direction: column;
+}
+.inc {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+  padding: 0.8rem 0;
+}
+.inc + .inc {
+  border-top: 1px dashed var(--line);
+}
+.inc-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  font-weight: 700;
+  color: #e8b85a;
+  background: color-mix(in srgb, #e8b85a 14%, transparent);
+  border: 1px solid color-mix(in srgb, #e8b85a 45%, transparent);
+}
+.inc.none .inc-icon {
+  color: #7fe0a8;
+  background: color-mix(in srgb, #7fe0a8 12%, transparent);
+  border-color: color-mix(in srgb, #7fe0a8 40%, transparent);
+}
+.inc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  line-height: 1.6;
+}
+.inc-body .label {
+  margin: 0;
+  color: #e8b85a;
+}
+.inc.none .inc-body .label {
+  color: #7fe0a8;
+}
+.crt[data-mode='light'] .inc-body .label,
+.crt[data-mode='light'] .inc-icon {
+  color: #a66b00;
+}
+.crt[data-mode='light'] .inc.none .inc-body .label,
+.crt[data-mode='light'] .inc.none .inc-icon {
+  color: #1d8a4f;
+}
+@media (max-width: 600px) {
+  .career li {
+    grid-template-columns: 16px minmax(0, 1fr);
+  }
+  .career-year {
+    grid-column: 2;
+  }
+  .career-text {
+    grid-column: 2;
+  }
+}

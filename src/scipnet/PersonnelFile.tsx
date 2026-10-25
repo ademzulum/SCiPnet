@@ -5,7 +5,8 @@ import { REPORTS } from '../data/reports';
 import { threadForContact } from '../data/threads';
 import type { Go } from './routes';
 import Redacted from './Redacted';
-import { ReportRow } from './ReportList';
+import { classKey } from './ReportList';
+import { initials } from './Comms';
 import { adminAccess, biometric, psychAccess, useAccount } from './session';
 import { ClearancePips } from './PersonnelList';
 import BiometricGate from './BiometricGate';
@@ -152,42 +153,65 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
         >
           {tab === 'Akte' && <FileTab p={p} />}
           {tab === 'Werdegang' && (
-            <ol className="timeline">
-              {p.timeline.map((e, i) => {
-                const latest = i === p.timeline.length - 1;
-                return (
-                  <li
-                    key={e.year + e.text}
-                    className={latest ? 'latest' : ''}
-                    style={{ animationDelay: `${i * 70}ms` }}
-                  >
-                    <span className="tl-year">{e.year}</span>
-                    <span className="tl-node" />
-                    <div className="tl-card">
-                      {latest && <span className="tl-tag">Aktuell</span>}
-                      <Redacted text={e.text} />
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+            <section className="box file-panel">
+              <div className="box-head">
+                <h3>Werdegang</h3>
+                <span className="dim small">
+                  {p.timeline[0]?.year}–{p.timeline[p.timeline.length - 1]?.year} · {p.timeline.length} Stationen
+                </span>
+              </div>
+              <ol className="career">
+                {p.timeline.map((e, i) => {
+                  const latest = i === p.timeline.length - 1;
+                  return (
+                    <li key={e.year + e.text} className={latest ? 'latest' : ''} style={{ animationDelay: `${i * 60}ms` }}>
+                      <span className="career-node" />
+                      <span className="career-year">{e.year}</span>
+                      <span className="career-text">
+                        {latest && <span className="tl-tag">Aktuell</span>}
+                        <Redacted text={e.text} />
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
           )}
           {tab === 'Psychologie' && <PsychTab key={p.id} p={p} />}
           {tab === 'Vorfälle' && (
-            <div className="incidents">
-              {p.incidents.map((n, i) =>
-                /^Keine/.test(n) ? (
-                  <div key={n} className="incident none">
-                    <Redacted text={n} />
-                  </div>
-                ) : (
-                  <div key={n} className="incident">
-                    <span className="incident-no">VF-{p.id.slice(-4)}-{String(i + 1).padStart(2, '0')}</span>
-                    <Redacted text={n} />
-                  </div>
-                ),
-              )}
-            </div>
+            <section className="box file-panel">
+              <div className="box-head">
+                <h3>Vorfälle</h3>
+                <span className="dim small">Disziplinarakte · {p.id}</span>
+              </div>
+              <div className="inc-list">
+                {p.incidents.map((n, i) =>
+                  /^Keine/.test(n) ? (
+                    <div key={n} className="inc none">
+                      <span className="inc-icon" aria-hidden>
+                        ✓
+                      </span>
+                      <span className="inc-body">
+                        <span className="label">Ohne Befund</span>
+                        <Redacted text={n} />
+                      </span>
+                    </div>
+                  ) : (
+                    <div key={n} className="inc">
+                      <span className="inc-icon" aria-hidden>
+                        !
+                      </span>
+                      <span className="inc-body">
+                        <span className="label">
+                          VF-{p.id.slice(-4)}-{String(i + 1).padStart(2, '0')}
+                        </span>
+                        <Redacted text={n} />
+                      </span>
+                    </div>
+                  ),
+                )}
+              </div>
+            </section>
           )}
           {tab === 'Berichte' && <ReportsTab p={p} go={go} />}
         </motion.div>
@@ -310,13 +334,44 @@ function PsychTab({ p }: { p: Person }) {
 }
 
 function ReportsTab({ p, go }: { p: Person; go: Go }) {
-  const reports = REPORTS.filter((r) => r.author === p.id);
-  if (!reports.length) return <p className="dim">Keine Feldberichte verfasst.</p>;
+  const reports = REPORTS.filter((r) => r.author === p.id || r.involved?.includes(p.id));
   return (
-    <div className="rows box">
-      {reports.map((r) => (
-        <ReportRow key={r.id} report={r} go={go} />
-      ))}
-    </div>
+    <section className="box file-panel">
+      <div className="box-head">
+        <h3>Feldberichte</h3>
+        <span className="dim small">verfasst oder beteiligt · {reports.length}</span>
+      </div>
+      {reports.length ? (
+        <div className="notice-list">
+          {reports.map((r) => {
+            const author = personById(r.author);
+            return (
+              <button
+                key={r.id}
+                className={`notice ov-card ov-report cl-${classKey(r.classification)}`}
+                onClick={() => go({ view: 'report', id: r.id })}
+              >
+                <span className="notice-top">
+                  <span className="notice-level">
+                    {r.classification} · {r.author === p.id ? 'Verfasser' : 'Beteiligt'}
+                  </span>
+                  <span className={`status status-${r.status}`}>{r.status}</span>
+                </span>
+                <strong>{r.title}</strong>
+                <span className="dim ov-summary">{r.summary}</span>
+                <span className="ov-foot">
+                  <span className="avatar sm">{initials(author?.name ?? '?')}</span>
+                  <span className="dim small">
+                    {r.id} · {fmtDate(r.date)}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="dim">Keine Feldberichte auf Akte.</p>
+      )}
+    </section>
   );
 }
