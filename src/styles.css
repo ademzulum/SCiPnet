@@ -6413,3 +6413,15 @@ button.skip {
 .crt[data-theme='scip'] .label {
   font-weight: 600;
 }
+/* globe panel matches the Hume dial's height: centre the globe and facts vertically */
+.globe-box {
+  display: flex;
+  flex-direction: column;
+}
+.globe-box .globe-body {
+  flex: 1;
+  justify-content: center;
+}
+.globe-box .globe {
+  width: min(300px, 50%);
+}
