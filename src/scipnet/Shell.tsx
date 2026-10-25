@@ -68,7 +68,6 @@ const NAV: NavItem[] = [
     match: ['reports', 'report'],
     sound: 'tabReports',
   },
-  { label: 'Kommunikation', icon: 'M4 5h16v11H9l-5 4z M8 9h8 M8 12h5', route: { view: 'comms' }, match: ['comms', 'thread'], sound: 'tabComms' },
   {
     label: 'Archiv',
     icon: 'M3 4h18v4H3z M5 8v12h14V8 M10 12h4',
@@ -76,6 +75,7 @@ const NAV: NavItem[] = [
     match: ['archive', 'scp'],
     sound: 'tabArchive',
   },
+  { label: 'Kommunikation', icon: 'M4 5h16v11H9l-5 4z M8 9h8 M8 12h5', route: { view: 'comms' }, match: ['comms', 'thread'], sound: 'tabComms' },
   { label: 'S.C.I.P.A.', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M12 11v2', route: { view: 'assistant' }, match: ['assistant'] },
 ];
 
