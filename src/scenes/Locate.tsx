@@ -52,6 +52,8 @@ export default function Locate({ onDone }: { onDone: () => void }) {
     let finished = false;
     let shown = '';
     let locked = false;
+    let searching = false;
+    let stopSearch: (fadeMs?: number) => void = () => {};
     const finish = () => {
       if (finished) return;
       finished = true;
@@ -175,8 +177,17 @@ export default function Locate({ onDone }: { onDone: () => void }) {
       }
       const nextStep = t < SPIN_MS ? 'spin' : t < SPIN_MS + FIX_MS ? 'fix' : t < SPIN_MS + FIX_MS + ZOOM_MS ? 'zoom' : 'lock';
       setStep(nextStep);
+      // search sound loops while the satellites triangulate and the globe
+      // zooms; the lock cuts it and plays the "found" tone
+      if (nextStep !== 'spin' && !searching) {
+        searching = true;
+        initAudio().then(() => {
+          if (!locked && !finished) stopSearch = play('triangulate', 0.6, true);
+        });
+      }
       if (nextStep === 'lock' && !locked) {
         locked = true;
+        stopSearch(250);
         initAudio().then(() => play('frequencyFound', 0.6));
       }
 
@@ -189,6 +200,7 @@ export default function Locate({ onDone }: { onDone: () => void }) {
     addEventListener('keydown', onKey);
     return () => {
       finished = true;
+      stopSearch(250);
       cancelAnimationFrame(raf);
       removeEventListener('resize', resize);
       removeEventListener('keydown', onKey);
