@@ -35,6 +35,8 @@ export function customCursor() {
     const el = e.target as Element;
     target = el.closest?.(CLICKABLE) ?? null;
     root.classList.toggle('cur-lock', !!target);
+    // a count badge (the bell) takes the place of the top-right bracket
+    root.classList.toggle('cur-badge', !!target?.querySelector('.bell-count'));
     root.classList.toggle('cur-text', !!el.closest?.(TEXT));
     root.classList.add('cur-on');
     setTheme(el);

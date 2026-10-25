@@ -7092,3 +7092,9 @@ button.skip {
     grid-column: 2;
   }
 }
+
+/* the bell's unread badge sits where the frame's top-right bracket would be,
+   so that bracket steps aside and the badge marks the corner instead */
+.cur-badge .cur-ring i:nth-child(2) {
+  opacity: 0 !important;
+}
