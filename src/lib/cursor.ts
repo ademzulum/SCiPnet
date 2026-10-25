@@ -1,6 +1,6 @@
-// Custom mouse cursor: a dot on the pointer and a ring that trails it. Over
+// Custom mouse cursor: a dot on the pointer with a ring around it. Over
 // something clickable the ring glides to frame that element with corner
-// brackets. Colours come from the theme of the screen under the pointer.
+// brackets; the frame is cut off where the dock covers the element. Colours come from the theme of the screen under the pointer.
 // Touch screens and pens keep their own cursor (see styles.css).
 const CLICKABLE = 'button:not(:disabled), a[href], [role="button"], select, summary, label[for], .chip, .link';
 const TEXT = 'input:not([type="range"]):not([type="checkbox"]):not([type="button"]), textarea, [contenteditable="true"]';
@@ -53,12 +53,17 @@ export function customCursor() {
       const r = target.getBoundingClientRect();
       tx = r.left - 5; ty = r.top - 5; tw = r.width + 10; th = r.height + 10;
     }
-    const k = target ? 0.3 : 0.2;
+    // the ring sits on the pointer; only the move into and out of a frame is eased
+    const k = target || w > SIZE + 1 || h > SIZE + 1 ? 0.35 : 1;
     x += (tx - x) * k; y += (ty - y) * k; w += (tw - w) * k; h += (th - h) * k;
     dot.style.transform = `translate(${mx}px, ${my}px)` + (root.classList.contains('cur-down') ? ' scale(0.6)' : '');
     ring.style.transform = `translate(${x}px, ${y}px)`;
     ring.style.width = `${w}px`;
     ring.style.height = `${h}px`;
+    // the dock stays on top: hide the part of a frame that reaches under it
+    const dock = target && !target.closest('.dock') ? document.querySelector('.dock')?.getBoundingClientRect() : null;
+    const under = dock && x < dock.right && x + w > dock.left ? y + h - dock.top : 0;
+    ring.style.clipPath = under > 0 ? `inset(0 0 ${Math.min(under, h)}px 0)` : '';
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
