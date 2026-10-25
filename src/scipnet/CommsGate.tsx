@@ -183,7 +183,11 @@ export default function CommsGate({ onDone }: { onDone: () => void }) {
             >
               {phase === 'ready' ? (
                 <>
-                  VERBINDEN<span className="key-hint">  [ENTER]</span>
+                  VERBINDEN
+                  {/* a small Enter keycap, hidden on touch screens */}
+                  <kbd className="key-hint cg-kbd" aria-label="Eingabetaste">
+                    ↵
+                  </kbd>
                 </>
               ) : phase === 'tuning' ? (
                 'FREQUENZ ABSTIMMEN'
