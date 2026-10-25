@@ -58,7 +58,10 @@ export default function Startup({ onDone }: { onDone: () => void }) {
             transition={{ duration: 0.4, ease: 'easeOut' }}
           />
         </svg>
+        {/* own compositor layer: the logo is rasterised once and only scaled,
+            instead of re-rendering the SVG at every size (which made it wobble) */}
         <motion.div
+          style={{ willChange: 'transform, opacity, filter', backfaceVisibility: 'hidden' }}
           initial={{ opacity: 0, scale: 0.7, filter: 'blur(14px)' }}
           animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
           transition={{ duration: 0.65, ease: [0.2, 0.8, 0.2, 1] }}
