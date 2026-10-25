@@ -7344,3 +7344,48 @@ button.skip {
   letter-spacing: 0.04em;
   vertical-align: middle;
 }
+
+/* psych lock: shakes red when refused, springs open and turns green when granted */
+.psych-lock {
+  transition: border-color 0.3s, background-color 0.3s;
+}
+.psych-lock-icon {
+  transition: color 0.3s, border-color 0.3s, background 0.3s, box-shadow 0.3s;
+}
+.psych-lock-icon .shackle {
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+  transition: transform 0.45s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.psych-lock.denied {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.psych-lock.denied .psych-lock-icon {
+  animation: lockshake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+@keyframes lockshake {
+  10%, 90% { transform: translateX(-2px) rotate(-2deg); }
+  20%, 80% { transform: translateX(4px) rotate(3deg); }
+  30%, 50%, 70% { transform: translateX(-7px) rotate(-5deg); }
+  40%, 60% { transform: translateX(7px) rotate(5deg); }
+}
+.psych-lock.opening {
+  border-color: color-mix(in srgb, #7fe0a8 60%, transparent);
+}
+.psych-lock.opening .psych-lock-icon {
+  color: #7fe0a8;
+  border-color: color-mix(in srgb, #7fe0a8 60%, transparent);
+  background: color-mix(in srgb, #7fe0a8 12%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, #7fe0a8 35%, transparent);
+}
+.psych-lock.opening .shackle {
+  transform: translateY(-3px) rotate(-28deg);
+}
+.psych-lock.opening h3 {
+  color: #7fe0a8;
+}
+.crt[data-mode='light'] .psych-lock.opening .psych-lock-icon,
+.crt[data-mode='light'] .psych-lock.opening h3 {
+  color: #1d8a4f;
+}

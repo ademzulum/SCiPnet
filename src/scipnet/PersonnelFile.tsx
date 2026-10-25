@@ -255,7 +255,7 @@ function FileTab({ p }: { p: Person }) {
 }
 
 function PsychTab({ p }: { p: Person }) {
-  const [phase, setPhase] = useState<'locked' | 'asking' | 'granted' | 'denied'>(() =>
+  const [phase, setPhase] = useState<'locked' | 'asking' | 'opening' | 'granted' | 'denied'>(() =>
     psychAccess.has(p.id) ? 'granted' : 'locked',
   );
   const request = async () => {
@@ -263,9 +263,17 @@ function PsychTab({ p }: { p: Person }) {
     await wait(1500);
     // the solved signal puzzle opens every profile
     const access = adminAccess.has() ? 'granted' : p.psych.access;
-    if (access === 'granted') psychAccess.grant(p.id);
-    else play('negative', 0.8);
-    setPhase(access);
+    if (access === 'granted') {
+      // the lock springs open and turns green before the profile shows
+      psychAccess.grant(p.id);
+      play('uiuSuccess', 0.35);
+      setPhase('opening');
+      await wait(1100);
+      setPhase('granted');
+    } else {
+      play('negative', 0.8);
+      setPhase('denied');
+    }
   };
 
   if (phase === 'granted') {
@@ -350,22 +358,25 @@ function PsychTab({ p }: { p: Person }) {
   }
 
   const denied = phase === 'denied';
+  const opening = phase === 'opening';
   return (
-    <section className={denied ? 'box psych-lock denied' : 'box psych-lock'}>
+    <section className={`box psych-lock${denied ? ' denied' : ''}${opening ? ' opening' : ''}`}>
       <span className="psych-lock-icon" aria-hidden>
         <svg viewBox="0 0 24 24">
           <rect x="5" y="11" width="14" height="10" rx="2" />
-          <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+          <path className="shackle" d="M8 11V8a4 4 0 0 1 8 0v3" />
         </svg>
       </span>
       <div className="label">Psychologisches Profil · {p.id}</div>
-      <h3>{denied ? 'Zugriff verweigert' : 'Geschützte Akte'}</h3>
+      <h3>{denied ? 'Zugriff verweigert' : opening ? 'Zugriff gewährt' : 'Geschützte Akte'}</h3>
       <p className="dim">
         {denied
           ? `Ihre Freigabe reicht nicht aus. Erforderlich: ${p.psych.required}.`
-          : 'Beurteilung, Kennwerte, Neuralscan und EEG sind nur auf Anfrage einsehbar.'}
+          : opening
+            ? 'Profil wird entschlüsselt …'
+            : 'Beurteilung, Kennwerte, Neuralscan und EEG sind nur auf Anfrage einsehbar.'}
       </p>
-      {!denied && (
+      {!denied && !opening && (
         <button className="card action" onClick={request} disabled={phase === 'asking'}>
           {phase === 'asking' ? <span className="dots">ANFRAGE LÄUFT</span> : 'ZUGRIFF ANFORDERN'}
         </button>
