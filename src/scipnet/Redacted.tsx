@@ -33,7 +33,9 @@ export default function Redacted({ text }: { text: string }) {
       </span>,
     );
   }
-  return <>{out}</>;
+  // One inline wrapper: inside a flex or grid parent, loose text and bars would
+  // each become their own item and break onto separate lines.
+  return <span className="redacted-text">{out}</span>;
 }
 
 function Bar({ secret }: { secret: string }) {

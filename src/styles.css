@@ -7698,3 +7698,8 @@ html:not(.cur-lock) .cur-ring i {
   overflow-wrap: anywhere;
   min-height: calc(22px * 1.15);
 }
+
+/* paragraphs balance their last line instead of leaving one word alone on it */
+.crt :is(p, li, .inc-body, .career-text, .tl-card, .notice, .msg, .file-lead, .report-card-summary) {
+  text-wrap: pretty;
+}
