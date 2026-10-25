@@ -23,6 +23,8 @@ const arc = (from: number, to: number, r: number) => {
   const large = angle(to) - angle(from) > 180 ? 1 : 0;
   return `M${x1.toFixed(1)} ${y1.toFixed(1)}A${r} ${r} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`;
 };
+// y position in the 40-high trend chart, 60 at the bottom, 140 at the top
+const trendY = (v: number) => 38 - ((Math.max(MIN, Math.min(MAX, v)) - MIN) / (MAX - MIN)) * 36;
 const ZONES = [
   { from: 60, to: 85, cls: 'bad' },
   { from: 85, to: 94, cls: 'warn' },
@@ -117,18 +119,25 @@ export default function HumeMeter() {
         </text>
       </svg>
 
-      <div className="hume-stats">
-        <div>
-          <span className="label">Min 60 s</span>
-          <strong>{lo.toFixed(1)}</strong>
-        </div>
-        <div>
-          <span className="label">Max 60 s</span>
-          <strong>{hi.toFixed(1)}</strong>
-        </div>
-        <div>
-          <span className="label">Ausschläge</span>
-          <strong>{spikes}</strong>
+      {/* the last minute as a trace, min/max and spikes beside it */}
+      <div className="hume-trend">
+        <svg viewBox="0 0 300 40" preserveAspectRatio="none" aria-hidden>
+          <line x1="0" x2="300" y1={trendY(100)} y2={trendY(100)} className="hume-base" />
+          <path d={values.map((v, i) => `${i ? 'L' : 'M'}${i} ${trendY(v).toFixed(1)}`).join('')} />
+        </svg>
+        <div className="hume-stats">
+          <div>
+            <span className="label">Min 60 s</span>
+            <strong>{lo.toFixed(1)}</strong>
+          </div>
+          <div>
+            <span className="label">Max 60 s</span>
+            <strong>{hi.toFixed(1)}</strong>
+          </div>
+          <div>
+            <span className="label">Ausschläge</span>
+            <strong>{spikes}</strong>
+          </div>
         </div>
       </div>
     </section>

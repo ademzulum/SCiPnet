@@ -7728,3 +7728,105 @@ html:not(.cur-lock) .cur-ring i {
 @media (prefers-reduced-motion: reduce) {
   .brain-scan.done .brain-region.sel { animation: none; }
 }
+
+/* ---- overview: globe readout and Hume trend ------------------------------- */
+.globe-facts {
+  gap: 0;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.globe-facts > div {
+  padding: 0.45rem 0 0.45rem 0.9rem;
+}
+.globe-facts > div + div {
+  border-top: 1px dashed var(--line);
+}
+.globe-facts .label {
+  margin: 0;
+  font-size: 9px;
+}
+.globe-facts dd {
+  margin: 0.15rem 0 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+.globe-facts .gf-main dd {
+  font-size: 20px;
+  font-weight: 600;
+}
+.crt[data-theme='scip'] .globe-facts dd.gf-mono,
+.crt[data-theme='scip'] .globe-facts dd.gf-link {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+.gf-mono small {
+  margin-left: 0.3rem;
+  font-size: 11px;
+  opacity: 0.6;
+}
+.gf-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 12px !important;
+}
+.gf-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+.gf-bars i {
+  width: 3px;
+  background: color-mix(in srgb, var(--fg) 25%, transparent);
+}
+.gf-bars i:nth-child(1) { height: 4px; }
+.gf-bars i:nth-child(2) { height: 7px; }
+.gf-bars i:nth-child(3) { height: 10px; }
+.gf-bars i:nth-child(4) { height: 12px; }
+.gf-bars i.on { background: #7fe0a8; }
+
+.hume-trend {
+  margin-top: auto;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--line);
+}
+.hume-trend svg {
+  display: block;
+  width: 100%;
+  height: 40px;
+  margin-bottom: 0.5rem;
+}
+.hume-trend path {
+  fill: none;
+  stroke: var(--hume);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--hume) 60%, transparent));
+}
+.hume-base {
+  stroke: var(--line);
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+.hume-trend .hume-stats {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.hume-trend .hume-stats > div {
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.hume-trend .hume-stats .label { font-size: 9px; }
+.crt[data-theme='scip'] .hume-trend .hume-stats strong {
+  font-family: 'Barlow', sans-serif;
+  font-size: 17px;
+}
+.globe-facts dd.gf-mono { white-space: nowrap; }
+@media (max-width: 600px) {
+  .globe-facts dd { font-size: 12px; }
+  .globe-facts .gf-main dd { font-size: 16px; }
+  .globe-facts > div { padding: 0.35rem 0 0.35rem 0.7rem; }
+  .gf-link { font-size: 11px !important; }
+}

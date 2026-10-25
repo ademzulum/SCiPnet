@@ -246,21 +246,59 @@ export default function Globe({ geo }: { geo: Geo | null }) {
       </div>
       <div className="globe-body">
         <canvas ref={ref} className="globe" aria-label="Globus mit Ihrem Standort" />
-        <dl className="globe-facts">
-          <div>
-            <dt className="label">Land</dt>
-            <dd>{geo ? (country ?? 'unbekannt') : '…'}</dd>
-          </div>
-          <div>
-            <dt className="label">Stadt</dt>
-            <dd>{geo ? (geo.city ?? 'unbekannt') : '…'}</dd>
-          </div>
-          <div>
-            <dt className="label">Koordinaten</dt>
-            <dd>{pin ? `${Math.abs(pin[1]).toFixed(2)}° ${pin[1] < 0 ? 'S' : 'N'} · ${Math.abs(pin[0]).toFixed(2)}° ${pin[0] < 0 ? 'W' : 'O'}` : '—'}</dd>
-          </div>
-        </dl>
+        <GlobeFacts geo={geo} country={country} pin={pin} />
       </div>
     </section>
+  );
+}
+
+// Site-80 sits in the south of Germany; distances are measured from there.
+const SITE_80: [number, number] = [11.58, 48.14];
+
+// Readout beside the globe: place, coordinates, the terminal's local time and
+// how far it is from Site-80, as a column of labelled rows on an accent rail.
+function GlobeFacts({ geo, country, pin }: { geo: Geo | null; country: string | null; pin: [number, number] | null }) {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const km = pin ? Math.round(geoDistance(pin, SITE_80) * 6371) : null;
+  const offset = -now.getTimezoneOffset() / 60;
+  const place = geo ? [geo.city, country].filter(Boolean).join(', ') || 'unbekannt' : '…';
+  const coord = (v: number, pos: string, neg: string) => `${Math.abs(v).toFixed(2)}° ${v < 0 ? neg : pos}`;
+  return (
+    <dl className="globe-facts">
+      <div className="gf-main">
+        <dt className="label">Terminal-Standort</dt>
+        <dd>{place}</dd>
+      </div>
+      <div>
+        <dt className="label">Koordinaten</dt>
+        <dd className="gf-mono">{pin ? `${coord(pin[1], 'N', 'S')} · ${coord(pin[0], 'O', 'W')}` : '—'}</dd>
+      </div>
+      <div>
+        <dt className="label">Ortszeit</dt>
+        <dd className="gf-mono">
+          {now.toLocaleTimeString('de-DE')}
+          <small> UTC{offset >= 0 ? '+' : '−'}{Math.abs(offset)}</small>
+        </dd>
+      </div>
+      <div>
+        <dt className="label">Distanz zu Site-80</dt>
+        <dd className="gf-mono">{km !== null ? `${km.toLocaleString('de-DE')} km` : '—'}</dd>
+      </div>
+      <div>
+        <dt className="label">Verbindung</dt>
+        <dd className="gf-link">
+          <span className="gf-bars" aria-hidden>
+            {[0, 1, 2, 3].map((i) => (
+              <i key={i} className={pin || i < 2 ? 'on' : ''} />
+            ))}
+          </span>
+          {pin ? 'Verschlüsselt · AES-256' : 'Eingeschränkt'}
+        </dd>
+      </div>
+    </dl>
   );
 }
