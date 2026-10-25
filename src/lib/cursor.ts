@@ -1,4 +1,4 @@
-// Custom mouse cursor: a dot on the pointer with a ring around it. Over
+// Custom mouse cursor: a ring on the pointer. Over
 // something clickable the ring glides to frame that element with corner
 // brackets; under the dock the frame stops at the dock's top edge. Colours come from the theme of the screen under the pointer.
 // Touch screens and pens keep their own cursor (see styles.css).
@@ -9,12 +9,10 @@ const SIZE = 30;
 export function customCursor() {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   const root = document.documentElement;
-  const dot = document.createElement('div');
   const ring = document.createElement('div');
-  dot.className = 'cur-dot';
   ring.className = 'cur-ring';
   ring.innerHTML = '<i></i><i></i><i></i><i></i>';
-  document.body.append(ring, dot);
+  document.body.append(ring);
   root.classList.add('has-cursor');
 
   let mx = -100, my = -100; // pointer
@@ -41,8 +39,6 @@ export function customCursor() {
     root.classList.add('cur-on');
     setTheme(el);
   }, { passive: true });
-  addEventListener('pointerdown', () => root.classList.add('cur-down'));
-  addEventListener('pointerup', () => root.classList.remove('cur-down'));
   document.addEventListener('mouseleave', () => root.classList.remove('cur-on'));
   // theme switches (light/dark, alerts) change the colours under a still pointer
   setInterval(() => { theme = null; setTheme(document.elementFromPoint(mx, my)); }, 1000);
@@ -61,7 +57,6 @@ export function customCursor() {
     // the ring sits on the pointer; only the move into and out of a frame is eased
     const k = target || w > SIZE + 1 || h > SIZE + 1 ? 0.35 : 1;
     x += (tx - x) * k; y += (ty - y) * k; w += (tw - w) * k; h += (th - h) * k;
-    dot.style.transform = `translate(${mx}px, ${my}px)` + (root.classList.contains('cur-down') ? ' scale(0.6)' : '');
     ring.style.transform = `translate(${x}px, ${y}px)`;
     ring.style.width = `${w}px`;
     ring.style.height = `${h}px`;

@@ -6677,7 +6677,7 @@ button.skip {
 }
 
 /* ---- custom cursor (src/lib/cursor.ts) ------------------------------------ */
-/* Mouse only: a dot on the pointer and a ring trailing behind it. Over
+/* Mouse only: a ring on the pointer. Over
    something clickable the ring turns into corner brackets framing it.
    Text fields keep the normal I-beam and hide the custom cursor. */
 @media (hover: hover) and (pointer: fine) {
@@ -6689,7 +6689,6 @@ button.skip {
     cursor: text !important;
   }
 }
-.cur-dot,
 .cur-ring {
   position: fixed;
   left: 0;
@@ -6699,21 +6698,8 @@ button.skip {
   opacity: 0;
   transition: opacity 0.2s;
 }
-.cur-on .cur-dot,
 .cur-on .cur-ring {
   opacity: 1;
-}
-.cur-dot {
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
-  border-radius: 50%;
-  background: var(--cur-hi, #fff);
-  box-shadow: 0 0 0 1px var(--cur-bg, #000);
-  transition: opacity 0.2s, transform 0.15s;
-}
-.cur-down .cur-dot {
-  transform: scale(0.6);
 }
 .cur-ring {
   border-radius: 50%;
@@ -6740,7 +6726,13 @@ button.skip {
 .cur-lock .cur-ring i {
   opacity: 1;
 }
-.cur-text .cur-dot,
 .cur-text .cur-ring {
   opacity: 0;
+}
+
+/* room between the dock's edge and the frame on its first and last button */
+@media (hover: hover) and (pointer: fine) {
+  .dock {
+    padding-inline: 0.8rem;
+  }
 }
