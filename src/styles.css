@@ -7527,11 +7527,16 @@ button.skip {
 
 /* ---- cursor: a small square of corner brackets instead of a ring; over
    something clickable the same brackets grow out to frame it ------------- */
-.cur-ring,
-.cur-lock .cur-ring {
+.cur-ring {
   border: none;
   border-radius: 0;
   background: none;
+}
+/* the hover frame itself is unchanged: tinted, 4px corners, 8px brackets */
+.cur-lock .cur-ring {
+  border: none;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--cur-fg, #fff) 6%, transparent);
 }
 .cur-ring i {
   width: 6px;
@@ -7545,8 +7550,9 @@ button.skip {
 .cur-ring i:nth-child(3) { left: 0; bottom: 0; }
 .cur-ring i:nth-child(4) { right: 0; bottom: 0; }
 .cur-lock .cur-ring i {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
+  filter: none;
   border-color: var(--cur-accent, #fff);
 }
 .cur-lock .cur-ring i:nth-child(1) { left: -2px; top: -2px; }
@@ -7554,6 +7560,6 @@ button.skip {
 .cur-lock .cur-ring i:nth-child(3) { left: -2px; bottom: -2px; }
 .cur-lock .cur-ring i:nth-child(4) { right: -2px; bottom: -2px; }
 /* a small dark edge keeps the idle brackets visible on light backgrounds */
-.cur-ring i {
+html:not(.cur-lock) .cur-ring i {
   filter: drop-shadow(0 0 1px var(--cur-bg, #000));
 }
