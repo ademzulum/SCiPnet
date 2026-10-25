@@ -1,10 +1,10 @@
-// Custom mouse cursor: a ring on the pointer. Over
-// something clickable the ring glides to frame that element with corner
-// brackets; the dock covers a frame that reaches under it. Colours come from the theme of the screen under the pointer.
+// Custom mouse cursor: four corner brackets around the pointer. Over
+// something clickable the brackets glide out to frame that element
+// The dock covers a frame that reaches under it. Colours come from the theme of the screen under the pointer.
 // Touch screens and pens keep their own cursor (see styles.css).
 const CLICKABLE = 'button:not(:disabled), a[href], [role="button"], select, summary, label[for], .chip, .link';
 const TEXT = 'input:not([type="range"]):not([type="checkbox"]):not([type="button"]), textarea, [contenteditable="true"]';
-const SIZE = 30;
+const SIZE = 22;
 
 export function customCursor() {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;

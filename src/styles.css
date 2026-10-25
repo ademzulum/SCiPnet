@@ -7524,3 +7524,36 @@ button.skip {
 .cg-slider:disabled {
   opacity: 1;
 }
+
+/* ---- cursor: a small square of corner brackets instead of a ring; over
+   something clickable the same brackets grow out to frame it ------------- */
+.cur-ring,
+.cur-lock .cur-ring {
+  border: none;
+  border-radius: 0;
+  background: none;
+}
+.cur-ring i {
+  width: 6px;
+  height: 6px;
+  opacity: 1;
+  border-color: var(--cur-hi, #fff);
+  transition: border-color 0.2s, width 0.2s, height 0.2s;
+}
+.cur-ring i:nth-child(1) { left: 0; top: 0; }
+.cur-ring i:nth-child(2) { right: 0; top: 0; }
+.cur-ring i:nth-child(3) { left: 0; bottom: 0; }
+.cur-ring i:nth-child(4) { right: 0; bottom: 0; }
+.cur-lock .cur-ring i {
+  width: 9px;
+  height: 9px;
+  border-color: var(--cur-accent, #fff);
+}
+.cur-lock .cur-ring i:nth-child(1) { left: -2px; top: -2px; }
+.cur-lock .cur-ring i:nth-child(2) { right: -2px; top: -2px; }
+.cur-lock .cur-ring i:nth-child(3) { left: -2px; bottom: -2px; }
+.cur-lock .cur-ring i:nth-child(4) { right: -2px; bottom: -2px; }
+/* a small dark edge keeps the idle brackets visible on light backgrounds */
+.cur-ring i {
+  filter: drop-shadow(0 0 1px var(--cur-bg, #000));
+}

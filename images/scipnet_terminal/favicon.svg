@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-<!-- Favicon: the SCiPnet logo on a white tile. Generated from scipnet_logo.svg; regenerate if the logo changes. -->
-<rect width="1024" height="1024" rx="200" fill="#fff"/>
+<!-- Favicon: the SCiPnet logo on a white disc behind its outline. Generated from scipnet_logo.svg; regenerate if the logo changes. -->
+<circle cx="512" cy="512" r="445" fill="#fff"/>
 <g transform="translate(77 77) scale(0.85)">
   <defs>
     <style>
