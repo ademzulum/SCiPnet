@@ -7603,3 +7603,8 @@ html:not(.cur-lock) .cur-ring i {
 .crt ::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+/* unknown year: same type as the years, dimmed */
+.career-year.unknown {
+  opacity: 0.55;
+}

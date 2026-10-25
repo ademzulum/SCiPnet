@@ -66,7 +66,8 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
     { tab: 'Werdegang', value: p.timeline.length, sub: `Stationen · ${years} Dienstjahre` },
     {
       tab: 'Psychologie',
-      value: psychOpen ? (p.psych.verdict?.label ?? 'Offen') : 'Gesperrt',
+      // a missing assessment shows as N/A so the card never cuts the word off
+      value: psychOpen ? (!p.psych.verdict || /^Nicht bewert/i.test(p.psych.verdict.label) ? 'N/A' : p.psych.verdict.label) : 'Gesperrt',
       sub: psychOpen ? 'Gesamtbeurteilung' : `Freigabe ${p.psych.required ?? 'erforderlich'}`,
       warn: !psychOpen,
     },
@@ -167,7 +168,14 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
                   return (
                     <li key={e.year + e.text} className={latest ? 'latest' : ''} style={{ animationDelay: `${i * 60}ms` }}>
                       <span className="career-node" />
-                      <span className="career-year">{e.year}</span>
+                      {/* an unknown year ("[unbekannt]") shows as ???? so it fits the column */}
+                      {/^\d{4}$/.test(e.year) ? (
+                        <span className="career-year">{e.year}</span>
+                      ) : (
+                        <span className="career-year unknown" title={e.year}>
+                          ????
+                        </span>
+                      )}
                       <span className="career-text">
                         {latest && <span className="tl-tag">Aktuell</span>}
                         <Redacted text={e.text} />
