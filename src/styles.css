@@ -8135,3 +8135,14 @@ html:not(.cur-lock) .cur-ring i {
     justify-self: center;
   }
 }
+@media (min-width: 1500px) {
+  /* rails also sit in the vertical middle of the visible area (between header
+     and dock) and stay there while the page scrolls */
+  .rail-layout .rail {
+    align-self: start;
+    position: sticky;
+    top: 0;
+    height: calc(100dvh - 76px - 3rem - var(--dock-space, 6.75rem));
+    justify-content: center;
+  }
+}
