@@ -6199,3 +6199,29 @@ button.skip {
 .folder::before { z-index: 2; }
 .dossier-sheet .dossier { align-items: center; }
 .dossier-sheet .portrait { width: 190px; }
+
+/* session entries: every inactive one can be hovered and picked */
+.session-item:not(.admin-session) {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.session-item:not(.admin-session):hover {
+  background-color: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+.session-item.current {
+  cursor: default;
+}
+.session-item.current:hover {
+  background-color: transparent;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+  border-radius: inherit;
+  filter: grayscale(0.4);
+}
+.avatar:has(img) {
+  overflow: hidden;
+}

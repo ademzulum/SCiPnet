@@ -1,5 +1,6 @@
 import corvusFinch from '../../images/personell_pictures/corvus_finch.png';
 import duncanMaynard from '../../images/personell_pictures/duncan_maynard.png';
+import timothyQuebec from '../../images/personell_pictures/timothy_quebec_jr.png';
 // Personnel files. Text may contain [[...]] for redacted passages.
 
 export type Person = {
@@ -190,6 +191,7 @@ export const PERSONNEL: Person[] = [
   {
     id: 'P-80-0731',
     name: 'Dr. Timothy Quebec Jr.',
+    photo: timothyQuebec,
     role: 'Wissenschaftler, Xenobiologie',
     department: 'Forschung und Entwicklung',
     clearance: 'Stufe 3',

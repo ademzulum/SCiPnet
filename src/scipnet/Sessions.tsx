@@ -2,12 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ACCOUNTS, type Account } from '../lib/creds';
 import { initials } from './Comms';
+import maynardPhoto from '../../images/personell_pictures/duncan_maynard.png';
 import { Corrupt } from './Admin';
 import { switchAccount, useAccount, useAdminUnlocked } from './session';
 
 // Header user chip with a drop-down of both sessions. "Der Administrator" is a
 // distorted entry that opens the signal puzzle; once solved, picking an entry
 // switches the active account.
+// Maynard has an ID photo; the Administrator keeps his initials.
+const Avatar = ({ id, name }: { id: Account; name: string }) => (
+  <span className="avatar">{id === 'maynard' ? <img src={maynardPhoto} alt="" /> : initials(name)}</span>
+);
+
 export default function Sessions({ disabled, onAdmin }: { disabled: boolean; onAdmin: () => void }) {
   const solved = useAdminUnlocked();
   const me = useAccount();
@@ -28,7 +34,7 @@ export default function Sessions({ disabled, onAdmin }: { disabled: boolean; onA
   return (
     <div className="sessions" ref={ref}>
       <button className={`hdr-user${open ? ' open' : ''}`} onClick={() => setOpen((o) => !o)} disabled={disabled}>
-        <span className="avatar">{initials(me.name)}</span>
+        <Avatar id={me.id} name={me.name} />
         <div>
           <strong>{me.name}</strong>
           <span className="badge">{me.clearance}</span>
@@ -53,7 +59,7 @@ export default function Sessions({ disabled, onAdmin }: { disabled: boolean; onA
             </div>
             <div className="notify-list">
               <button className={`session-item${me.id === 'maynard' ? ' current' : ''}`} onClick={() => pick('maynard')}>
-                <span className="avatar">{initials(ACCOUNTS.maynard.name)}</span>
+                <Avatar id="maynard" name={ACCOUNTS.maynard.name} />
                 <span className="notify-text">
                   <strong>{ACCOUNTS.maynard.name}</strong>
                   <span className="dim small">
