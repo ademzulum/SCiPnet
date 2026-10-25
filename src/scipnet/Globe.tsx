@@ -110,6 +110,8 @@ export default function Globe({ geo }: { geo: Geo | null }) {
       accent = css.getPropertyValue('--accent').trim() || accent;
       fg = css.getPropertyValue('--fg').trim() || fg;
       light = !!canvas.closest("[data-mode='light']");
+      // links and pin: bright text colour on the dark globe, deep crimson on the light one
+      const ink = light ? '#8f0a1c' : fg;
 
       // sphere
       ctx.beginPath();
@@ -184,7 +186,7 @@ export default function Globe({ geo }: { geo: Geo | null }) {
             ctx.beginPath();
             ctx.moveTo(prev[0], prev[1]);
             ctx.lineTo(p[0], p[1]);
-            ctx.strokeStyle = fg; // text colour reads against the red land in both modes
+            ctx.strokeStyle = ink;
             ctx.lineWidth = 1.6;
             ctx.stroke();
           }
@@ -194,7 +196,7 @@ export default function Globe({ geo }: { geo: Geo | null }) {
           ctx.globalAlpha = out;
           ctx.beginPath();
           ctx.arc(prev[0], prev[1], 2.2, 0, Math.PI * 2);
-          ctx.fillStyle = fg;
+          ctx.fillStyle = ink;
           ctx.fill();
         }
       }
@@ -207,14 +209,13 @@ export default function Globe({ geo }: { geo: Geo | null }) {
         ctx.globalAlpha = (1 - pulse) * fade;
         ctx.beginPath();
         ctx.arc(x, y, 4 + pulse * 18, 0, Math.PI * 2);
-        ctx.strokeStyle = light ? '#d0001c' : '#ff5a5f';
+        ctx.strokeStyle = light ? ink : '#ff5a5f';
         ctx.lineWidth = 1.5;
         ctx.stroke();
-        // in light mode the land is red too, so the dot takes the dark text colour
         ctx.globalAlpha = fade;
         ctx.beginPath();
         ctx.arc(x, y, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = light ? fg : '#ff5a5f';
+        ctx.fillStyle = light ? ink : '#ff5a5f';
         ctx.fill();
       }
       ctx.globalAlpha = 1;
