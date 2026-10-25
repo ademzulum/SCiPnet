@@ -8,9 +8,10 @@ import PowerOn from './scenes/PowerOn';
 import Breach from './scenes/Breach';
 import Login from './scenes/Login';
 import Startup from './scenes/Startup';
+import Locate from './scenes/Locate';
 import Shell from './scipnet/Shell';
 
-type Stage = 'off' | 'breach' | 'login' | 'startup' | 'session';
+type Stage = 'off' | 'locate' | 'breach' | 'login' | 'startup' | 'session';
 
 const fade = {
   initial: { opacity: 0 },
@@ -40,7 +41,12 @@ export default function App() {
       <AnimatePresence mode="wait">
         {stage === 'off' && (
           <motion.div key="off" className="fill" {...fade}>
-            <PowerOn onStart={() => setStage('breach')} />
+            <PowerOn onStart={() => setStage('locate')} />
+          </motion.div>
+        )}
+        {stage === 'locate' && (
+          <motion.div key="locate" className="fill" {...fade}>
+            <Locate onDone={() => setStage('breach')} />
           </motion.div>
         )}
         {stage === 'breach' && (

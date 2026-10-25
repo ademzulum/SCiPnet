@@ -11,9 +11,9 @@ import world from 'world-atlas/countries-110m.json';
 export type Geo = { city: string | null; country: string | null; lat: number | null; lon: number | null };
 
 const topo = world as unknown as Topology<{ countries: GeometryCollection; land: GeometryCollection }>;
-const LAND = feature(topo, topo.objects.land);
-const BORDERS = mesh(topo, topo.objects.countries, (a, b) => a !== b);
-const GRID = geoGraticule10();
+export const LAND = feature(topo, topo.objects.land);
+export const BORDERS = mesh(topo, topo.objects.countries, (a, b) => a !== b);
+export const GRID = geoGraticule10();
 
 // endpoints for the data links: Foundation-ish hubs around the world
 const NODES: [number, number][] = [
@@ -25,7 +25,7 @@ type Link = { a: [number, number]; b: [number, number]; start: number; dur: numb
 const STEPS = 48;
 const MAX_LIFT = 0.26; // highest arc, as a fraction of the globe radius
 
-const countryName = (code: string | null) => {
+export const countryName = (code: string | null) => {
   if (!code) return null;
   try {
     return new Intl.DisplayNames(['de'], { type: 'region' }).of(code) ?? code;

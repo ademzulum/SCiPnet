@@ -6437,3 +6437,44 @@ button.skip {
   box-shadow: 0 0 8px var(--hume);
   transition: background 0.3s, box-shadow 0.3s;
 }
+
+/* ---- UIU locate scene: globe triangulation before the terminal -------- */
+
+.locate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  padding: 1rem;
+  text-shadow: 0 0 8px var(--glow);
+}
+.locate-head {
+  min-height: 1.6em;
+  text-align: center;
+}
+.locate-stage {
+  width: min(62vmin, 560px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden; /* the zoom stays inside the circle */
+  filter: drop-shadow(0 0 10px var(--glow));
+}
+.locate-globe {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.locate-read {
+  min-height: 1.4em;
+  font-size: 24px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  white-space: pre;
+}
+.locate-head .power-title {
+  font-size: 28px;
+  letter-spacing: 0.12em;
+}
