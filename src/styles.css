@@ -6269,7 +6269,7 @@ button.skip {
   border-radius: 0;
 }
 
-/* censor bars: scratched-over black, rough edges (pattern and filter are
+/* censor bars: scrambling scratch lines, rough edges (pattern and filter are
    injected by Picture.tsx) */
 .picture [id^='censor'] {
   fill: url(#censor-scratch);
