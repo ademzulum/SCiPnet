@@ -13,7 +13,7 @@ import UiuLogo from '../components/UiuLogo';
 // the HUD (letter, lives, time).
 
 const WORD = 'OVERSEER';
-const LIVES = 3;
+const LIVES = 4;
 const TIME_S = 90;
 // Board size in cells: landscape on desktop, portrait on phones so the board
 // fills the screen. Set once per game when the overlay mounts.
