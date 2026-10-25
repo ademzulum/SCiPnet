@@ -7299,10 +7299,7 @@ button.skip {
 [data-cur-target] > .tab-pill {
   border-radius: 0 !important;
 }
-/* the framed element's own outline takes the frame's colour */
-[data-cur-target] {
-  border-color: var(--cur-accent, currentColor) !important;
-}
+
 
 /* current station: the pulse is its own ring centred on the dot, scaled from
    the middle, instead of a box-shadow (which can render off-centre) */
@@ -7566,4 +7563,9 @@ button.skip {
 /* a small dark edge keeps the idle brackets visible on light backgrounds */
 html:not(.cur-lock) .cur-ring i {
   filter: drop-shadow(0 0 1px var(--cur-bg, #000));
+}
+
+/* resting cursor brackets in the frame's colour */
+.cur-ring i {
+  border-color: var(--cur-accent, #fff);
 }

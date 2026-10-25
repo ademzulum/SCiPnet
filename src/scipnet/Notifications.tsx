@@ -196,6 +196,7 @@ export function Bell({ api, go, disabled }: { api: Api; go: Go; disabled: boolea
         onClick={() => setOpen((o) => !o)}
         disabled={disabled}
         aria-label={`Benachrichtigungen, ${api.unread} ungelesen`}
+        data-unread={api.unread}
       >
         <svg viewBox="0 0 24 24" aria-hidden>
           <path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20a2 2 0 0 0 4 0" />

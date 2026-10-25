@@ -15,6 +15,26 @@ export function customCursor() {
   document.body.append(ring);
   root.classList.add('has-cursor');
 
+  // The framed element squares its corners (styles.css). Its own transition
+  // list is extended with border-radius, so the corners ease instead of jump.
+  const RADIUS = 'border-radius 0.25s ease';
+  const eased = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+  const ease = (el: HTMLElement) => {
+    clearTimeout(eased.get(el));
+    const t = getComputedStyle(el).transition;
+    if (!el.style.transition.includes('border-radius'))
+      el.style.transition = !t || t.startsWith('all 0s') ? RADIUS : `${t}, ${RADIUS}`;
+  };
+  const mark = (el: Element) => {
+    if (el instanceof HTMLElement) ease(el);
+    el.setAttribute('data-cur-target', '');
+  };
+  const unmark = (el: Element) => {
+    el.removeAttribute('data-cur-target');
+    // keep the eased radius until the corners are round again
+    if (el instanceof HTMLElement) eased.set(el, setTimeout(() => (el.style.transition = ''), 300));
+  };
+
   let mx = -100, my = -100; // pointer
   let x = mx, y = my, w = SIZE, h = SIZE; // ring, eased toward its target
   let target: Element | null = null;
@@ -35,7 +55,7 @@ export function customCursor() {
     const el = e.target as Element;
     const next = el.closest?.(CLICKABLE) ?? null;
     // the framed element squares its corners to match the frame (styles.css)
-    if (next !== target) target?.removeAttribute('data-cur-target');
+    if (next !== target && target) unmark(target);
     target = next;
     root.classList.toggle('cur-lock', !!target);
     root.classList.toggle('cur-text', !!el.closest?.(TEXT));
@@ -53,10 +73,12 @@ export function customCursor() {
     if (target && !target.isConnected) {
       target = document.elementFromPoint(mx, my)?.closest(CLICKABLE) ?? null;
     }
-    if (target && !target.hasAttribute('data-cur-target')) target.setAttribute('data-cur-target', '');
-    // a count badge (the bell) takes the place of the top-right bracket; checked
-    // every frame, so the bracket returns as soon as the badge goes away
-    root.classList.toggle('cur-badge', !!target?.querySelector('.bell-count'));
+    if (target && !target.hasAttribute('data-cur-target')) mark(target);
+    // a count badge (the bell) takes the place of the top-right bracket. The bell
+    // reports its count in data-unread, so the bracket returns the moment the
+    // count drops to 0, not after the badge's exit animation.
+    const unread = target?.getAttribute('data-unread');
+    root.classList.toggle('cur-badge', unread != null ? Number(unread) > 0 : !!target?.querySelector('.bell-count'));
     if (target?.isConnected) {
       const r = target.getBoundingClientRect();
       // exactly on the element's edges, so the frame never spills onto its neighbours
