@@ -9,8 +9,10 @@ import '@fontsource/barlow/700.css';
 import './styles.css';
 import App from './App';
 import { blockInspect } from './lib/noInspect';
+import { customCursor } from './lib/cursor';
 
 blockInspect();
+customCursor();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

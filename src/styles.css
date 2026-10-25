@@ -6677,22 +6677,71 @@ button.skip {
   .rows .report-row .row-arrow { display: none; }
 }
 
-/* ---- custom cursors ----------------------------------------------------- */
-/* Angular arrow with a dark outline so it reads on light and dark pages.
-   SCiPnet: white with a red notch; clickable things add a red target ring.
-   CRT terminal: amber. Text fields keep the normal I-beam. */
-.crt[data-theme='scip'] {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M2 2 L2 19 L7 14.5 L10.5 22 L13.5 20.6 L10 13.2 L16.5 13.2 Z' fill='%23f4f6f8' stroke='%2307090b' stroke-width='1.5' stroke-linejoin='miter'/%3E%3Cpath d='M4 6 L4 10' stroke='%23d7263d' stroke-width='2'/%3E%3C/svg%3E") 2 2, default;
+/* ---- custom cursor (src/lib/cursor.ts) ------------------------------------ */
+/* Mouse only: a dot on the pointer and a ring trailing behind it. Over
+   something clickable the ring turns into corner brackets framing it.
+   Text fields keep the normal I-beam and hide the custom cursor. */
+@media (hover: hover) and (pointer: fine) {
+  html.has-cursor,
+  html.has-cursor * {
+    cursor: none !important;
+  }
+  html.has-cursor :is(input:not([type='range']):not([type='checkbox']):not([type='button']), textarea, [contenteditable='true']) {
+    cursor: text !important;
+  }
 }
-.crt[data-theme='scip'] {
-  --cur-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ccircle cx='18' cy='18' r='6' fill='none' stroke='%2307090b' stroke-width='3.5'/%3E%3Ccircle cx='18' cy='18' r='6' fill='none' stroke='%23d7263d' stroke-width='1.8'/%3E%3Ccircle cx='18' cy='18' r='1.6' fill='%23d7263d'/%3E%3Cpath d='M2 2 L2 19 L7 14.5 L10.5 22 L13.5 20.6 L10 13.2 L16.5 13.2 Z' fill='%23f4f6f8' stroke='%2307090b' stroke-width='1.5'/%3E%3C/svg%3E") 2 2, pointer;
+.cur-dot,
+.cur-ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
 }
-.crt[data-theme='scip'] :is(button, a, [role='button'], select, summary):not(:disabled) {
-  cursor: var(--cur-pointer);
+.cur-on .cur-dot,
+.cur-on .cur-ring {
+  opacity: 1;
 }
-.crt:not([data-theme='scip']) {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M2 2 L2 19 L7 14.5 L10.5 22 L13.5 20.6 L10 13.2 L16.5 13.2 Z' fill='%23ffb000' stroke='%23070502' stroke-width='1.5'/%3E%3C/svg%3E") 2 2, default;
+.cur-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--cur-hi, #fff);
+  box-shadow: 0 0 0 1px var(--cur-bg, #000);
+  transition: opacity 0.2s, transform 0.15s;
 }
-.crt :is(input:not([type='range']):not([type='checkbox']), textarea, [contenteditable='true']) {
-  cursor: text;
+.cur-down .cur-dot {
+  transform: scale(0.6);
+}
+.cur-ring {
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--cur-fg, #fff) 45%, transparent);
+  transition: opacity 0.2s, border-radius 0.25s, border-color 0.25s, background 0.25s;
+}
+.cur-ring i {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 0 solid var(--cur-accent, #fff);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.cur-ring i:nth-child(1) { left: -2px; top: -2px; border-width: 2px 0 0 2px; }
+.cur-ring i:nth-child(2) { right: -2px; top: -2px; border-width: 2px 2px 0 0; }
+.cur-ring i:nth-child(3) { left: -2px; bottom: -2px; border-width: 0 0 2px 2px; }
+.cur-ring i:nth-child(4) { right: -2px; bottom: -2px; border-width: 0 2px 2px 0; }
+.cur-lock .cur-ring {
+  border-radius: 4px;
+  border-color: transparent;
+  background: color-mix(in srgb, var(--cur-fg, #fff) 6%, transparent);
+}
+.cur-lock .cur-ring i {
+  opacity: 1;
+}
+.cur-text .cur-dot,
+.cur-text .cur-ring {
+  opacity: 0;
 }
