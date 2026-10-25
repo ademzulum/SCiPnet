@@ -6400,3 +6400,16 @@ button.skip {
   .globe-body { flex-direction: column; align-items: stretch; }
   .globe { width: min(260px, 80%); align-self: center; }
 }
+
+/* ---- Barlow for headings, names and big numbers in SCiPnet ------------ */
+/* body text, tables and IDs stay in IBM Plex Mono */
+.crt[data-theme='scip'] :is(h1, h2, h3, h4, .label, .stat-value, .dstat-value, .brain-value, .hume-read, .globe-facts dd, .folder-info strong, .cg-freq) {
+  font-family: 'Barlow', 'IBM Plex Mono', sans-serif;
+}
+.crt[data-theme='scip'] :is(h1, h2, h3, h4) {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.crt[data-theme='scip'] .label {
+  font-weight: 600;
+}
