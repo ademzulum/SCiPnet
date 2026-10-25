@@ -24,14 +24,23 @@ const countryName = (code: string | null) => {
   }
 };
 
+// fetched once per page load and kept, so coming back to the overview shows
+// the location at once instead of loading it again
+const NONE: Geo = { city: null, country: null, lat: null, lon: null };
+let cached: Geo | null = null;
+let pending: Promise<Geo> | null = null;
+const loadGeo = () =>
+  (pending ??= fetch('/api/geo')
+    .then((r) => (r.ok ? (r.json() as Promise<Geo>) : NONE))
+    .catch(() => NONE)
+    .then((g) => (cached = g)));
+
 export function useGeo() {
-  const [geo, setGeo] = useState<Geo | null>(null);
+  const [geo, setGeo] = useState<Geo | null>(cached);
   useEffect(() => {
+    if (cached) return;
     let alive = true;
-    fetch('/api/geo')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((g: Geo | null) => alive && setGeo(g ?? { city: null, country: null, lat: null, lon: null }))
-      .catch(() => alive && setGeo({ city: null, country: null, lat: null, lon: null }));
+    loadGeo().then((g) => alive && setGeo(g));
     return () => {
       alive = false;
     };
@@ -51,7 +60,6 @@ export default function Globe({ geo }: { geo: Geo | null }) {
     const css = getComputedStyle(canvas);
     let accent = '#e8b85a';
     let fg = '#cfd8dc';
-    let bg = '#07090b';
     let light = false;
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -84,7 +92,6 @@ export default function Globe({ geo }: { geo: Geo | null }) {
       ctx.clearRect(0, 0, size, size);
       accent = css.getPropertyValue('--accent').trim() || accent;
       fg = css.getPropertyValue('--fg').trim() || fg;
-      bg = css.getPropertyValue('--bg').trim() || bg;
       light = !!canvas.closest("[data-mode='light']");
 
       // sphere
@@ -126,23 +133,15 @@ export default function Globe({ geo }: { geo: Geo | null }) {
         ctx.globalAlpha = (1 - pulse) * fade;
         ctx.beginPath();
         ctx.arc(x, y, 4 + pulse * 18, 0, Math.PI * 2);
-        ctx.strokeStyle = fg; // text colour: dark in light mode, light in dark mode
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = light ? '#d0001c' : '#ff5a5f';
+        ctx.lineWidth = 1.5;
         ctx.stroke();
-        // red dot with a background-coloured halo and a text-coloured rim, so it
-        // stands out from the land outlines in both modes
+        // in light mode the land is red too, so the dot takes the dark text colour
         ctx.globalAlpha = fade;
         ctx.beginPath();
-        ctx.arc(x, y, 7, 0, Math.PI * 2);
-        ctx.fillStyle = bg;
+        ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = light ? fg : '#ff5a5f';
         ctx.fill();
-        ctx.beginPath();
-        ctx.arc(x, y, 5, 0, Math.PI * 2);
-        ctx.fillStyle = light ? '#d0001c' : '#ff5a5f';
-        ctx.fill();
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = fg;
-        ctx.stroke();
       }
       ctx.globalAlpha = 1;
       raf = requestAnimationFrame(draw);

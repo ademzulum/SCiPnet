@@ -6425,3 +6425,7 @@ button.skip {
 .globe-box .globe {
   width: min(300px, 50%);
 }
+/* fixed width so the placeholder "…" doesn't let the globe shift sideways */
+.globe-box .globe-facts {
+  flex: 0 0 13rem;
+}
