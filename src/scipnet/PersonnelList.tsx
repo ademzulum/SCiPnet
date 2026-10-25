@@ -86,7 +86,7 @@ export default function PersonnelList({ go }: { go: Go }) {
               {p.status !== 'Aktiv' && <span className={`folder-status status-${p.status}`}>{p.status}</span>}
               <span className="folder-body">
                 <span className="folder-photo" aria-hidden>
-                  {p.photo ? <Picture src={photoUrl(p.photo)} alt="" censored={!admin} /> : initials(p.name)}
+                  {p.photo ? <Picture src={photoUrl(p.photo)} alt="" censored={!admin} cover /> : initials(p.name)}
                 </span>
                 <span className="folder-info">
                   <strong className="folder-name">{p.name}</strong>

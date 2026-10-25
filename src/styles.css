@@ -6269,9 +6269,4 @@ button.skip {
   border-radius: 0;
 }
 
-/* censor bars: scrambling scratch lines, rough edges (pattern and filter are
-   injected by Picture.tsx) */
-.picture [id^='censor'] {
-  fill: url(#censor-scratch);
-  filter: url(#censor-rough);
-}
+/* censor areas: the scrambled picture strips are built in Picture.tsx */

@@ -1,60 +1,67 @@
 import { useEffect, useId, useState } from 'react';
 
-// Image that can be censored. SVGs are fetched and inlined so their "censor"
-// elements (the black bars) can be hidden with CSS when `censored` is false;
-// other formats render as a plain <img>.
+// Image that can be censored. SVGs are fetched and inlined; each element whose
+// id starts with "censor" only marks an area. That area shows the picture
+// itself cut into thin horizontal lines that slide sideways, like a scrambled
+// signal. The Administrator (censored = false) sees the plain picture.
+// Other formats render as a plain <img>.
 const cache = new Map<string, Promise<string>>();
 const load = (src: string) => {
   if (!cache.has(src)) cache.set(src, fetch(src).then((r) => r.text()));
   return cache.get(src)!;
 };
 
-// Fill for the censor bars: black with grey scratch strokes that keep jumping
-// around (pattern offset and noise seed step a few times a second), so the
-// bar looks like it is being scrambled. Greys only. Same ids in every
-// picture; the copies are identical, so whichever one resolves is fine.
-const SCRATCH = (() => {
-  let seed = 7;
-  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  let lines = '';
-  for (let i = 0; i < 30; i++) {
-    const y = rnd() * 40;
-    const tilt = (rnd() - 0.5) * 10;
-    const shade = 30 + Math.round(rnd() * 110);
-    const dash = rnd() < 0.5 ? ` stroke-dasharray="${(4 + rnd() * 30).toFixed(0)} ${(2 + rnd() * 12).toFixed(0)}"` : '';
-    lines += `<path d="M${(-10 + rnd() * 20).toFixed(1)} ${y.toFixed(1)} Q60 ${(y + tilt).toFixed(1)} ${(110 + rnd() * 20).toFixed(1)} ${(y - tilt / 2).toFixed(1)}" stroke="rgb(${shade},${shade},${shade})" stroke-width="${(0.3 + rnd() * 1.6).toFixed(2)}"${dash} fill="none"/>`;
-  }
-  const jumps = Array.from({ length: 9 }, () => `${Math.round(rnd() * 120)} ${Math.round(rnd() * 40)}`).join(';');
-  return `<defs>
-<pattern id="censor-scratch" width="120" height="40" patternUnits="userSpaceOnUse"><rect width="120" height="40" fill="#070707"/>${lines}<animateTransform attributeName="patternTransform" type="translate" values="${jumps}" dur="0.9s" calcMode="discrete" repeatCount="indefinite"/></pattern>
-<filter id="censor-rough" x="-5%" y="-30%" width="110%" height="160%"><feTurbulence type="fractalNoise" baseFrequency="0.02 0.3" numOctaves="2" seed="1"><animate attributeName="seed" values="1;4;9;2;7;5" dur="0.6s" calcMode="discrete" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" scale="8" xChannelSelector="R" yChannelSelector="G"/></filter>
-</defs>`;
-})();
+const CENSOR = /<(rect|path|polygon|ellipse|circle)\b([^>]*?)\sid="(censor[^"]*)"([^>]*?)\/?>(?:<\/\1>)?/g;
 
-export default function Picture({ src, alt, censored }: { src?: string; alt: string; censored: boolean }) {
-  const svg = !!src && /\.svg($|\?)/.test(src);
-  const [markup, setMarkup] = useState('');
+function prepare(raw: string, scope: string, cover: boolean) {
+  const width = Number(raw.match(/viewBox="[\d.\s-]*?\s([\d.]+)\s[\d.]+"/)?.[1] ?? 2000);
   // Illustrator names its classes cls-1, cls-2, ... in every file; once inlined
   // they would apply page-wide, so each picture gets its own prefix.
+  let s = raw.replace(/<\?xml[^>]*>/, '').replace(/\bcls-/g, `${scope}cls-`);
+  if (cover) s = s.replace(/<svg\b/, '<svg preserveAspectRatio="xMidYMid slice"');
+  s = s.replace(/<image\b/, `<image id="${scope}img"`);
+
+  // Bands vary only along y (baseFrequency 0 in x), so the displacement moves
+  // whole rows sideways. Scrolling the noise down makes the rows drift.
+  const shift = (width * 0.06).toFixed(1);
+  const filter = `<filter id="${scope}scramble" x="-10%" y="-60%" width="120%" height="220%" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency="0 ${(14 / width).toFixed(4)}" numOctaves="2" seed="4" result="n"/>
+<feOffset in="n" dy="0" result="m"><animate attributeName="dy" values="0;${(width * 0.4).toFixed(0)}" dur="6s" repeatCount="indefinite"/></feOffset>
+<feDisplacementMap in="SourceGraphic" in2="m" scale="${shift}" xChannelSelector="R" yChannelSelector="R"/>
+</filter>`;
+
+  let n = 0;
+  s = s.replace(CENSOR, (_m, tag: string, before: string, id: string, after: string) => {
+    const attrs = `${before}${after}`.replace(/\sclass="[^"]*"/, '');
+    const clip = `${scope}clip${n++}`;
+    return `<g id="${id}" class="censor-scramble"><clipPath id="${clip}"><${tag}${attrs}/></clipPath><use href="#${scope}img" clip-path="url(#${clip})" filter="url(#${scope}scramble)"/></g>`;
+  });
+  return s.replace(/(<svg\b[^>]*>)/, `$1<defs>${filter}</defs>`);
+}
+
+export default function Picture({
+  src,
+  alt,
+  censored,
+  cover = false,
+}: {
+  src?: string;
+  alt: string;
+  censored: boolean;
+  cover?: boolean; // fill the frame and crop, like object-fit: cover
+}) {
+  const svg = !!src && /\.svg($|\?)/.test(src);
+  const [markup, setMarkup] = useState('');
   const scope = `pic${useId().replace(/[^\w-]/g, '')}-`;
 
   useEffect(() => {
     if (!svg || !src) return;
     let alive = true;
-    load(src).then(
-      (t) =>
-        alive &&
-        setMarkup(
-          t
-            .replace(/<\?xml[^>]*>/, '')
-            .replace(/\bcls-/g, `${scope}cls-`)
-            .replace(/(<svg[^>]*>)/, `$1${SCRATCH}`),
-        ),
-    );
+    load(src).then((t) => alive && setMarkup(prepare(t, scope, cover)));
     return () => {
       alive = false;
     };
-  }, [svg, src, scope]);
+  }, [svg, src, scope, cover]);
 
   if (!svg) return <img src={src} alt={alt} loading="lazy" />;
   return (
