@@ -8,6 +8,13 @@ import { Corrupt } from './Admin';
 import { initials } from './Comms';
 import { photoUrl } from '../data/photos';
 import Picture from './Picture';
+import Redacted from './Redacted';
+import { REPORTS } from '../data/reports';
+
+// field reports a person wrote or appears in
+const reportCount = (id: string) => REPORTS.filter((r) => r.author === id || r.involved?.includes(id)).length;
+// disciplinary notes, not counting the "none on file" line
+const noteCount = (notes: string[]) => notes.filter((n) => !/^Keine\b/.test(n)).length;
 
 const STATUSES = ['Alle', 'Aktiv', 'Beurlaubt', 'Beobachtung', 'Vermisst'] as const;
 
@@ -88,6 +95,25 @@ export default function PersonnelList({ go }: { go: Go }) {
                   <strong className="folder-name">{p.name}</strong>
                   <span className="small">{p.role}</span>
                   <span className="dim small">{p.department}</span>
+                </span>
+              </span>
+              {p.quote && (
+                <span className="folder-quote">
+                  „<Redacted text={p.quote} />“
+                </span>
+              )}
+              <span className="folder-facts">
+                <span>
+                  <span className="label">Seit</span>
+                  <strong>{p.since}</strong>
+                </span>
+                <span>
+                  <span className="label">Berichte</span>
+                  <strong>{reportCount(p.id)}</strong>
+                </span>
+                <span>
+                  <span className="label">Vermerke</span>
+                  <strong className={noteCount(p.incidents) ? 'warn-text' : undefined}>{noteCount(p.incidents)}</strong>
                 </span>
               </span>
               <span className="folder-foot">

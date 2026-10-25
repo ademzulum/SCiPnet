@@ -6491,3 +6491,49 @@ button.skip {
 .folder-grid {
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 }
+
+/* personnel folders, wider since the two-column grid: bigger photo, a facts
+   column on the right and the person's quote */
+.folder .folder-photo {
+  width: 64px;
+  height: 78px;
+}
+.folder-body .folder-info {
+  flex: 1;
+}
+.folder-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.folder-facts > span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+}
+.folder-facts .label {
+  margin: 0;
+  font-size: 9px;
+}
+.folder-facts strong {
+  color: var(--hi);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.folder-facts .warn-text {
+  color: #e8b85a;
+}
+.folder-quote {
+  font-size: 12px;
+  font-style: italic;
+  opacity: 0.6;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
