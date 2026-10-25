@@ -60,6 +60,9 @@ export function customCursor() {
     theme = crt;
     const cs = getComputedStyle(crt ?? document.body);
     for (const v of ['hi', 'fg', 'bg', 'accent']) root.style.setProperty(`--cur-${v}`, cs.getPropertyValue(`--${v}`) || '');
+    // a screen can give the cursor its own colour (the minigame: amber)
+    const own = cs.getPropertyValue('--cursor-accent').trim();
+    if (own) root.style.setProperty('--cur-accent', own);
   };
 
   addEventListener('pointermove', (e) => {

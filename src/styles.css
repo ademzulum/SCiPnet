@@ -7618,6 +7618,7 @@ html:not(.cur-lock) .cur-ring i {
   --hi: #ffd47a;
   --accent: #ff4b3a;
   --line: rgba(255, 176, 0, 0.25);
+  --cursor-accent: #ffb000; /* the custom cursor in terminal amber */
   color: var(--fg);
   font-family: 'VT323', monospace;
   font-size: 18px;
