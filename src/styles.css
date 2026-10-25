@@ -6429,3 +6429,9 @@ button.skip {
 .globe-box .globe-facts {
   flex: 0 0 13rem;
 }
+/* Hume status dot follows the state colour */
+.hume-state .live-dot {
+  background: var(--hume);
+  box-shadow: 0 0 8px var(--hume);
+  transition: background 0.3s, box-shadow 0.3s;
+}
