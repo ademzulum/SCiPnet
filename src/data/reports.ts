@@ -56,8 +56,8 @@ export const REPORTS: Report[] = [
         src: 'addendum.jpg',
         caption: 'Hallström und Truppführer am Lager, Nachtaufnahme',
         bars: [
-          { top: 20, left: 38.5, width: 9, height: 4.5 },
-          { top: 11, left: 58, width: 7, height: 4 },
+          { top: 20.3, left: 42, width: 6, height: 3.5 },
+          { top: 11.3, left: 56.3, width: 4.6, height: 3.2 },
         ],
       },
     ],

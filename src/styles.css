@@ -6233,3 +6233,11 @@ button.skip {
 .rv-img img {
   display: block;
 }
+/* report photos: bigger and uncropped, so censor bars map to the source image */
+.rv-images {
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+}
+.rv-images .rv-img img {
+  aspect-ratio: auto;
+  height: auto;
+}
