@@ -53,6 +53,12 @@ export function customCursor() {
       const r = target.getBoundingClientRect();
       // exactly on the element's edges, so the frame never spills onto its neighbours
       tx = r.left; ty = r.top; tw = r.width; th = r.height;
+      // dock buttons lift on hover: keep their frame inside the dock
+      const dock = target.closest('.dock')?.getBoundingClientRect();
+      if (dock) {
+        const top = Math.max(ty, dock.top + 4), bottom = Math.min(ty + th, dock.bottom - 4);
+        ty = top; th = bottom - top;
+      }
     }
     // the ring sits on the pointer; only the move into and out of a frame is eased
     const k = target || w > SIZE + 1 || h > SIZE + 1 ? 0.35 : 1;
