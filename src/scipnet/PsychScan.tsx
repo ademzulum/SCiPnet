@@ -43,8 +43,8 @@ export function BrainScan({ p }: { p: Person }) {
     if (phase !== 'scan') return;
     const start = performance.now();
     let raf = 0;
-    // the searching sweep from the UIU terminal, quiet, for as long as the scan runs
-    const stopSweep = play('triangulate', 0.25, true);
+    // the neural scan's own sound, faded out when the sweep ends (the file runs longer)
+    const stopSweep = play('brainScan', 0.5);
     const tick = (t: number) => {
       const n = Math.min(100, ((t - start) / 2600) * 100);
       setPct(n);

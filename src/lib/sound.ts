@@ -17,6 +17,7 @@ import triangulate from '../../sounds/uiu_terminal/triangulating_search.mp3';
 import uiuSuccess from '../../sounds/uiu_terminal/breach_success.wav';
 // sounds/scipnet: SCiPnet itself
 import biometric from '../../sounds/scipnet/biometric_scan.mp3';
+import brainScan from '../../sounds/scipnet/brain_scan.mp3';
 import commsLogin from '../../sounds/scipnet/comms_login.wav';
 import selfDestruct from '../../sounds/scipnet/self_destruct.mp3';
 import startup from '../../sounds/scipnet/startup.mp3';
@@ -27,7 +28,7 @@ import tabOverview from '../../sounds/tabs/overview.mp3';
 import tabPersonnel from '../../sounds/tabs/personnel_files.mp3';
 import tabReports from '../../sounds/tabs/field_reports.mp3';
 
-const URLS = { biometric, click, commsLogin, enter, error, frequencyFound, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, tabArchive, tabComms, tabOverview, tabPersonnel, tabReports, terminalNoise, triangulate, uiuSuccess };
+const URLS = { biometric, brainScan, click, commsLogin, enter, error, frequencyFound, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, tabArchive, tabComms, tabOverview, tabPersonnel, tabReports, terminalNoise, triangulate, uiuSuccess };
 export type SoundName = keyof typeof URLS;
 
 let ctx: AudioContext | null = null;
