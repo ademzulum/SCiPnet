@@ -7830,29 +7830,3 @@ html:not(.cur-lock) .cur-ring i {
   .globe-facts > div { padding: 0.35rem 0 0.35rem 0.7rem; }
   .gf-link { font-size: 11px !important; }
 }
-
-/* comms connect button: label plus a small Enter keycap */
-.cg-connect {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.7rem;
-}
-.cg-kbd {
-  display: inline-grid;
-  place-items: center;
-  min-width: 26px;
-  height: 22px;
-  padding: 0 0.35rem;
-  font-family: inherit;
-  font-size: 13px;
-  line-height: 1;
-  letter-spacing: 0;
-  border: 1px solid currentColor;
-  border-bottom-width: 3px;
-  border-radius: 4px;
-  opacity: 0.7;
-}
-@media (max-width: 720px) {
-  .cg-kbd { display: none; }
-}
