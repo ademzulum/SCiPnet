@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import ScpLogo from '../components/ScpLogo';
-import scpLogo from '../../images/scipnet_terminal/scp_logo.svg';
+import scipnetLogoRaw from '../../images/scipnet_terminal/scipnet_logo.svg?raw';
+
+// The logo's white detail shapes (class cls-1) would count as solid in a CSS
+// mask, so the emblem behind the shell uses a copy where they are transparent.
+const embossLogo = `data:image/svg+xml,${encodeURIComponent(
+  scipnetLogoRaw.replace(/<metadata>[\s\S]*?<\/metadata>/, '').replace(/fill:\s*#fff/i, 'fill: transparent'),
+)}`;
 import { STOLEN } from '../lib/creds';
 import type { Route } from './routes';
 import Overview from './Overview';
@@ -208,7 +214,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       transition={{ duration: 0.7, times: [0, 0.55, 1], ease: 'easeIn' }}
       onAnimationComplete={() => destruct === 'collapse' && onLogout()}
     >
-      <div className="emboss" style={{ '--emboss-logo': `url("${scpLogo}")` } as React.CSSProperties} aria-hidden>
+      <div className="emboss" style={{ '--emboss-logo': `url("${embossLogo}")` } as React.CSSProperties} aria-hidden>
         <span />
       </div>
       <header className="topbar">

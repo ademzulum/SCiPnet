@@ -1,6 +1,6 @@
-import logo from '../../images/scipnet_terminal/scp_logo.svg';
+import logo from '../../images/scipnet_terminal/scipnet_logo.svg';
 
 // Foundation emblem; the SVG is black, CSS inverts it for the dark screen.
 export default function ScpLogo({ size = 120 }: { size?: number }) {
-  return <img className="scp-logo" src={logo} width={size} height={size} alt="SCP Foundation" draggable={false} />;
+  return <img className="scp-logo" src={logo} width={size} height={size} alt="SCiPnet" draggable={false} />;
 }
