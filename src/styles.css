@@ -6225,3 +6225,11 @@ button.skip {
 .avatar:has(img) {
   overflow: hidden;
 }
+
+/* report image with optional censor bars */
+.rv-img {
+  position: relative;
+}
+.rv-img img {
+  display: block;
+}

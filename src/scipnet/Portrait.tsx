@@ -1,6 +1,6 @@
 import type { Person } from '../data/personnel';
 import { initials } from './Comms';
-import { photoUrl } from '../data/photos';
+import { barStyle, photoUrl } from '../data/photos';
 import { useAccount } from './session';
 
 // ID photo: uses person.photo when set, otherwise a generated silhouette.
@@ -15,7 +15,7 @@ export default function Portrait({ person }: { person: Person }) {
             {person.eyeBar && !admin && (
               <span
                 className="eye-bar"
-                style={{ top: `${person.eyeBar.top}%`, left: `${person.eyeBar.left}%`, width: `${person.eyeBar.width}%` }}
+                style={barStyle(person.eyeBar)}
               />
             )}
           </>

@@ -2,8 +2,10 @@
 //
 // Each report follows the same structure (sections are optional, empty ones
 // are skipped): Ausgangslage, Verlauf (timeline), Maßnahmen, Bewertung.
-// Images: put files into images/reports/ and reference them by URL in `src`;
+// Images: put files into images/field_reports/ and give the file name in `src`;
 // without `src` a placeholder frame with the caption is shown.
+
+import type { EyeBar } from './photos';
 
 export type Report = {
   id: string;
@@ -18,11 +20,49 @@ export type Report = {
   timeline?: { time: string; text: string }[]; // Verlauf
   measures?: string[]; // Maßnahmen (bullet list)
   assessment: string[]; // Bewertung und Empfehlung
-  images?: { src?: string; caption: string }[];
+  images?: { src?: string; caption: string; bars?: EyeBar[] }[]; // bars: censor bars over faces
   involved?: string[]; // personnel ids
 };
 
 export const REPORTS: Report[] = [
+  {
+    id: 'FB-80-2026-033',
+    title: 'Valravn-Spuren bei Kiruna',
+    date: '2026-10-18',
+    author: 'P-80-0912',
+    location: 'Waldgebiet südlich von [[Kiruna]], Schweden',
+    classification: 'Geheim',
+    status: 'Offen',
+    summary: 'Delta-5 findet ein verlassenes Lager der Valravn Corporation. Hallström erkennt die Handschrift seiner alten Einheit.',
+    situation: [
+      'Satellitenbilder zeigten ein getarntes Lager in einem Waldgebiet bei Kiruna. Delta-5 wurde zur Aufklärung entsandt, Operator Hallström als Ortskundiger.',
+    ],
+    timeline: [
+      { time: '02:10', text: 'Trupp erreicht das Gebiet zu Fuß. Keine Bewegung, keine Wärmesignaturen.' },
+      { time: '02:45', text: 'Lager gefunden: Zelte, Feuerstellen, ein Funkmast. Seit etwa zwei Wochen verlassen.' },
+      { time: '03:05', text: 'An einem Baum ein eingeritztes Rabenzeichen. Hallström identifiziert es als Markierung seiner [[ehemaligen Einheit]].' },
+      { time: '03:30', text: 'Im Funkzelt Unterlagen zu [[Site-80 und eine Liste mit Namen von Delta-5]] sichergestellt.' },
+    ],
+    measures: [
+      'Unterlagen an RAISA übergeben.',
+      'Hallström bis zur Auswertung von weiteren Einsätzen in Skandinavien abgezogen.',
+    ],
+    assessment: [
+      'Die Valravn Corporation beobachtet Delta-5, möglicherweise gezielt Hallström. Er hat den Fund selbst gemeldet und alles korrekt dokumentiert.',
+      'Empfehlung: Aufsicht beibehalten, aber Vertrauen nicht weiter entziehen.',
+    ],
+    images: [
+      {
+        src: 'addendum.jpg',
+        caption: 'Hallström und Truppführer am Lager, Nachtaufnahme',
+        bars: [
+          { top: 20, left: 38.5, width: 9, height: 4.5 },
+          { top: 11, left: 58, width: 7, height: 4 },
+        ],
+      },
+    ],
+    involved: ['P-80-0912'],
+  },
   {
     id: 'FB-80-2026-031',
     title: 'Externe Aufklärungsaktivität',

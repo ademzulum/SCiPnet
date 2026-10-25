@@ -1,5 +1,7 @@
 // Personnel files. Text may contain [[...]] for redacted passages.
 
+import type { EyeBar } from './photos';
+
 export type Person = {
   id: string;
   name: string;
@@ -9,7 +11,7 @@ export type Person = {
   status: 'Aktiv' | 'Beurlaubt' | 'Vermisst' | 'Beobachtung';
   since: string;
   photo?: string; // file name in images/personell_pictures/ (no extension); a generated portrait is shown otherwise
-  eyeBar?: { top: number; left: number; width: number }; // black censor bar over the eyes, in % of the cropped photo
+  eyeBar?: EyeBar; // black censor bar over the eyes, hidden for the Administrator
   quote?: string;
   summary: string;
   notes: string[];
@@ -219,6 +221,47 @@ export const PERSONNEL: Person[] = [
       ],
     },
     incidents: ['2024: Verwarnung wegen eines Furzkissens im Besprechungsraum der Standortdirektion.'],
+  },
+  {
+    id: 'P-80-0912',
+    name: 'Halvard Hallström',
+    photo: 'halvard_hallstroem',
+    eyeBar: { top: 25.5, left: 36, width: 24 },
+    role: 'Operator, MTF Delta-5',
+    department: 'Mobile Einsatzkräfte',
+    clearance: 'Stufe 2',
+    status: 'Beobachtung',
+    since: '2023',
+    quote: 'Sag mir, was zu tun ist. Nicht, warum es mein Schicksal ist.',
+    summary:
+      'Aus Kiruna. War über zehn Jahre Söldner der [[Valravn Corporation]] und glaubte lange an deren Mischung aus nordischem Schicksalsglauben und Profitdenken. Als seine Einheit bei einem Einsatz gegen [[Las Víboras]] als Köder geopfert wurde, setzte er sich ab und wurde von der Stiftung unter strenger Aufsicht in MTF Delta-5 aufgenommen.',
+    notes: [
+      'Schweigsam. Prüft Befehle doppelt, bevor er sie ausführt.',
+      'Reagiert allergisch auf Reden von „Pflicht“ und „Bestimmung“.',
+      'Kollegen schätzen sein Können, vertrauen ihm aber nur zögerlich.',
+    ],
+    timeline: [
+      { year: '2011', text: 'Anwerbung durch die Valravn Corporation, Kiruna.' },
+      { year: '2022', text: 'Einsatz gegen Las Víboras. Seine Einheit wird [[als Köder geopfert]]; einziger Überlebender.' },
+      { year: '2023', text: 'Setzt sich ab und stellt sich der Stiftung. Aufnahme in MTF Delta-5 unter Auflagen.' },
+    ],
+    psych: {
+      access: 'denied',
+      required: 'Stufe 3',
+      verdict: { label: 'Unter Beobachtung', tone: 'warn' },
+      date: '2026-09-02',
+      metrics: [
+        { label: 'Belastbarkeit', value: 88 },
+        { label: 'Kooperation', value: 41 },
+        { label: 'Loyalität', value: 52 },
+      ],
+      text: [
+        'Hohe Einsatzfähigkeit, kaum Stressreaktionen im Feld.',
+        'Tiefes Misstrauen gegenüber Autorität, besonders bei ideologisch begründeten Befehlen.',
+        'Spricht nicht über seine alte Einheit. Trägt [[ihre Erkennungsmarken]] bei sich.',
+      ],
+    },
+    incidents: ['Verweigerte 2025 einen Befehl bis zur schriftlichen Bestätigung. Kein Verstoß festgestellt.'],
   },
   {
     id: 'X-80-0003',

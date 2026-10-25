@@ -6,12 +6,15 @@ import Redacted from './Redacted';
 import { initials } from './Comms';
 import { classKey } from './ReportList';
 import { ClassBadge } from './Archive';
+import { barStyle, reportImageUrl } from '../data/photos';
+import { useAccount } from './session';
 
 export default function ReportView({ id, go }: { id: string; go: Go }) {
   const r = reportById(id);
   if (!r) return <p className="page">Bericht nicht gefunden.</p>;
   const author = personById(r.author);
   const scp = scpForReport(r.id);
+  const admin = useAccount().id === 'admin';
 
   const sections = 2 + Number(!!r.timeline?.length) + Number(!!r.images?.length) + Number(!!r.measures?.length);
   const involved = (r.involved ?? []).map((id) => personById(id)).filter((x) => x !== undefined);
@@ -133,7 +136,10 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                   {r.images.map((img, i) => (
                     <figure key={i}>
                       {img.src ? (
-                        <img src={img.src} alt={img.caption} loading="lazy" />
+                        <div className="rv-img">
+                          <img src={reportImageUrl(img.src)} alt={img.caption} loading="lazy" />
+                          {!admin && img.bars?.map((b, j) => <span key={j} className="eye-bar" style={barStyle(b)} />)}
+                        </div>
                       ) : (
                         <div className="rv-img-empty" aria-label="Kein Bild hinterlegt">
                           <svg viewBox="0 0 24 24" aria-hidden>
