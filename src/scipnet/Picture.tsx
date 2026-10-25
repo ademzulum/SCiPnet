@@ -23,7 +23,7 @@ function prepare(raw: string, scope: string, cover: boolean) {
 
   // Bands vary only along y (baseFrequency 0 in x), so the displacement moves
   // whole rows sideways. Scrolling the noise down makes the rows drift.
-  const shift = (width * 0.22).toFixed(1);
+  const shift = (width * 0.40).toFixed(1);
   const filter = `<filter id="${scope}scramble" x="-10%" y="-60%" width="120%" height="220%" color-interpolation-filters="sRGB">
 <feTurbulence type="fractalNoise" baseFrequency="0 ${(40 / width).toFixed(4)}" numOctaves="3" seed="4" result="n"/>
 <feOffset in="n" dy="0" result="o"><animate attributeName="dy" values="0;${(width * 0.4).toFixed(0)}" dur="1.6s" repeatCount="indefinite"/></feOffset>
