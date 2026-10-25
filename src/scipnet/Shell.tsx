@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import ScpLogo from '../components/ScpLogo';
-import scipnetLogoRaw from '../../images/scipnet_terminal/scipnet_logo.svg?raw';
-
-// The logo's white detail shapes (class cls-1) would count as solid in a CSS
-// mask, so the emblem behind the shell uses a copy where they are transparent.
-const embossLogo = `data:image/svg+xml,${encodeURIComponent(
-  scipnetLogoRaw.replace(/<metadata>[\s\S]*?<\/metadata>/, '').replace(/fill:\s*#fff/i, 'fill: transparent'),
-)}`;
+import ScpLogo, { LOGO_MASK as embossLogo } from '../components/ScpLogo';
 import { STOLEN } from '../lib/creds';
 import type { Route } from './routes';
 import Overview from './Overview';

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { geoDistance, geoOrthographic, geoPath } from 'd3-geo';
 import { BORDERS, GRID, LAND, countryName, useGeo } from '../scipnet/Globe';
-import { initAudio, play } from '../lib/sound';
+import { hum, initAudio, play } from '../lib/sound';
 
 // Between the UIU seal and the terminal: the field terminal locates itself.
 // A wireframe globe spins up, three satellite fixes converge on the visitor's
@@ -189,6 +189,7 @@ export default function Locate({ onDone }: { onDone: () => void }) {
         locked = true;
         stopSearch(250);
         initAudio().then(() => play('frequencyFound', 0.6));
+        hum.start(); // runs on into the terminal
       }
 
       if (t >= TOTAL) return finish();

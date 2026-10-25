@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CANCEL, run, type Ctx, type Line, type Pad } from '../lib/engine';
 import { BREACH_SCRIPT } from '../lib/breachScript';
-import { initAudio, play } from '../lib/sound';
+import { hum, play } from '../lib/sound';
 
 const MAX_LINES = 120;
 const GLITCH_MS = 900;
@@ -58,11 +58,9 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
         }),
     };
 
-    // Ambient terminal hum under the whole intro.
-    let stopNoise: (fadeMs?: number) => void = () => {};
-    initAudio().then(() => {
-      if (!dead) stopNoise = play('terminalNoise', 0.35, true);
-    });
+    // Ambient terminal hum under the whole intro (usually already running,
+    // started by the locate scene).
+    hum.start();
 
     setLines([]);
     run(BREACH_SCRIPT, ctx).then(finish, (e) => {
@@ -74,7 +72,7 @@ export default function Breach({ onDone, onAlert }: { onDone: () => void; onAler
     window.addEventListener('keydown', onKey);
     return () => {
       dead = true;
-      stopNoise(800);
+      hum.stop(800);
       waiters.forEach((cancel) => cancel());
       window.removeEventListener('keydown', onKey);
     };

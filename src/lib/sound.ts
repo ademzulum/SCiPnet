@@ -94,6 +94,24 @@ export function play(name: SoundName, volume = 1, loop = false): (fadeMs?: numbe
 // power-on screen and fades out when the UIU terminal intro ends. start()
 // resolves to false when the browser blocks autoplay.
 let anthemEl: HTMLAudioElement | null = null;
+// Terminal hum under the UIU intro. Started by the locate scene at the lock and
+// kept running into the breach terminal, so there is no gap in between.
+let stopHum: ((fadeMs?: number) => void) | null = null;
+export const hum = {
+  start() {
+    if (stopHum) return;
+    stopHum = () => {}; // claimed; the real stop arrives once audio is ready
+    initAudio().then(() => {
+      if (stopHum) stopHum = play('terminalNoise', 0.35, true);
+    });
+  },
+  stop(fadeMs = 800) {
+    const s = stopHum;
+    stopHum = null;
+    s?.(fadeMs);
+  },
+};
+
 export const anthem = {
   start(): Promise<boolean> {
     if (anthemEl && !anthemEl.paused) return Promise.resolve(true);

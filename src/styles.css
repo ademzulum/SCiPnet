@@ -2031,8 +2031,10 @@ button.skip {
 
 .scp-logo {
   display: block;
-  filter: invert(1) drop-shadow(0 0 6px var(--glow));
-  mix-blend-mode: screen;
+  flex: none;
+  background: var(--hi);
+  -webkit-mask: var(--logo) center / contain no-repeat;
+  mask: var(--logo) center / contain no-repeat;
   user-select: none;
 }
 
@@ -5244,10 +5246,7 @@ button.skip {
     linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, transparent 45%, rgba(255, 255, 255, 0.4) 60%, transparent 75%),
     color-mix(in srgb, var(--fg) 7%, var(--bg));
 }
-.crt[data-mode='light'] .scp-logo {
-  filter: none;
-  mix-blend-mode: multiply;
-}
+
 .crt[data-mode='light'] .msg {
   background: #ffffff;
 }
