@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { geoGraticule10, geoOrthographic, geoPath, geoDistance } from 'd3-geo';
+import { geoGraticule10, geoOrthographic, geoPath, geoDistance, geoInterpolate } from 'd3-geo';
 import { feature, mesh } from 'topojson-client';
 import type { GeometryCollection, Topology } from 'topojson-specification';
 import world from 'world-atlas/countries-110m.json';
@@ -14,6 +14,15 @@ const topo = world as unknown as Topology<{ countries: GeometryCollection; land:
 const LAND = feature(topo, topo.objects.land);
 const BORDERS = mesh(topo, topo.objects.countries, (a, b) => a !== b);
 const GRID = geoGraticule10();
+
+// endpoints for the data links: Foundation-ish hubs around the world
+const NODES: [number, number][] = [
+  [-74.0, 40.7], [-0.1, 51.5], [2.35, 48.86], [13.4, 52.52], [37.6, 55.75], [139.7, 35.7],
+  [151.2, -33.9], [-43.2, -22.9], [28.0, -26.2], [31.2, 30.0], [77.2, 28.6], [103.8, 1.35],
+  [-122.4, 37.8], [-99.1, 19.4], [18.1, 59.3], [20.2, 67.9], [-149.9, 61.2], [116.4, 39.9],
+];
+type Link = { a: [number, number]; b: [number, number]; start: number; dur: number; lift: number };
+const STEPS = 48;
 
 const countryName = (code: string | null) => {
   if (!code) return null;
@@ -71,6 +80,14 @@ export default function Globe({ geo }: { geo: Geo | null }) {
     let lon = pin ? -pin[0] : 0;
     const tilt = pin ? -Math.max(-40, Math.min(40, pin[1] * 0.6)) : -20;
     let last = performance.now();
+    const links: Link[] = [];
+    let nextLink = 0;
+    // prefer endpoints facing the viewer so most links are actually seen
+    const node = () => {
+      const front = NODES.filter((n) => geoDistance(n, [-lon, -tilt]) < 1.3);
+      const pool = front.length > 2 ? front : NODES;
+      return pool[(Math.random() * pool.length) | 0];
+    };
 
     const resize = () => {
       const dpr = Math.min(2, devicePixelRatio || 1);
@@ -124,6 +141,63 @@ export default function Globe({ geo }: { geo: Geo | null }) {
       ctx.globalAlpha = 0.25;
       ctx.lineWidth = 0.6;
       ctx.stroke();
+
+      // data links: lifted great-circle arcs; a bright head runs from a to b
+      // dragging a fading trail, then the arc fades away
+      if (!still && now > nextLink && links.length < 9) {
+        const a = pin && Math.random() < 0.4 ? pin : node();
+        let b = node();
+        while (b === a) b = node();
+        const dist = geoDistance(a, b);
+        links.push({ a, b, start: now, dur: 1400 + dist * 900, lift: 0.1 + dist * 0.18 });
+        nextLink = now + 250 + Math.random() * 500;
+      }
+      const centre: [number, number] = [-lon, -tilt];
+      const [cx, cy] = projection.translate();
+      for (let i = links.length - 1; i >= 0; i--) {
+        const l = links[i];
+        const t = (now - l.start) / l.dur; // head position 0..1, then 1..1.6 fade out
+        if (t > 1.6) {
+          links.splice(i, 1);
+          continue;
+        }
+        const head = Math.min(1, t);
+        const tail = Math.max(0, head - 0.55);
+        const out = t > 1 ? 1 - (t - 1) / 0.6 : 1;
+        const at = geoInterpolate(l.a, l.b);
+        let prev: [number, number] | null = null;
+        for (let k = Math.floor(tail * STEPS); k <= Math.ceil(head * STEPS); k++) {
+          const u = Math.min(head, Math.max(tail, k / STEPS));
+          const ll = at(u);
+          // hidden behind the globe: skip; near the horizon: fade
+          const front = Math.PI / 2 - geoDistance(ll, centre);
+          const vis = Math.max(0, Math.min(1, front / 0.35 + 0.4));
+          const [px, py] = projection(ll) ?? [cx, cy];
+          const h = 1 + Math.sin(u * Math.PI) * l.lift; // height above the surface
+          const p: [number, number] = [cx + (px - cx) * h, cy + (py - cy) * h];
+          if (front < -0.25 || !projection(ll)) {
+            prev = null;
+            continue;
+          }
+          if (prev) {
+            ctx.globalAlpha = (0.15 + 0.85 * ((u - tail) / Math.max(0.001, head - tail))) * vis * out;
+            ctx.beginPath();
+            ctx.moveTo(prev[0], prev[1]);
+            ctx.lineTo(p[0], p[1]);
+            ctx.strokeStyle = fg; // text colour reads against the red land in both modes
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
+          }
+          prev = p;
+        }
+        if (t <= 1 && prev) {
+          ctx.globalAlpha = out;
+          ctx.beginPath();
+          ctx.arc(prev[0], prev[1], 2.2, 0, Math.PI * 2);
+          ctx.fillStyle = fg;
+          ctx.fill();
+        }
+      }
 
       // pin fades out over the last 30° before the horizon and back in after it
       const fade = pin ? Math.max(0, Math.min(1, (Math.PI / 2 - geoDistance(pin, [-lon, -tilt])) / (Math.PI / 6))) : 0;
