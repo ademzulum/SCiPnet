@@ -61,11 +61,14 @@ export function customCursor() {
       // exactly on the element's edges, so the frame never spills onto its neighbours
       tx = r.left; ty = r.top; tw = r.width; th = r.height;
     }
-    // The dock stays on top: a frame for anything but a dock button is drawn
-    // next to the dock, one layer below it, so the dock covers it like it
-    // covers the element itself. Dock buttons are framed from the top layer.
+    // The dock stays on top: a frame reaching under the dock is drawn next to
+    // it, one layer below, so the dock covers it like it covers the element.
+    // Dock buttons are framed from the top layer.
+    // Anything else (menus, the notification panel) stays on the top layer.
     const dock = document.querySelector('.dock');
-    const host = dock?.parentElement && target && !target.closest('.dock') ? dock.parentElement : document.body;
+    const d = dock?.getBoundingClientRect();
+    const under = !!d && !!target && !target.closest('.dock') && d.left < tx + tw && d.right > tx && d.top < ty + th && d.bottom > ty;
+    const host = under && dock?.parentElement ? dock.parentElement : document.body;
     if (ring.parentElement !== host) {
       host.append(ring);
       const z = host === document.body ? '' : String(Math.max(0, (parseInt(getComputedStyle(dock!).zIndex) || 1) - 1));
