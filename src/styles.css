@@ -6423,7 +6423,9 @@ button.skip {
   justify-content: center;
 }
 .globe-box .globe {
-  width: min(300px, 50%);
+  /* the canvas holds a margin for the arcs, so it is larger than the globe */
+  width: min(370px, 58%);
+  margin: -1.5rem -1rem -1.5rem -1.5rem;
 }
 /* fixed width so the placeholder "…" doesn't let the globe shift sideways */
 .globe-box .globe-facts {

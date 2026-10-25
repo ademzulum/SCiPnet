@@ -23,6 +23,7 @@ const NODES: [number, number][] = [
 ];
 type Link = { a: [number, number]; b: [number, number]; start: number; dur: number; lift: number };
 const STEPS = 48;
+const MAX_LIFT = 0.26; // highest arc, as a fraction of the globe radius
 
 const countryName = (code: string | null) => {
   if (!code) return null;
@@ -75,6 +76,9 @@ export default function Globe({ geo }: { geo: Geo | null }) {
     let raf = 0;
     let size = 0;
     const projection = geoOrthographic().clipAngle(90);
+    // same view without clipping: also places points on the far side, which
+    // lifted arcs need when they rise past the globe's edge
+    const free = geoOrthographic();
     const path = geoPath(projection, ctx);
     // start facing the pin, then keep turning west to east
     let lon = pin ? -pin[0] : 0;
@@ -95,7 +99,9 @@ export default function Globe({ geo }: { geo: Geo | null }) {
       canvas.width = size * dpr;
       canvas.height = size * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      projection.translate([size / 2, size / 2]).scale(size / 2 - 2);
+      // leave a margin around the globe so the highest arcs stay on the canvas
+      projection.translate([size / 2, size / 2]).scale((size / 2 - 2) / (1 + MAX_LIFT));
+      free.translate(projection.translate()).scale(projection.scale());
     };
     resize();
     const ro = new ResizeObserver(resize);
@@ -106,12 +112,13 @@ export default function Globe({ geo }: { geo: Geo | null }) {
       last = now;
       if (!still) lon += dt * 0.012;
       projection.rotate([lon, tilt]);
+      free.rotate([lon, tilt]);
       ctx.clearRect(0, 0, size, size);
       accent = css.getPropertyValue('--accent').trim() || accent;
       fg = css.getPropertyValue('--fg').trim() || fg;
       light = !!canvas.closest("[data-mode='light']");
       // links and pin: bright text colour on the dark globe, deep crimson on the light one
-      const ink = light ? '#8f0a1c' : fg;
+      const ink = light ? '#8f0a1c' : '#ff5a5f';
 
       // sphere
       ctx.beginPath();
@@ -151,7 +158,7 @@ export default function Globe({ geo }: { geo: Geo | null }) {
         let b = node();
         while (b === a) b = node();
         const dist = geoDistance(a, b);
-        links.push({ a, b, start: now, dur: 1400 + dist * 900, lift: 0.1 + dist * 0.18 });
+        links.push({ a, b, start: now, dur: 1400 + dist * 900, lift: Math.min(MAX_LIFT, 0.06 + dist * 0.065) });
         nextLink = now + 250 + Math.random() * 500;
       }
       const centre: [number, number] = [-lon, -tilt];
@@ -171,13 +178,15 @@ export default function Globe({ geo }: { geo: Geo | null }) {
         for (let k = Math.floor(tail * STEPS); k <= Math.ceil(head * STEPS); k++) {
           const u = Math.min(head, Math.max(tail, k / STEPS));
           const ll = at(u);
-          // hidden behind the globe: skip; near the horizon: fade
-          const front = Math.PI / 2 - geoDistance(ll, centre);
-          const vis = Math.max(0, Math.min(1, front / 0.35 + 0.4));
-          const [px, py] = projection(ll) ?? [cx, cy];
+          // A lifted point is hidden only while it is behind the globe AND
+          // inside its outline; past the edge it stays visible.
+          const [px, py] = free(ll)!;
           const h = 1 + Math.sin(u * Math.PI) * l.lift; // height above the surface
           const p: [number, number] = [cx + (px - cx) * h, cy + (py - cy) * h];
-          if (front < -0.25 || !projection(ll)) {
+          const behind = geoDistance(ll, centre) > Math.PI / 2;
+          const outside = Math.hypot(p[0] - cx, p[1] - cy) / projection.scale() - 1; // > 0 beyond the edge
+          const vis = behind ? Math.max(0, Math.min(1, outside / 0.04)) : 1;
+          if (vis <= 0) {
             prev = null;
             continue;
           }
@@ -209,13 +218,13 @@ export default function Globe({ geo }: { geo: Geo | null }) {
         ctx.globalAlpha = (1 - pulse) * fade;
         ctx.beginPath();
         ctx.arc(x, y, 4 + pulse * 18, 0, Math.PI * 2);
-        ctx.strokeStyle = light ? ink : '#ff5a5f';
+        ctx.strokeStyle = ink;
         ctx.lineWidth = 1.5;
         ctx.stroke();
         ctx.globalAlpha = fade;
         ctx.beginPath();
         ctx.arc(x, y, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = light ? ink : '#ff5a5f';
+        ctx.fillStyle = ink;
         ctx.fill();
       }
       ctx.globalAlpha = 1;
