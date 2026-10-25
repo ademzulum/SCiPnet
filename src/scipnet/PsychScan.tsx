@@ -145,10 +145,10 @@ export function BrainScan({ p }: { p: Person }) {
             {/* sweep and hotspots above the line art */}
             {phase === 'scan' && (
               <>
-                {/* fading trail, a glowing beam and a reticle riding along it */}
-                <rect x={sweepX - 120 * U} y="0" width={120 * U} height={H} fill="url(#brain-trail)" />
-                <line x1={sweepX} x2={sweepX} y1="0" y2={H} className="brain-glow" strokeWidth={8 * U} />
-                <line x1={sweepX} x2={sweepX} y1="0" y2={H} className="brain-line" strokeWidth={1.5 * U} />
+                {/* fading trail, a glowing beam and a reticle riding along it, as tall as the grid */}
+                <rect x={sweepX - 120 * U} y={-PAD} width={120 * U} height={H + 2 * PAD} fill="url(#brain-trail)" />
+                <line x1={sweepX} x2={sweepX} y1={-PAD} y2={H + PAD} className="brain-glow" strokeWidth={8 * U} />
+                <line x1={sweepX} x2={sweepX} y1={-PAD} y2={H + PAD} className="brain-line" strokeWidth={1.5 * U} />
                 {[0.2, 0.4, 0.6, 0.8].map((t) => (
                   <line key={t} x1={sweepX - 6 * U} x2={sweepX + 6 * U} y1={H * t} y2={H * t} className="brain-line" strokeWidth={U} />
                 ))}
