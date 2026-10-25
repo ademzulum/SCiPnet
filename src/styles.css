@@ -6250,3 +6250,46 @@ button.skip {
 .picture.uncensored [id^='censor'] {
   display: none;
 }
+
+/* report photo: same scanline stripes as the portraits, and a thin frame */
+.rv-img {
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.rv-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px);
+}
+.rv-images .rv-img img {
+  border: none;
+  border-radius: 0;
+}
+
+/* glitchy censor bars: they jitter sideways, flicker and split into red and
+   cyan now and then. Lengths are in SVG units (the picture is ~2700 wide). */
+.picture [id^='censor'] {
+  fill: #0a0a0a;
+  animation: censorglitch 2.2s steps(1) infinite;
+}
+.picture [id^='censor']:nth-of-type(2n) {
+  animation-delay: -0.9s;
+  animation-duration: 2.9s;
+}
+@keyframes censorglitch {
+  0%, 100% { translate: 0 0; filter: none; fill: #0a0a0a; }
+  8% { translate: 6px 0; filter: drop-shadow(-8px 0 #ff2a55) drop-shadow(8px 0 #2ad4ff); }
+  10% { translate: -4px 1px; fill: #1c1c1c; }
+  12% { translate: 0 0; filter: none; fill: #0a0a0a; }
+  46% { translate: -9px 0; filter: drop-shadow(10px 0 #2ad4ff); fill: #141414; }
+  48% { translate: 3px -1px; filter: drop-shadow(-6px 0 #ff2a55); }
+  50% { translate: 0 0; filter: none; fill: #0a0a0a; }
+  77% { translate: 12px 0; fill: #262626; filter: drop-shadow(-12px 0 #ff2a55) drop-shadow(12px 0 #2ad4ff); }
+  78% { translate: 0 0; filter: none; fill: #0a0a0a; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .picture [id^='censor'] { animation: none; }
+}
