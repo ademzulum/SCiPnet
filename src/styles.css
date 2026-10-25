@@ -6537,3 +6537,8 @@ button.skip {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.folder-quote.none {
+  font-style: normal;
+  opacity: 0.35;
+  letter-spacing: 0.05em;
+}

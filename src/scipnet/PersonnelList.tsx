@@ -97,10 +97,13 @@ export default function PersonnelList({ go }: { go: Go }) {
                   <span className="dim small">{p.department}</span>
                 </span>
               </span>
-              {p.quote && (
+              {/* always a quote line, so cards in a row line up even without one */}
+              {p.quote ? (
                 <span className="folder-quote">
                   „<Redacted text={p.quote} />“
                 </span>
+              ) : (
+                <span className="folder-quote none">Keine Aussage auf Akte.</span>
               )}
               <span className="folder-facts">
                 <span>
