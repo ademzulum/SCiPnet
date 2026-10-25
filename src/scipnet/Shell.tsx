@@ -18,6 +18,7 @@ import Archive, { ScpView } from './Archive';
 import Assistant from './Assistant';
 import Hack from './Hack';
 import Sessions from './Sessions';
+import SideRails from './SideRails';
 import { adminAccess, commsAuth, switchAccount, useAdminUnlocked } from './session';
 import { Bell, Toast, useNotifications } from './Notifications';
 import { play, type SoundName } from '../lib/sound';
@@ -292,6 +293,11 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
           </motion.div>
         </AnimatePresence>
       </main>
+      {/* wide screens: system log and tab context beside the page; the comms
+          login brings its own side panels */}
+      {!locked && !((route.view === 'comms' || route.view === 'thread') && !commsOk) && route.view !== 'admin' && (
+        <SideRails route={route} go={go} />
+      )}
 
       <Toast api={notes} go={go} hidden={locked} />
 
