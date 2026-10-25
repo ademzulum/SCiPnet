@@ -21,9 +21,21 @@ export function customCursor() {
   const eased = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
   const ease = (el: HTMLElement) => {
     clearTimeout(eased.get(el));
+    // Pills use a huge radius (999px); easing from there to 0 only shows in the
+    // last few percent, so it looks instant. Start from the radius you actually
+    // see, half the height, applied before the transition is switched on.
+    const r = el.getBoundingClientRect();
+    const half = Math.min(r.width, r.height) / 2;
+    if (!el.style.borderRadius && parseFloat(getComputedStyle(el).borderTopLeftRadius) > half) {
+      el.style.transition = 'none';
+      el.style.borderRadius = `${half}px`;
+      void el.offsetWidth;
+      el.style.transition = '';
+    }
     const t = getComputedStyle(el).transition;
     if (!el.style.transition.includes('border-radius'))
       el.style.transition = !t || t.startsWith('all 0s') ? RADIUS : `${t}, ${RADIUS}`;
+    void el.offsetWidth;
   };
   const mark = (el: Element) => {
     if (el instanceof HTMLElement) ease(el);
@@ -32,7 +44,8 @@ export function customCursor() {
   const unmark = (el: Element) => {
     el.removeAttribute('data-cur-target');
     // keep the eased radius until the corners are round again
-    if (el instanceof HTMLElement) eased.set(el, setTimeout(() => (el.style.transition = ''), 300));
+    if (el instanceof HTMLElement)
+      eased.set(el, setTimeout(() => ((el.style.transition = ''), (el.style.borderRadius = '')), 300));
   };
 
   let mx = -100, my = -100; // pointer
