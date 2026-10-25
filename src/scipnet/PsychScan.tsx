@@ -20,6 +20,7 @@ const REGIONS = [
   { id: 'kleinhirn', name: 'Kleinhirn' },
 ].map((r) => ({ ...r, d: pathById(r.id) }));
 const U = W / 511; // stroke and marker sizes were tuned for a 511-wide drawing
+const PAD = 36 * U; // the grid reaches a little past the brain on every side
 
 // low values glow red, high ones green
 const heat = (v: number) => `hsl(${Math.round(v * 1.2)} 80% 55%)`;
@@ -104,17 +105,25 @@ export function BrainScan({ p }: { p: Person }) {
 
       <div className="brain-body">
         <div className="brain-stage">
-          <svg className="brain-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Gehirnscan">
+          <svg className="brain-svg" viewBox={`${-PAD} ${-PAD} ${W + 2 * PAD} ${H + 2 * PAD}`} role="img" aria-label="Gehirnscan">
             <defs>
               <pattern id="brain-grid" width={16 * U} height={16 * U} patternUnits="userSpaceOnUse">
                 <path d={`M${16 * U} 0H0V${16 * U}`} fill="none" stroke="currentColor" strokeOpacity="0.1" strokeWidth={U} />
               </pattern>
+              {/* the grid fades out towards its edges, so it has no hard border */}
+              <radialGradient id="brain-fade" cx="0.5" cy="0.5" r="0.62">
+                <stop offset="0.6" stopColor="#fff" />
+                <stop offset="1" stopColor="#fff" stopOpacity="0" />
+              </radialGradient>
+              <mask id="brain-grid-mask">
+                <rect x={-PAD} y={-PAD} width={W + 2 * PAD} height={H + 2 * PAD} fill="url(#brain-fade)" />
+              </mask>
               <linearGradient id="brain-trail" x1="0" x2="1" y1="0" y2="0">
                 <stop offset="0" stopColor="var(--accent)" stopOpacity="0" />
                 <stop offset="1" stopColor="var(--accent)" stopOpacity="0.35" />
               </linearGradient>
             </defs>
-            <rect width={W} height={H} fill="url(#brain-grid)" />
+            <rect x={-PAD} y={-PAD} width={W + 2 * PAD} height={H + 2 * PAD} fill="url(#brain-grid)" mask="url(#brain-grid-mask)" />
             {/* heat overlay under the line art */}
             {REGIONS.map((r, i) => {
               const v = regionMetric(metrics, i).value;
@@ -249,6 +258,48 @@ export function Eeg({ tone = 'ok' }: { tone?: Tone }) {
           </svg>
         </div>
       ))}
+    </section>
+  );
+}
+
+// Vital signs beside the EEG: slow drift around a resting value, rougher for
+// a worse assessment.
+const VITALS: { label: string; unit: string; base: number; spread: number; digits?: number }[] = [
+  { label: 'Herzfrequenz', unit: 'bpm', base: 68, spread: 4 },
+  { label: 'HRV', unit: 'ms', base: 54, spread: 6 },
+  { label: 'Hautleitwert', unit: 'µS', base: 4.2, spread: 0.6, digits: 1 },
+  { label: 'Atmung', unit: '/min', base: 14, spread: 1.5 },
+];
+
+export function Vitals({ tone = 'ok' }: { tone?: Tone }) {
+  const stress = tone === 'bad' ? 1.6 : tone === 'warn' ? 1.25 : 1;
+  const [t, setT] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setT((n) => n + 1), 900);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <section className={`box vitals eeg-${tone}`}>
+      <div className="brain-head">
+        <div className="label">Vitalwerte · Sensorweste</div>
+        <span className="small dim">1 Hz</span>
+      </div>
+      <div className="vitals-grid">
+        {VITALS.map((v, i) => {
+          // HRV drops under stress, everything else rises
+          const base = i === 1 ? v.base / stress : v.base * (1 + (stress - 1) * 0.4);
+          const val = base + Math.sin(t * 0.7 + i * 1.9) * v.spread * stress * 0.5 + Math.sin(t * 1.9 + i) * v.spread * 0.2;
+          return (
+            <div key={v.label} className="vital">
+              <span className="label">{v.label}</span>
+              <span className="vital-value">
+                {val.toFixed(v.digits ?? 0)}
+                <small>{v.unit}</small>
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }

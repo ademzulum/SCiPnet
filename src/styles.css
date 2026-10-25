@@ -7389,3 +7389,51 @@ button.skip {
 .crt[data-mode='light'] .psych-lock.opening h3 {
   color: #1d8a4f;
 }
+
+/* ---- psych: EEG and vital signs share the column beside the brain scan --- */
+.psych-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-width: 0;
+}
+.psych-side > .box {
+  margin: 0;
+}
+.psych-side > .vitals {
+  flex: 1;
+}
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+.vital {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.vital .label {
+  margin: 0;
+  font-size: 9px;
+}
+.vital-value {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--hi);
+  font-variant-numeric: tabular-nums;
+}
+.vital-value small {
+  margin-left: 0.3rem;
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.6;
+}
+.brain-stage {
+  max-width: 380px;
+}

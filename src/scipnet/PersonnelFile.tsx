@@ -11,7 +11,7 @@ import { adminAccess, biometric, psychAccess, useAccount } from './session';
 import { ClearancePips } from './PersonnelList';
 import BiometricGate from './BiometricGate';
 import Portrait from './Portrait';
-import { BrainScan, Eeg } from './PsychScan';
+import { BrainScan, Eeg, Vitals } from './PsychScan';
 import { play } from '../lib/sound';
 
 const TABS = ['Akte', 'Werdegang', 'Psychologie', 'Vorfälle', 'Berichte'] as const;
@@ -26,6 +26,7 @@ const fmtDate = (d: string) => new Date(d).toLocaleDateString('de-DE');
 export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
   const p = personById(id);
   const [tab, setTab] = useState<Tab>('Akte');
+  const [, setPsychTick] = useState(0); // re-render the section cards once the profile opens
   const account = useAccount();
   const admin = account.id === 'admin';
   const [opened] = useState(() => new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
@@ -177,7 +178,7 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
               </ol>
             </section>
           )}
-          {tab === 'Psychologie' && <PsychTab key={p.id} p={p} />}
+          {tab === 'Psychologie' && <PsychTab key={p.id} p={p} onGranted={() => setPsychTick((n) => n + 1)} />}
           {tab === 'Vorfälle' && (
             <section className="box file-panel">
               <div className="box-head">
@@ -254,7 +255,7 @@ function FileTab({ p }: { p: Person }) {
   );
 }
 
-function PsychTab({ p }: { p: Person }) {
+function PsychTab({ p, onGranted }: { p: Person; onGranted: () => void }) {
   const [phase, setPhase] = useState<'locked' | 'asking' | 'opening' | 'granted' | 'denied'>(() =>
     psychAccess.has(p.id) ? 'granted' : 'locked',
   );
@@ -270,6 +271,7 @@ function PsychTab({ p }: { p: Person }) {
       setPhase('opening');
       await wait(1100);
       setPhase('granted');
+      onGranted();
     } else {
       play('negative', 0.8);
       setPhase('denied');
@@ -332,7 +334,10 @@ function PsychTab({ p }: { p: Person }) {
 
         <div className="psych-scans">
           <BrainScan p={p} />
-          <Eeg tone={verdict?.tone} />
+          <div className="psych-side">
+            <Eeg tone={verdict?.tone} />
+            <Vitals tone={verdict?.tone} />
+          </div>
         </div>
 
         <section className="box file-panel">
