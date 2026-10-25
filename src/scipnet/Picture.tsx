@@ -14,7 +14,7 @@ const load = (src: string) => {
 };
 
 const CENSOR = /<rect\b([^>]*?)\sid="(censor[^"]*)"([^>]*?)\/?>(?:<\/rect>)?/g;
-const attr = (a: string, name: string) => a.match(new RegExp(`\s${name}="([^"]*)"`))?.[1];
+const attr = (a: string, name: string) => a.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
 
 function scribble(attrs: string, id: string, salt: number, scope: string) {
   const x = Number(attr(attrs, 'x') ?? 0);
@@ -63,7 +63,7 @@ function scribble(attrs: string, id: string, salt: number, scope: string) {
   }
 
   const mask = `${scope}mask${salt}`;
-  return `<g id="${id}" class="censor-scribble" fill="none" stroke-linecap="round"><mask id="${mask}" maskUnits="userSpaceOnUse" x="-100000" y="-100000" width="200000" height="200000"><g${tf}>${body}</g></mask><use href="#${scope}img" mask="url(#${mask})" filter="url(#${scope}smear)"/><g${tf}>${scratches}</g></g>`;
+  return `<g id="${id}" class="censor-scribble" fill="none" stroke-linecap="round"><mask id="${mask}"><g${tf}>${body}</g></mask><use href="#${scope}img" mask="url(#${mask})" filter="url(#${scope}smear)"/><g${tf}>${scratches}</g></g>`;
 }
 
 function prepare(raw: string, scope: string, cover: boolean) {
