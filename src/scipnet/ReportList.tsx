@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { FILTER_CARD } from './filterAnim';
 import { REPORTS, type Report } from '../data/reports';
 import { personById } from '../data/personnel';
 import type { Go } from './routes';
@@ -66,19 +67,14 @@ export default function ReportList({ go }: { go: Go }) {
         </div>
       </div>
 
-      <div className="report-grid">
+      <div className="report-grid filter-grid">
         <AnimatePresence mode="popLayout" initial={false}>
           {items.map((r) => {
             const author = personById(r.author);
             return (
               <motion.button
-                layout
                 key={r.id}
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.25, ease: [0.25, 0.8, 0.25, 1] }}
-                whileHover={{ y: -2 }}
+                {...FILTER_CARD}
                 className={`report-card cl-${classKey(r.classification)}`}
                 onClick={() => go({ view: 'report', id: r.id })}
               >

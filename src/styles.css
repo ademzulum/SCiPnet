@@ -3613,8 +3613,9 @@ button.skip {
 
 /* ---- smooth filtering: motion owns transform on these cards ---------- */
 
-.report-grid,
-.archive-grid {
+/* every filterable list (see src/scipnet/filterAnim.ts): popLayout takes
+   leaving cards out of the flow, positioned against this grid */
+.filter-grid {
   position: relative;
 }
 .report-card,

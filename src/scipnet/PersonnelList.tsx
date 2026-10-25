@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { FILTER_CARD } from './filterAnim';
 import { ADMIN_PERSON, PERSONNEL } from '../data/personnel';
 import { biometric, useAccount, useAdminUnlocked } from './session';
 import type { Go } from './routes';
@@ -68,17 +69,12 @@ export default function PersonnelList({ go }: { go: Go }) {
         </div>
       </div>
 
-      <div className="folder-grid">
+      <div className="folder-grid filter-grid">
         <AnimatePresence mode="popLayout" initial={false}>
           {items.map((p) => (
             <motion.button
-              layout
               key={p.id}
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.25, ease: [0.25, 0.8, 0.25, 1] }}
-              whileHover={{ y: -2 }}
+              {...FILTER_CARD}
               className={`folder st-${p.status}${p.id.startsWith('X-') ? ' external' : ''}`}
               onClick={() => go({ view: 'person', id: p.id })}
             >
@@ -110,7 +106,7 @@ export default function PersonnelList({ go }: { go: Go }) {
           ))}
 
         {solved ? (
-          <motion.button layout key="admin" whileHover={{ y: -2 }} className="folder admin-folder" onClick={() => go({ view: 'admin' })}>
+          <motion.button key="admin" {...FILTER_CARD} className="folder admin-folder" onClick={() => go({ view: 'admin' })}>
             <span className="folder-tab">{ADMIN_PERSON.id}</span>
             <span className="folder-body">
               <span className="folder-photo" aria-hidden>
@@ -132,7 +128,7 @@ export default function PersonnelList({ go }: { go: Go }) {
             </span>
           </motion.button>
         ) : (
-          <motion.button layout key="admin-locked" whileHover={{ y: -2 }} className="folder admin-card" onClick={() => go({ view: 'admin' })}>
+          <motion.button key="admin-locked" {...FILTER_CARD} className="folder admin-card" onClick={() => go({ view: 'admin' })}>
             <span className="folder-tab">
               <Corrupt text="A-00-0000" amount={0.2} every={400} />
             </span>

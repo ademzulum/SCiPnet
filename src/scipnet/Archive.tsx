@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { FILTER_CARD } from './filterAnim';
 import { SCP, scpById, type ObjectClass } from '../data/scp';
 import { REPORTS } from '../data/reports';
 import { play } from '../lib/sound';
@@ -53,17 +54,12 @@ export default function Archive({ go }: { go: Go }) {
         </div>
       </div>
 
-      <div className="archive-grid">
+      <div className="archive-grid filter-grid">
         <AnimatePresence mode="popLayout" initial={false}>
           {items.map((s) => (
             <motion.button
-              layout
               key={s.id}
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.25, ease: [0.25, 0.8, 0.25, 1] }}
-                whileHover={{ y: -2 }}
+              {...FILTER_CARD}
               className={`scp-card class-edge-${s.objectClass}${s.locked && !solved ? ' locked' : ''}`}
               onClick={() => go({ view: 'scp', id: s.id })}
             >
