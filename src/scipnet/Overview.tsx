@@ -1,8 +1,11 @@
-import { PERSONNEL } from '../data/personnel';
+import { PERSONNEL, personById } from '../data/personnel';
 import { REPORTS } from '../data/reports';
+import { SCP } from '../data/scp';
 import { useAccount } from './session';
 import type { Go } from './routes';
-import { ReportRow } from './ReportList';
+import { classKey } from './ReportList';
+import { initials } from './Comms';
+import Redacted from './Redacted';
 import Globe, { useGeo } from './Globe';
 import HumeMeter from './HumeMeter';
 
@@ -16,15 +19,42 @@ const NOTICES: Notice[] = [
 
 const LEVEL_LABEL = { info: 'Info', warn: 'Hinweis', alert: 'Dringend' };
 
+const fmt = (d: string) => new Date(d).toLocaleDateString('de-DE');
+const daysAgo = (d: string) => Math.max(0, Math.round((Date.now() - new Date(d).getTime()) / 864e5));
+
 export default function Overview({ go }: { go: Go }) {
   const me = useAccount();
   const geo = useGeo();
-  const open = REPORTS.filter((r) => r.status === 'Offen').length;
+  const open = REPORTS.filter((r) => r.status === 'Offen');
+  const active = PERSONNEL.filter((p) => p.status === 'Aktiv').length;
+  const flagged = PERSONNEL.filter((p) => p.status !== 'Aktiv');
+  const latest = [...REPORTS].sort((x, y) => y.date.localeCompare(x.date));
+  const keter = SCP.filter((o) => o.objectClass === 'Keter').length;
   const stats = [
-    { label: 'Personalakten', value: PERSONNEL.length + 1, onClick: () => go({ view: 'personnel' }) },
-    { label: 'Feldberichte', value: REPORTS.length, onClick: () => go({ view: 'reports' }) },
-    { label: 'Offene Vorgänge', value: open, onClick: () => go({ view: 'reports' }) },
-    { label: 'Standortstatus', value: 'NORMAL' },
+    {
+      label: 'Aktives Personal',
+      value: `${active}/${PERSONNEL.length}`,
+      sub: `${flagged.length} mit Statusvermerk`,
+      onClick: () => go({ view: 'personnel' }),
+    },
+    {
+      label: 'Offene Vorgänge',
+      value: open.length,
+      sub: `${open.filter((r) => r.classification === 'Streng geheim').length} streng geheim`,
+      onClick: () => go({ view: 'reports' }),
+    },
+    {
+      label: 'Erfasste Objekte',
+      value: SCP.length,
+      sub: `${keter} Keter`,
+      onClick: () => go({ view: 'archive' }),
+    },
+    {
+      label: 'Letzter Bericht',
+      value: latest[0] ? `vor ${daysAgo(latest[0].date)} T` : '–',
+      sub: latest[0]?.id ?? '',
+      onClick: latest[0] ? () => go({ view: 'report', id: latest[0].id }) : undefined,
+    },
   ];
 
   return (
@@ -51,8 +81,9 @@ export default function Overview({ go }: { go: Go }) {
       <div className="stats">
         {stats.map((s) => (
           <button key={s.label} className="card stat" onClick={s.onClick} disabled={!s.onClick}>
-            <span className="stat-value">{s.value}</span>
             <span className="stat-label">{s.label}</span>
+            <span className="stat-value">{s.value}</span>
+            <span className="stat-sub">{s.sub}</span>
           </button>
         ))}
       </div>
@@ -61,13 +92,30 @@ export default function Overview({ go }: { go: Go }) {
         <section className="box">
           <div className="box-head">
             <h3>Neueste Feldberichte</h3>
-            <button className="link small" onClick={() => go({ view: 'reports' })}>
+            <button className="link" onClick={() => go({ view: 'reports' })}>
               Alle anzeigen
             </button>
           </div>
-          <div className="rows">
-            {REPORTS.slice(0, 3).map((r) => (
-              <ReportRow key={r.id} report={r} go={go} />
+          <div className="notice-list">
+            {latest.slice(0, 3).map((r) => (
+              <button
+                key={r.id}
+                className={`notice ov-card ov-report cl-${classKey(r.classification)}`}
+                onClick={() => go({ view: 'report', id: r.id })}
+              >
+                <span className="notice-top">
+                  <span className="notice-level">{r.classification}</span>
+                  <span className={`status status-${r.status}`}>{r.status}</span>
+                </span>
+                <strong>{r.title}</strong>
+                <span className="dim ov-summary">{r.summary}</span>
+                <span className="ov-foot">
+                  <span className="avatar sm">{initials(personById(r.author)?.name ?? '?')}</span>
+                  <span className="dim small">
+                    {r.id} · {fmt(r.date)} · <Redacted text={r.location} />
+                  </span>
+                </span>
+              </button>
             ))}
           </div>
         </section>
@@ -86,6 +134,55 @@ export default function Overview({ go }: { go: Go }) {
                 <strong>{n.title}</strong>
                 <span className="dim">{n.text}</span>
               </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <div className="overview-grid even">
+        <section className="box">
+          <div className="box-head">
+            <h3>Personal mit Statusvermerk</h3>
+            <button className="link" onClick={() => go({ view: 'personnel' })}>
+              Personalakten
+            </button>
+          </div>
+          <div className="notice-list">
+            {flagged.length ? (
+              flagged.map((p) => (
+                <button key={p.id} className={`notice ov-card ov-person ps-${p.status}`} onClick={() => go({ view: 'person', id: p.id })}>
+                  <span className="avatar sm">{initials(p.name)}</span>
+                  <span className="ov-person-info">
+                    <strong>{p.name}</strong>
+                    <span className="dim small">
+                      {p.id} · {p.role}
+                    </span>
+                  </span>
+                  <span className={`status status-${p.status}`}>{p.status}</span>
+                </button>
+              ))
+            ) : (
+              <p className="dim">Keine Vermerke.</p>
+            )}
+          </div>
+        </section>
+
+        <section className="box">
+          <div className="box-head">
+            <h3>Eindämmung</h3>
+            <button className="link" onClick={() => go({ view: 'archive' })}>
+              Zum Archiv
+            </button>
+          </div>
+          <div className="notice-list">
+            {SCP.slice(0, 4).map((o) => (
+              <button key={o.id} className={`notice ov-card ov-scp class-edge-${o.objectClass}`} onClick={() => go({ view: 'scp', id: o.id })}>
+                <span className="notice-top">
+                  <span className="notice-level">{o.objectClass}</span>
+                  <span className="dim small">{o.id}</span>
+                </span>
+                <strong>{o.locked ? '[GESPERRT]' : o.name}</strong>
+              </button>
             ))}
           </div>
         </section>

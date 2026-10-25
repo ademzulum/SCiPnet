@@ -6736,3 +6736,99 @@ button.skip {
     padding-inline: 0.8rem;
   }
 }
+
+/* ---- overview: tiles with a sub line, notice-style cards in every box ---- */
+.stat {
+  gap: 0.2rem;
+}
+.stat-value {
+  font-variant-numeric: tabular-nums;
+}
+.stat-sub {
+  font-size: 11px;
+  opacity: 0.55;
+}
+.overview-grid.even {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.notice.ov-card {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--fg);
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+  cursor: var(--cur-pointer, pointer);
+  transition: background 0.2s, border-color 0.2s;
+}
+.notice.ov-card:hover {
+  background: color-mix(in srgb, var(--fg) 7%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.notice.ov-report { border-left-color: var(--cl); }
+.notice.ov-report .notice-level { color: var(--cl); }
+.notice.ov-scp { border-left-color: var(--edge); }
+.notice.ov-scp .notice-level { color: var(--edge); }
+.notice.ov-person {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.7rem;
+  border-left-color: #e8b85a;
+}
+.notice.ov-person.ps-Vermisst { border-left-color: var(--accent); }
+.notice.ov-person.ps-Beurlaubt { border-left-color: color-mix(in srgb, var(--fg) 40%, transparent); }
+.notice-top {
+  align-items: center;
+  gap: 0.5rem;
+}
+.ov-summary {
+  font-size: 13px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ov-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.2rem;
+  min-width: 0;
+}
+.ov-person-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 900px) {
+  .overview-grid.even { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---- text links are small outlined buttons, like the filter chips ------- */
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--hi);
+  background: color-mix(in srgb, var(--fg) 4%, transparent);
+  transition: border-color 0.2s, background 0.2s;
+}
+.link:hover {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.link.back {
+  opacity: 1;
+  margin-bottom: 0.2rem;
+}
