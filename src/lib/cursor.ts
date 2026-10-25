@@ -1,6 +1,6 @@
 // Custom mouse cursor: a dot on the pointer with a ring around it. Over
 // something clickable the ring glides to frame that element with corner
-// brackets; the frame is cut off where the dock covers the element. Colours come from the theme of the screen under the pointer.
+// brackets; under the dock the frame stops at the dock's top edge. Colours come from the theme of the screen under the pointer.
 // Touch screens and pens keep their own cursor (see styles.css).
 const CLICKABLE = 'button:not(:disabled), a[href], [role="button"], select, summary, label[for], .chip, .link';
 const TEXT = 'input:not([type="range"]):not([type="checkbox"]):not([type="button"]), textarea, [contenteditable="true"]';
@@ -53,6 +53,10 @@ export function customCursor() {
       const r = target.getBoundingClientRect();
       // exactly on the element's edges, so the frame never spills onto its neighbours
       tx = r.left; ty = r.top; tw = r.width; th = r.height;
+      // an element reaching under the dock is framed down to the dock's top
+      // edge only, so the whole frame stays visible above the dock
+      const d = target.closest('.dock') ? null : document.querySelector('.dock')?.getBoundingClientRect();
+      if (d && d.left < tx + tw && d.right > tx && d.top < ty + th && d.top - 6 > ty) th = d.top - 6 - ty;
     }
     // the ring sits on the pointer; only the move into and out of a frame is eased
     const k = target || w > SIZE + 1 || h > SIZE + 1 ? 0.35 : 1;
@@ -61,12 +65,6 @@ export function customCursor() {
     ring.style.transform = `translate(${x}px, ${y}px)`;
     ring.style.width = `${w}px`;
     ring.style.height = `${h}px`;
-    // the dock stays on top: cut its exact shape out of a frame that reaches under it
-    const d = target && !target.closest('.dock') ? document.querySelector('.dock')?.getBoundingClientRect() : null;
-    if (d && d.left < x + w && d.right > x && d.top < y + h && d.bottom > y) {
-      const l = d.left - x, t = d.top - y, r = d.right - x, b = d.bottom - y, k = 18; // dock corner radius
-      ring.style.clipPath = `path(evenodd, 'M-10 -10H${w + 10}V${h + 10}H-10Z M${l + k} ${t}H${r - k}A${k} ${k} 0 0 1 ${r} ${t + k}V${b - k}A${k} ${k} 0 0 1 ${r - k} ${b}H${l + k}A${k} ${k} 0 0 1 ${l} ${b - k}V${t + k}A${k} ${k} 0 0 1 ${l + k} ${t}Z')`;
-    } else ring.style.clipPath = '';
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);
