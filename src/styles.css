@@ -7297,7 +7297,11 @@ button.skip {
 [data-cur-target],
 [data-cur-target] > .nav-indicator,
 [data-cur-target] > .tab-pill {
-  border-radius: 4px !important;
+  border-radius: 0 !important;
+}
+/* the framed element's own outline takes the frame's colour */
+[data-cur-target] {
+  border-color: var(--cur-accent, currentColor) !important;
 }
 
 /* current station: the pulse is its own ring centred on the dot, scaled from
@@ -7532,10 +7536,10 @@ button.skip {
   border-radius: 0;
   background: none;
 }
-/* the hover frame itself is unchanged: tinted, 4px corners, 8px brackets */
+/* the hover frame: tinted, square corners, 8px brackets */
 .cur-lock .cur-ring {
   border: none;
-  border-radius: 4px;
+  border-radius: 0;
   background: color-mix(in srgb, var(--cur-fg, #fff) 6%, transparent);
 }
 .cur-ring i {

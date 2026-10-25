@@ -38,8 +38,6 @@ export function customCursor() {
     if (next !== target) target?.removeAttribute('data-cur-target');
     target = next;
     root.classList.toggle('cur-lock', !!target);
-    // a count badge (the bell) takes the place of the top-right bracket
-    root.classList.toggle('cur-badge', !!target?.querySelector('.bell-count'));
     root.classList.toggle('cur-text', !!el.closest?.(TEXT));
     root.classList.add('cur-on');
     setTheme(el);
@@ -56,6 +54,9 @@ export function customCursor() {
       target = document.elementFromPoint(mx, my)?.closest(CLICKABLE) ?? null;
     }
     if (target && !target.hasAttribute('data-cur-target')) target.setAttribute('data-cur-target', '');
+    // a count badge (the bell) takes the place of the top-right bracket; checked
+    // every frame, so the bracket returns as soon as the badge goes away
+    root.classList.toggle('cur-badge', !!target?.querySelector('.bell-count'));
     if (target?.isConnected) {
       const r = target.getBoundingClientRect();
       // exactly on the element's edges, so the frame never spills onto its neighbours
