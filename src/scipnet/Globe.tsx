@@ -112,16 +112,18 @@ export default function Globe({ geo }: { geo: Geo | null }) {
       ctx.stroke();
 
       // pin, only while on the visible side
-      if (pin && geoDistance(pin, [-lon, -tilt]) < Math.PI / 2) {
+      // pin fades out over the last 30° before the horizon and back in after it
+      const fade = pin ? Math.max(0, Math.min(1, (Math.PI / 2 - geoDistance(pin, [-lon, -tilt])) / (Math.PI / 6))) : 0;
+      if (pin && fade > 0) {
         const [x, y] = projection(pin)!;
         const pulse = (now / 1400) % 1;
-        ctx.globalAlpha = 1 - pulse;
+        ctx.globalAlpha = (1 - pulse) * fade;
         ctx.beginPath();
         ctx.arc(x, y, 4 + pulse * 18, 0, Math.PI * 2);
         ctx.strokeStyle = '#ff5a5f';
         ctx.lineWidth = 1.5;
         ctx.stroke();
-        ctx.globalAlpha = 1;
+        ctx.globalAlpha = fade;
         ctx.beginPath();
         ctx.arc(x, y, 3.5, 0, Math.PI * 2);
         ctx.fillStyle = '#ff5a5f';
