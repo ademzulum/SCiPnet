@@ -7457,3 +7457,14 @@ button.skip {
   flex: 1;
   align-content: center;
 }
+
+/* the ring switches to the frame shape at once: a fixed 15px radius instead of
+   50%, and no radius transition, so it never stretches into an ellipse while
+   growing to the element's size */
+.cur-ring {
+  border-radius: 15px;
+  transition: opacity 0.2s, border-color 0.1s, background 0.2s;
+}
+.cur-lock .cur-ring {
+  border-radius: 4px;
+}
