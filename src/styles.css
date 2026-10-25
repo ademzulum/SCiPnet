@@ -7299,3 +7299,32 @@ button.skip {
 [data-cur-target] > .tab-pill {
   border-radius: 4px !important;
 }
+
+/* current station: the pulse is its own ring centred on the dot, scaled from
+   the middle, instead of a box-shadow (which can render off-centre) */
+.career li.latest .career-node {
+  animation: none;
+  box-shadow: none;
+}
+.career li.latest .career-node::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.45;
+  transform-origin: 50% 50%;
+  animation: careerring 1.8s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes careerring {
+  from { transform: scale(1); opacity: 0.45; }
+  to { transform: scale(2.2); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .career li.latest .career-node::after { animation: none; opacity: 0; }
+}
