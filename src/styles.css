@@ -6832,3 +6832,133 @@ button.skip {
   opacity: 1;
   margin-bottom: 0.2rem;
 }
+
+/* ---- personnel file: one row of section cards replaces stats + tabs ------ */
+.file-nav {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+.fnav {
+  all: unset;
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 0.9rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--fg) 4%, var(--bg));
+  overflow: hidden;
+  cursor: var(--cur-pointer, pointer);
+  transition: border-color 0.2s, background 0.2s;
+}
+.fnav:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.fnav.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, color-mix(in srgb, var(--fg) 4%, var(--bg)));
+}
+.fnav-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent);
+}
+.fnav-top {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+.fnav-index {
+  font-size: 10px;
+  color: var(--accent);
+}
+.fnav-name {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hi);
+}
+.fnav-value {
+  margin-top: 0.2rem;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--hi);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fnav-value.warn-text {
+  color: #e8b85a;
+}
+.fnav-sub {
+  font-size: 11px;
+  color: color-mix(in srgb, var(--fg) 75%, var(--bg));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.crt[data-mode='light'] .fnav-value.warn-text {
+  color: #a66b00;
+}
+@media (max-width: 900px) {
+  .file-nav {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+  }
+  .fnav {
+    flex: 0 0 9.5rem;
+    scroll-snap-align: start;
+  }
+}
+
+/* ---- legibility: panels are fully opaque, nothing shines through -------- */
+.crt[data-theme='scip'] .box,
+.crt[data-theme='scip'] .card,
+.crt[data-theme='scip'] .chip,
+.crt[data-theme='scip'] .report-card,
+.crt[data-theme='scip'] .scp-card,
+.crt[data-theme='scip'] .linked-scp,
+.crt[data-theme='scip'] .toast,
+.crt[data-theme='scip'] .msg,
+.crt[data-theme='scip'] .tl-card,
+.crt[data-theme='scip'] .incident,
+.crt[data-theme='scip'] .notice,
+.crt[data-theme='scip'] .search {
+  background-color: color-mix(in srgb, var(--fg) 4%, var(--bg));
+}
+.crt[data-theme='scip'] .tl-card,
+.crt[data-theme='scip'] .incident {
+  background-image: none;
+}
+.crt[data-theme='scip'] .latest .tl-card {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, var(--bg)), color-mix(in srgb, var(--fg) 4%, var(--bg)));
+}
+.crt[data-theme='scip'][data-mode='light'] :is(.box, .card, .chip, .report-card, .scp-card, .linked-scp, .toast, .msg, .tl-card, .incident, .notice, .search, .fnav) {
+  background-color: #ffffff;
+}
+.incident.none {
+  opacity: 1;
+}
+.crt[data-theme='scip'] .dim {
+  opacity: 0.7;
+}
+.tl-year {
+  font-weight: 600;
+}
+.fnav-sub { white-space: normal; }
+/* a disabled action (no chat channel) stays readable */
+.crt[data-theme='scip'] .actions .card.action:disabled {
+  opacity: 0.75;
+  color: color-mix(in srgb, var(--fg) 70%, var(--bg));
+  border-style: dashed;
+}

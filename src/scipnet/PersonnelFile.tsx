@@ -8,7 +8,6 @@ import Redacted from './Redacted';
 import { ReportRow } from './ReportList';
 import { adminAccess, biometric, psychAccess, useAccount } from './session';
 import { ClearancePips } from './PersonnelList';
-import Tabs from './Tabs';
 import BiometricGate from './BiometricGate';
 import Portrait from './Portrait';
 import { BrainScan, Eeg } from './PsychScan';
@@ -56,11 +55,21 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
   ];
 
   const years = /^\d{4}$/.test(p.since) ? new Date().getFullYear() - Number(p.since) : '—';
-  const stats: [string, string | number, Tab][] = [
-    ['Dienstjahre', years, 'Werdegang'],
-    ['Stationen', p.timeline.length, 'Werdegang'],
-    ['Vorfälle', p.incidents.filter((n) => !/^Keine/.test(n)).length, 'Vorfälle'],
-    ['Feldberichte', REPORTS.filter((r) => r.author === p.id).length, 'Berichte'],
+  const incidents = p.incidents.filter((n) => !/^Keine/.test(n)).length;
+  const reports = REPORTS.filter((r) => r.author === p.id || r.involved?.includes(p.id)).length;
+  const psychOpen = admin || psychAccess.has(p.id);
+  // one card per section: what it holds at a glance, click to open it
+  const nav: { tab: Tab; value: string | number; sub: string; warn?: boolean }[] = [
+    { tab: 'Akte', value: p.notes.length, sub: 'Vermerke' },
+    { tab: 'Werdegang', value: p.timeline.length, sub: `Stationen · ${years} Dienstjahre` },
+    {
+      tab: 'Psychologie',
+      value: psychOpen ? (p.psych.verdict?.label ?? 'Offen') : 'Gesperrt',
+      sub: psychOpen ? 'Gesamtbeurteilung' : `Freigabe ${p.psych.required ?? 'erforderlich'}`,
+      warn: !psychOpen,
+    },
+    { tab: 'Vorfälle', value: incidents, sub: incidents === 1 ? 'Vorfall' : 'Vorfälle', warn: incidents > 0 },
+    { tab: 'Berichte', value: reports, sub: 'Feldberichte' },
   ];
 
   return (
@@ -113,16 +122,25 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
         </div>
       </div>
 
-      <div className="dossier-stats">
-        {stats.map(([label, value, target]) => (
-          <button key={label} className={tab === target ? 'dstat active' : 'dstat'} onClick={() => setTab(target)}>
-            <span className="dstat-value">{value}</span>
-            <span className="label">{label}</span>
+      <nav className="file-nav" role="tablist" aria-label="Abschnitte der Akte">
+        {nav.map((n, i) => (
+          <button
+            key={n.tab}
+            role="tab"
+            aria-selected={tab === n.tab}
+            className={tab === n.tab ? 'fnav active' : 'fnav'}
+            onClick={() => setTab(n.tab)}
+          >
+            {tab === n.tab && <motion.span layoutId="fnav-active" className="fnav-bar" transition={{ duration: 0.25 }} />}
+            <span className="fnav-top">
+              <span className="fnav-index">{String(i + 1).padStart(2, '0')}</span>
+              <span className="fnav-name">{n.tab}</span>
+            </span>
+            <span className={n.warn ? 'fnav-value warn-text' : 'fnav-value'}>{n.value}</span>
+            <span className="fnav-sub">{n.sub}</span>
           </button>
         ))}
-      </div>
-
-      <Tabs tabs={TABS} value={tab} onChange={setTab} />
+      </nav>
 
       <AnimatePresence mode="wait">
         <motion.div
