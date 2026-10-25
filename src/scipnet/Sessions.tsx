@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ACCOUNTS, type Account } from '../lib/creds';
 import { initials } from './Comms';
-import maynardPhoto from '../../images/personell_pictures/duncan_maynard.png';
+import { photoUrl } from '../data/photos';
+
+const maynardPhoto = photoUrl('duncan_maynard');
 import { Corrupt } from './Admin';
 import { switchAccount, useAccount, useAdminUnlocked } from './session';
 

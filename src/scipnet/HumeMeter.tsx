@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
 // Hume level of the site (reality stability, baseline 100), shown as an
 // analogue dial. It drifts around the baseline and every so often spikes out
@@ -31,30 +31,40 @@ const ZONES = [
   { from: 115, to: 140, cls: 'bad' },
 ];
 
-export default function HumeMeter() {
-  const [values, setValues] = useState<number[]>(() => Array(300).fill(100)); // ~1 minute
-  const [spikes, setSpikes] = useState(0);
-  const spike = useRef<{ until: number; to: number } | null>(null);
+// The reading runs for the whole page session, not per visit of the overview:
+// history and spike count survive switching tabs, and the meter keeps going
+// in the background.
+type Hume = { values: number[]; spikes: number };
+let hume: Hume = { values: Array(300).fill(100), spikes: 0 }; // ~1 minute of readings
+let spike: { until: number; to: number } | null = null;
+let timer = 0;
+const listeners = new Set<() => void>();
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      const now = Date.now();
-      if (!spike.current && Math.random() < 0.008) {
-        // up or down, short and sharp
-        const to = Math.random() < 0.5 ? 100 + 18 + Math.random() * 30 : 100 - 18 - Math.random() * 30;
-        spike.current = { until: now + 900 + Math.random() * 1400, to };
-        setSpikes((n) => n + 1);
-      }
-      if (spike.current && now > spike.current.until) spike.current = null;
-      setValues((v) => {
-        const prev = v[v.length - 1];
-        const target = spike.current ? spike.current.to : 100 + (Math.random() - 0.5) * 6;
-        const next = prev + (target - prev) * (spike.current ? 0.45 : 0.2) + (Math.random() - 0.5) * 1.5;
-        return [...v.slice(1), next];
-      });
-    }, 200);
-    return () => clearInterval(id);
-  }, []);
+function tick() {
+  const now = Date.now();
+  let spikes = hume.spikes;
+  if (!spike && Math.random() < 0.008) {
+    // up or down, short and sharp
+    const to = Math.random() < 0.5 ? 100 + 18 + Math.random() * 30 : 100 - 18 - Math.random() * 30;
+    spike = { until: now + 900 + Math.random() * 1400, to };
+    spikes++;
+  }
+  if (spike && now > spike.until) spike = null;
+  const prev = hume.values[hume.values.length - 1];
+  const target = spike ? spike.to : 100 + (Math.random() - 0.5) * 6;
+  const next = prev + (target - prev) * (spike ? 0.45 : 0.2) + (Math.random() - 0.5) * 1.5;
+  hume = { values: [...hume.values.slice(1), next], spikes };
+  listeners.forEach((l) => l());
+}
+
+const subscribe = (l: () => void) => {
+  listeners.add(l);
+  if (!timer) timer = window.setInterval(tick, 200);
+  return () => listeners.delete(l);
+};
+
+export default function HumeMeter() {
+  const { values, spikes } = useSyncExternalStore(subscribe, () => hume);
 
   const cur = values[values.length - 1];
   const dev = Math.abs(cur - 100);
