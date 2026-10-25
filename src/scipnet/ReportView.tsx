@@ -94,7 +94,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                 <span className="avatar">{initials(author?.name ?? '?')}</span>
                 <div>
                   {author ? (
-                    <button className="link sig-name" onClick={() => go({ view: 'person', id: author.id })}>
+                    <button className="link sig-name" title={author.name} onClick={() => go({ view: 'person', id: author.id })}>
                       {author.name}
                     </button>
                   ) : (

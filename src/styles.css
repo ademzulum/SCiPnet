@@ -7328,3 +7328,19 @@ button.skip {
 @media (prefers-reduced-motion: reduce) {
   .career li.latest .career-node::after { animation: none; opacity: 0; }
 }
+
+/* signed-by pill: one line, shrinks to the sidebar, cut with … if needed */
+.sig-author > div {
+  min-width: 0;
+  flex: 1;
+}
+.link.sig-name {
+  display: inline-block;
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
