@@ -6235,7 +6235,7 @@ button.skip {
 }
 /* report photos: bigger and uncropped, so censor bars map to the source image */
 .rv-images {
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  grid-template-columns: 1fr; /* one photo per row, full width */
 }
 .rv-images .rv-img img {
   aspect-ratio: auto;
