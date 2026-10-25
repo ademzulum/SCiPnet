@@ -6487,3 +6487,7 @@ button.skip {
 .archive-card.locked .report-card-title {
   opacity: 0.7;
 }
+/* personnel folders: same column width as the field report and archive cards */
+.folder-grid {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
