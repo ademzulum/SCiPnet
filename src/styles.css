@@ -7608,3 +7608,83 @@ html:not(.cur-lock) .cur-ring i {
 .career-year.unknown {
   opacity: 0.55;
 }
+
+/* ---- Signalpfad in the UIU terminal look ---------------------------------
+   Its own amber palette and the terminal font, set here and nowhere else, so
+   SCiPnet's light/dark mode never reaches into the game. */
+.crt .hack-overlay {
+  --bg: #070502;
+  --fg: #ffb000;
+  --hi: #ffd47a;
+  --accent: #ff4b3a;
+  --line: rgba(255, 176, 0, 0.25);
+  color: var(--fg);
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  text-shadow: 0 0 6px rgba(255, 176, 0, 0.45);
+  background: radial-gradient(ellipse at center, #1a1003 0%, #070502 80%);
+  border-top-color: #ff4b3a;
+}
+.crt .hack-overlay :is(h2, .label, strong, .dim, p, span) {
+  font-family: inherit;
+}
+.crt .hack-overlay h2 { font-size: 30px; }
+.crt .hack-overlay .label { color: color-mix(in srgb, #ffb000 70%, transparent); font-size: 14px; }
+.crt .hack-overlay .dim { opacity: 0.75; color: inherit; }
+.crt .hack-overlay .hack-head h2 { color: #ff6a50; }
+.crt .hack-overlay .hack-word span { border-color: rgba(255, 176, 0, 0.3); }
+.crt .hack-overlay .hack-word .done { background: rgba(255, 176, 0, 0.14); color: #ffd47a; }
+.crt .hack-overlay .hack-word .next { color: #ff4b3a; border-color: #ff4b3a; text-shadow: 0 0 10px #ff4b3a; }
+.crt .hack-overlay .hot-text,
+.crt .hack-overlay .hack-start { color: #ff6a50; }
+.crt .hack-overlay .hack-board canvas {
+  position: relative;
+  z-index: 1;
+  border-color: rgba(255, 176, 0, 0.35);
+  box-shadow: 0 0 40px rgba(255, 176, 0, 0.08);
+}
+.crt .hack-overlay .hack-intro {
+  color: #ffb000;
+  background: rgba(7, 5, 2, 0.9);
+}
+.crt .hack-overlay.hack-hit { box-shadow: inset 0 0 60px rgba(255, 176, 0, 0.25); }
+.crt .hack-overlay.hack-miss { box-shadow: inset 0 0 80px rgba(255, 75, 58, 0.45); }
+.crt .hack-overlay .pip { border-color: #ffb000; }
+.crt .hack-overlay .pip.on { background: #ffb000; }
+/* the seal: a faint watermark behind the board, and the badge on the win screen */
+.hack-seal {
+  position: absolute;
+  z-index: 0;
+  width: min(60%, 60vh);
+  color: #ffb000;
+  opacity: 0.07;
+  pointer-events: none;
+}
+.hack-won-seal {
+  width: 120px;
+  color: #ffb000;
+  filter: drop-shadow(0 0 14px rgba(255, 176, 0, 0.45));
+  animation: popin 0.5s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.crt .hack-overlay .hack-won { border-top-color: #ffb000; }
+.crt .hack-overlay .hack-won h2 { color: #ffd47a; }
+/* the button keeps the terminal look in light mode too */
+.crt .hack-overlay .card.action,
+.crt[data-mode] .hack-overlay .card.action {
+  background: rgba(255, 176, 0, 0.1) !important;
+  color: #ffd47a !important;
+  border: 1px solid #ffb000 !important;
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  letter-spacing: 0.2em;
+  text-shadow: 0 0 6px rgba(255, 176, 0, 0.6);
+}
+.crt .hack-overlay .card.action:hover {
+  background: rgba(255, 176, 0, 0.22) !important;
+}
+/* beats SCiPnet's heading font rule inside the game */
+.crt[data-theme] .hack-overlay :is(h1, h2, h3, .label, strong) {
+  font-family: 'VT323', monospace;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}

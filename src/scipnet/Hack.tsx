@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { play } from '../lib/sound';
 import { Corrupt } from './Admin';
+import UiuLogo from '../components/UiuLogo';
 
 // "Signalpfad": a snake-style minigame that covers the whole shell until it is
 // finished. The player steers a signal through the Administrator's firewall
@@ -29,7 +30,8 @@ const GLYPHS = 'ABCDFGHIJKLMNPQTUWXYZ';
 
 type P = { x: number; y: number };
 type Dir = P;
-type Sentinel = P & { dx: number; dy: number; every: number; wait: number };
+// px/py and moved: where it came from and when, so it glides between cells
+type Sentinel = P & { dx: number; dy: number; every: number; wait: number; px: number; py: number; moved: number };
 type Letter = P & { ch: string; real: boolean };
 
 const eq = (a: P, b: P) => a.x === b.x && a.y === b.y;
@@ -45,12 +47,22 @@ function freshSnake(): P[] {
 }
 
 function makeSentinels(): Sentinel[] {
+  const at = (x: number, y: number, dx: number, dy: number, every: number, wait: number): Sentinel => ({
+    x, y, dx, dy, every, wait, px: x, py: y, moved: 0,
+  });
   return [
-    { x: Math.round(W * 0.33), y: 2, dx: 0, dy: 1, every: 2, wait: 0 },
-    { x: Math.round(W * 0.65), y: H - 3, dx: 0, dy: -1, every: 2, wait: 1 },
-    { x: W - 4, y: Math.round(H * 0.28), dx: -1, dy: 0, every: 3, wait: 0 },
+    at(Math.round(W * 0.33), 2, 0, 1, 2, 0),
+    at(Math.round(W * 0.65), H - 3, 0, -1, 2, 1),
+    at(W - 4, Math.round(H * 0.28), -1, 0, 3, 0),
   ];
 }
+
+const DIRS: Dir[] = [
+  { x: 1, y: 0 },
+  { x: -1, y: 0 },
+  { x: 0, y: 1 },
+  { x: 0, y: -1 },
+];
 
 export default function Hack({
   onLose,
@@ -148,19 +160,36 @@ export default function Hack({
     if (s.queue.length) s.dir = s.queue.shift()!;
     const head = { x: s.snake[0].x + s.dir.x, y: s.snake[0].y + s.dir.y };
 
-    // Sentinels patrol and bounce off walls and blocks.
+    // Sentinels hunt: mostly they keep their heading, now and then they turn
+    // towards the signal or take a random corner, and they steer around walls
+    // and blocks instead of bouncing straight back. They get keener with every
+    // collected letter.
+    const target = s.snake[0];
+    const open = (x: number, y: number) =>
+      x >= 0 && y >= 0 && x < W && y < H && !s.blocks.some((b) => b.x === x && b.y === y);
+    const keen = 0.25 + (s.got / WORD.length) * 0.35;
     for (const t of s.sentinels) {
       if (++t.wait < t.every) continue;
       t.wait = 0;
-      const nx = t.x + t.dx;
-      const ny = t.y + t.dy;
-      if (nx < 0 || ny < 0 || nx >= W || ny >= H || s.blocks.some((b) => b.x === nx && b.y === ny)) {
-        t.dx = -t.dx;
-        t.dy = -t.dy;
-      } else {
-        t.x = nx;
-        t.y = ny;
+      const options = DIRS.filter((d) => open(t.x + d.x, t.y + d.y) && !(d.x === -t.dx && d.y === -t.dy));
+      const ahead = options.find((d) => d.x === t.dx && d.y === t.dy);
+      let pick = ahead;
+      if (Math.random() < keen) {
+        // the option that closes in on the signal the most
+        const dist = (d: Dir) => Math.abs(t.x + d.x - target.x) + Math.abs(t.y + d.y - target.y);
+        pick = [...options].sort((a, b) => dist(a) - dist(b))[0] ?? pick;
+      } else if (!ahead || Math.random() < 0.15) {
+        pick = options[rand(options.length)] ?? pick;
       }
+      if (!pick) pick = { x: -t.dx, y: -t.dy }; // dead end: turn around
+      if (!open(t.x + pick.x, t.y + pick.y)) continue;
+      t.px = t.x;
+      t.py = t.y;
+      t.moved = performance.now();
+      t.dx = pick.x;
+      t.dy = pick.y;
+      t.x += pick.x;
+      t.y += pick.y;
     }
 
     const shielded = s.shield > 0;
@@ -259,16 +288,29 @@ export default function Hack({
     c.shadowBlur = 0;
     c.globalAlpha = 1;
 
-    // sentinels: rotating diamonds
+    // sentinels: rotating diamonds that glide from cell to cell, with a short
+    // trail and a pulse
     for (const t of s.sentinels) {
+      const k = Math.min(1, (now - t.moved) / (s.step * t.every));
+      const ease = k * k * (3 - 2 * k);
+      const x = t.px + (t.x - t.px) * ease;
+      const y = t.py + (t.y - t.py) * ease;
+      c.globalAlpha = 0.18;
+      c.fillStyle = accent;
+      c.fillRect((t.px + 0.2) * cell, (t.py + 0.2) * cell, cell * 0.6, cell * 0.6);
+      c.globalAlpha = 1;
       c.save();
-      c.translate((t.x + 0.5) * cell, (t.y + 0.5) * cell);
-      c.rotate(now / 300);
+      c.translate((x + 0.5) * cell, (y + 0.5) * cell);
+      c.rotate(now / 260);
+      const size = cell * (0.55 + 0.08 * Math.sin(now / 140 + t.every));
       c.strokeStyle = accent;
+      c.shadowColor = accent;
+      c.shadowBlur = 10;
       c.lineWidth = 2;
-      c.strokeRect(-cell * 0.3, -cell * 0.3, cell * 0.6, cell * 0.6);
+      c.strokeRect(-size / 2, -size / 2, size, size);
       c.restore();
     }
+    c.shadowBlur = 0;
 
     // signal
     const blinkOff = s.shield > 0 && Math.floor(now / 90) % 2 === 0;
@@ -428,6 +470,8 @@ export default function Hack({
       </header>
 
       <div className="hack-board" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}>
+        {/* the UIU seal watermarks the board */}
+        <UiuLogo className="hack-seal" />
         <canvas ref={canvas} />
 
         <AnimatePresence>
@@ -452,7 +496,7 @@ export default function Hack({
           )}
           {phase === 'won' && (
             <motion.div className="hack-intro hack-won" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}>
-              <span className="hack-won-icon">✓</span>
+              <UiuLogo className="hack-won-seal" />
               <div className="label">Administrator-Ebene</div>
               <h2>ZUGRIFF GEWÄHRT</h2>
               <p className="dim">Signal durchgestellt. Sie sind jetzt als Der Administrator angemeldet.</p>
