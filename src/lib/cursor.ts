@@ -1,6 +1,6 @@
 // Custom mouse cursor: a ring on the pointer. Over
 // something clickable the ring glides to frame that element with corner
-// brackets; under the dock the frame stops at the dock's top edge. Colours come from the theme of the screen under the pointer.
+// brackets; the dock covers a frame that reaches under it. Colours come from the theme of the screen under the pointer.
 // Touch screens and pens keep their own cursor (see styles.css).
 const CLICKABLE = 'button:not(:disabled), a[href], [role="button"], select, summary, label[for], .chip, .link';
 const TEXT = 'input:not([type="range"]):not([type="checkbox"]):not([type="button"]), textarea, [contenteditable="true"]';
@@ -60,10 +60,16 @@ export function customCursor() {
       const r = target.getBoundingClientRect();
       // exactly on the element's edges, so the frame never spills onto its neighbours
       tx = r.left; ty = r.top; tw = r.width; th = r.height;
-      // an element reaching under the dock is framed down to the dock's top
-      // edge only, so the whole frame stays visible above the dock
-      const d = target.closest('.dock') ? null : document.querySelector('.dock')?.getBoundingClientRect();
-      if (d && d.left < tx + tw && d.right > tx && d.top < ty + th && d.top - 6 > ty) th = d.top - 6 - ty;
+    }
+    // The dock stays on top: a frame for anything but a dock button is drawn
+    // next to the dock, one layer below it, so the dock covers it like it
+    // covers the element itself. Dock buttons are framed from the top layer.
+    const dock = document.querySelector('.dock');
+    const host = dock?.parentElement && target && !target.closest('.dock') ? dock.parentElement : document.body;
+    if (ring.parentElement !== host) {
+      host.append(ring);
+      const z = host === document.body ? '' : String(Math.max(0, (parseInt(getComputedStyle(dock!).zIndex) || 1) - 1));
+      ring.style.zIndex = z;
     }
     // the ring sits on the pointer; only the move into and out of a frame is eased
     const k = target || w > SIZE + 1 || h > SIZE + 1 ? 0.35 : 1;
