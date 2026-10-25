@@ -56,10 +56,8 @@ export default function Globe({ geo }: { geo: Geo | null }) {
     let size = 0;
     const projection = geoOrthographic().clipAngle(90);
     const path = geoPath(projection, ctx);
-    // with a pin the globe sways around it so it stays in view; without one it
-    // keeps turning west to east
+    // start facing the pin, then keep turning west to east
     let lon = pin ? -pin[0] : 0;
-    let spin = 0;
     const tilt = pin ? -Math.max(-40, Math.min(40, pin[1] * 0.6)) : -20;
     let last = performance.now();
 
@@ -78,10 +76,7 @@ export default function Globe({ geo }: { geo: Geo | null }) {
     const draw = (now: number) => {
       const dt = Math.min(64, now - last);
       last = now;
-      if (!still) {
-        spin += dt;
-        lon = pin ? -pin[0] + Math.sin(spin / 4000) * 55 : lon + dt * 0.012;
-      }
+      if (!still) lon += dt * 0.012;
       projection.rotate([lon, tilt]);
       ctx.clearRect(0, 0, size, size);
 

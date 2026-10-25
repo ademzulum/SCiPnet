@@ -6309,46 +6309,91 @@ button.skip {
 }
 .hume-warn { --hume: #e8b85a; }
 .hume-bad { --hume: #ff5a5f; }
-.hume-value {
-  font-size: 40px;
-  line-height: 1.1;
-  color: var(--hume);
-  font-variant-numeric: tabular-nums;
-  transition: color 0.3s;
-}
-.hume-value span {
-  font-size: 14px;
-  opacity: 0.6;
-}
-.hume-bad .hume-value {
-  text-shadow: 0 0 12px color-mix(in srgb, var(--hume) 60%, transparent);
-}
-.hume-chart {
+.hume-state { color: var(--hume); transition: color 0.3s; }
+.hume-dial {
+  display: block;
   width: 100%;
-  height: 90px;
-  margin-top: auto;
+  max-width: 300px;
+  margin: 0 auto;
+  overflow: visible;
 }
-.hume-chart path {
+.hume-zone {
+  fill: none;
+  stroke-width: 6;
+}
+.hume-zone.ok { stroke: #7fe0a8; opacity: 0.55; }
+.hume-zone.warn { stroke: #e8b85a; opacity: 0.45; }
+.hume-zone.bad { stroke: #ff5a5f; opacity: 0.4; }
+.hume-range {
   fill: none;
   stroke: var(--hume);
-  stroke-width: 1.5;
-  vector-effect: non-scaling-stroke;
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.35;
   transition: stroke 0.3s;
 }
-.hume-base {
+.hume-tick {
   stroke: var(--fg);
-  stroke-opacity: 0.25;
-  stroke-dasharray: 3 3;
-  vector-effect: non-scaling-stroke;
+  stroke-opacity: 0.3;
 }
-.hume-band {
+.hume-tick.major {
+  stroke-opacity: 0.7;
+  stroke-width: 1.5;
+}
+.hume-num {
   fill: var(--fg);
-  fill-opacity: 0.05;
+  opacity: 0.55;
+  font-size: 8px;
+  text-anchor: middle;
 }
-.hume-scale {
+.hume-needle {
+  transform-origin: 100px 100px;
+  transition: transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.hume-needle path {
+  fill: var(--hume);
+  filter: drop-shadow(0 0 4px var(--hume));
+  transition: fill 0.3s;
+}
+.hume-hub {
+  fill: var(--bg);
+  stroke: var(--hume);
+  stroke-width: 2;
+}
+.hume-read {
+  fill: var(--hume);
+  font-size: 26px;
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+  transition: fill 0.3s;
+}
+.hume-bad .hume-read {
+  filter: drop-shadow(0 0 6px var(--hume));
+}
+.hume-unit {
+  fill: var(--fg);
+  opacity: 0.5;
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  text-anchor: middle;
+}
+.hume-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--line);
+}
+.hume-stats > div {
   display: flex;
-  justify-content: space-between;
-  margin-top: 0.3rem;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.hume-stats .label { margin: 0; }
+.hume-stats strong {
+  color: var(--hi);
+  font-variant-numeric: tabular-nums;
 }
 @media (max-width: 760px) {
   .overview-top { grid-template-columns: 1fr; }
