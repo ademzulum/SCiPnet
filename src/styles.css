@@ -7688,3 +7688,13 @@ html:not(.cur-lock) .cur-ring i {
   font-weight: 400;
   letter-spacing: 0.12em;
 }
+
+.fnav-value.long {
+  font-size: 16px;
+  line-height: 1.2;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  min-height: calc(22px * 1.15);
+}

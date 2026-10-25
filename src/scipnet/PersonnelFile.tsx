@@ -139,7 +139,8 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
               <span className="fnav-index">{String(i + 1).padStart(2, '0')}</span>
               <span className="fnav-name">{n.tab}</span>
             </span>
-            <span className={n.warn ? 'fnav-value warn-text' : 'fnav-value'}>{n.value}</span>
+            {/* long words (e.g. "Unter Beobachtung") get a smaller size and may wrap, never "…" */}
+            <span className={`fnav-value${n.warn ? ' warn-text' : ''}${String(n.value).length > 11 ? ' long' : ''}`}>{n.value}</span>
             <span className="fnav-sub">{n.sub}</span>
           </button>
         ))}
