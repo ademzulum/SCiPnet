@@ -3,6 +3,8 @@ import { REPORTS } from '../data/reports';
 import { useAccount } from './session';
 import type { Go } from './routes';
 import { ReportRow } from './ReportList';
+import Globe, { useGeo } from './Globe';
+import HumeMeter from './HumeMeter';
 
 type Notice = { time: string; level: 'info' | 'warn' | 'alert'; title: string; text: string };
 
@@ -16,6 +18,7 @@ const LEVEL_LABEL = { info: 'Info', warn: 'Hinweis', alert: 'Dringend' };
 
 export default function Overview({ go }: { go: Go }) {
   const me = useAccount();
+  const geo = useGeo();
   const open = REPORTS.filter((r) => r.status === 'Offen').length;
   const stats = [
     { label: 'Personalakten', value: PERSONNEL.length + 1, onClick: () => go({ view: 'personnel' }) },
@@ -32,11 +35,17 @@ export default function Overview({ go }: { go: Go }) {
           <h2>Willkommen, {me.name.replace(/^Der /, '')}</h2>
           <p className="dim">
             {me.site} · Freigabe {me.clearance}
+            {geo?.city ? ` · Terminal in ${geo.city}` : ''}
           </p>
         </div>
         <span className="live">
           <span className="live-dot" /> VERBUNDEN
         </span>
+      </div>
+
+      <div className="overview-top">
+        <Globe geo={geo} />
+        <HumeMeter />
       </div>
 
       <div className="stats">
