@@ -1,6 +1,7 @@
 import corvusFinch from '../../images/personell_pictures/corvus_finch.png';
 import duncanMaynard from '../../images/personell_pictures/duncan_maynard.png';
 import timothyQuebec from '../../images/personell_pictures/timothy_quebec_jr.png';
+import ilseBrandt from '../../images/personell_pictures/ilse_brandt.png';
 // Personnel files. Text may contain [[...]] for redacted passages.
 
 export type Person = {
@@ -12,7 +13,7 @@ export type Person = {
   status: 'Aktiv' | 'Beurlaubt' | 'Vermisst' | 'Beobachtung';
   since: string;
   photo?: string; // optional image URL; a generated portrait is shown otherwise
-  eyeBar?: boolean; // black censor bar over the eyes of the photo
+  eyeBar?: { top: number; left: number; width: number }; // black censor bar over the eyes, in % of the cropped photo
   quote?: string;
   summary: string;
   notes: string[];
@@ -33,6 +34,8 @@ export const PERSONNEL: Person[] = [
   {
     id: 'P-80-0001',
     name: 'Dr. Ilse Brandt',
+    photo: ilseBrandt,
+    eyeBar: { top: 28.5, left: 33, width: 27 },
     role: 'Standortdirektorin',
     department: 'Standortleitung',
     clearance: 'Stufe 4',
@@ -225,7 +228,7 @@ export const PERSONNEL: Person[] = [
     id: 'X-80-0003',
     name: 'Corvus Finch',
     photo: corvusFinch,
-    eyeBar: true,
+    eyeBar: { top: 16.5, left: 34, width: 34 },
     role: 'Externe Person von Interesse',
     department: 'FBI / Unusual Incidents Unit',
     clearance: 'Keine',

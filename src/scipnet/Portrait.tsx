@@ -11,7 +11,12 @@ export default function Portrait({ person }: { person: Person }) {
         {person.photo ? (
           <>
             <img src={person.photo} alt={person.name} />
-            {person.eyeBar && !admin && <span className="eye-bar" />}
+            {person.eyeBar && !admin && (
+              <span
+                className="eye-bar"
+                style={{ top: `${person.eyeBar.top}%`, left: `${person.eyeBar.left}%`, width: `${person.eyeBar.width}%` }}
+              />
+            )}
           </>
         ) : (
           <svg viewBox="0 0 100 120" aria-hidden>
