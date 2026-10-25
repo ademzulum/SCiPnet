@@ -91,7 +91,7 @@ body,
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   font-size: clamp(20px, 3vw, 34px);
   opacity: 0.85;
 }
@@ -326,7 +326,7 @@ body,
   font-size: 18px;
   border: 1px solid var(--fg);
   box-shadow: 0 0 10px var(--glow);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   touch-action: manipulation;
 }
 .touch-pads button:active {
@@ -339,7 +339,7 @@ button.skip {
   bottom: 3vh;
   opacity: 0.4;
   font-size: 18px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 .touch-hint {
   display: none;
@@ -455,7 +455,7 @@ button.skip {
   color: var(--hi);
   background: transparent;
   border: 1px solid var(--accent);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   text-shadow: inherit;
 }
 .panel button:disabled {
@@ -671,7 +671,7 @@ button.skip {
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   opacity: 0.7;
   transition: opacity 0.2s, transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
@@ -771,7 +771,7 @@ button.skip {
   text-shadow: inherit;
   background: transparent;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 .card {
   display: flex;
@@ -966,7 +966,7 @@ button.skip {
 .photo {
   font: inherit;
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   position: relative;
   overflow: hidden;
 }
@@ -1019,7 +1019,7 @@ button.skip {
   padding: 0.6rem 0.9rem;
   font-size: 12px;
   letter-spacing: 0.12em;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   opacity: 0.6;
   border-bottom: 2px solid transparent;
 }
@@ -1775,7 +1775,7 @@ button.skip {
   padding: 0.8rem 0.9rem;
   border-radius: calc(var(--radius) - 2px);
   border: 1px solid var(--line);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: border-color 0.2s, background 0.2s, transform 0.2s;
 }
 .thread-card:hover {
@@ -1934,7 +1934,7 @@ button.skip {
   padding: 0.55rem 0.9rem;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   font-size: 13px;
   transition: background 0.2s, transform 0.2s;
 }
@@ -2060,7 +2060,7 @@ button.skip {
   background:
     radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 65%),
     repeating-linear-gradient(0deg, color-mix(in srgb, var(--fg) 4%, transparent) 0 1px, transparent 1px 4px);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   touch-action: none;
   user-select: none;
   overflow: hidden;
@@ -2533,7 +2533,7 @@ button.skip {
     radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 62%),
     radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--fg) 10%, transparent) 1px, transparent 0) 0 0 / 14px 14px,
     color-mix(in srgb, var(--fg) 3%, var(--bg));
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   touch-action: none;
   user-select: none;
   overflow: hidden;
@@ -3119,7 +3119,7 @@ button.skip {
   border: 1px solid var(--line);
   font-size: 11px;
   letter-spacing: 0.12em;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: border-color 0.2s, background 0.2s, color 0.2s;
 }
 .chip:hover {
@@ -3213,7 +3213,7 @@ button.skip {
   border: 1px solid var(--line);
   border-left: 3px solid var(--edge);
   background: var(--surface);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 .scp-card:hover {
@@ -3293,7 +3293,7 @@ button.skip {
   justify-content: space-between;
   align-items: center;
   padding: 0.85rem 1.1rem;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 .addendum-head .label {
   display: block;
@@ -3327,7 +3327,7 @@ button.skip {
   display: flex;
   align-items: center;
   gap: 1rem;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: border-color 0.2s, transform 0.2s;
 }
 .linked-card {
@@ -3426,7 +3426,7 @@ button.skip {
   border: 1px solid var(--line);
   background: var(--surface);
   overflow: hidden;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 .report-card::before {
@@ -3592,7 +3592,7 @@ button.skip {
   border-left: 3px solid var(--accent);
   background: color-mix(in srgb, var(--fg) 6%, var(--bg));
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 .toast > span:last-child {
   display: flex;
@@ -3733,7 +3733,7 @@ button.skip {
   height: 38px;
   border-radius: 50%;
   border: 1px solid var(--line);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: border-color 0.2s, background 0.2s;
 }
 .logout:hover:not(:disabled),
@@ -3825,7 +3825,7 @@ button.skip {
   gap: 0.7rem;
   padding: 0.65rem 0.6rem;
   border-radius: calc(var(--radius) - 2px);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 .notify-item:hover {
   background: color-mix(in srgb, var(--fg) 6%, transparent);
@@ -3984,7 +3984,7 @@ button.skip {
   font-size: 12px;
   letter-spacing: 0.08em;
   color: var(--hi);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -4030,7 +4030,7 @@ button.skip {
   border: 1px solid var(--line);
   background: transparent;
   color: var(--fg);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 .scipa-mic svg {
   width: 20px;
@@ -4070,7 +4070,7 @@ button.skip {
   font: inherit;
   color: inherit;
   text-shadow: inherit;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: border-color 0.2s, background 0.2s;
 }
 .sessions .hdr-user:hover:not(:disabled),
@@ -4126,7 +4126,7 @@ button.skip {
   font-size: 11px;
 }
 .admin-session {
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   background: repeating-linear-gradient(-45deg, transparent 0 8px, rgba(255, 42, 85, 0.06) 8px 16px);
   animation: cardglitch 2.4s infinite;
 }
@@ -4436,7 +4436,7 @@ button.skip {
   transform: rotate(180deg);
 }
 .admin-solved {
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 .admin-solved:hover {
   background: color-mix(in srgb, var(--fg) 6%, transparent);
@@ -5169,7 +5169,7 @@ button.skip {
   height: 30px;
   border-radius: 8px;
   border: 1px solid var(--line);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: border-color 0.2s, background 0.2s, opacity 0.2s;
 }
 .icon-toggle:hover {
@@ -5352,7 +5352,7 @@ button.skip {
   border: 1px solid var(--line);
   border-radius: 0 var(--radius) var(--radius) var(--radius);
   background: var(--surface);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: box-shadow 0.2s, border-color 0.2s; /* motion handles transform (layout + hover) */
 }
 .folder.st-Beurlaubt,
@@ -5603,7 +5603,7 @@ button.skip {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: border-color 0.2s, transform 0.2s;
 }
 .dstat:hover,
@@ -5620,7 +5620,7 @@ button.skip {
 
 /* redactions: the Administrator can lift them */
 .redact.can-reveal {
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: box-shadow 0.15s;
 }
 .redact.can-reveal:hover {
@@ -5685,7 +5685,7 @@ button.skip {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   color: var(--bg);
   background: var(--accent);
   transition: transform 0.15s, box-shadow 0.15s;
@@ -5702,7 +5702,7 @@ button.skip {
   align-items: center;
   gap: 2px;
   height: 30px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 .voice-wave span {
   flex: 1;
@@ -5774,7 +5774,7 @@ button.skip {
   font-size: 11px;
   letter-spacing: 0.1em;
   white-space: nowrap;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   border-radius: 999px;
   color: var(--bg);
   background: var(--accent);
@@ -5831,7 +5831,7 @@ button.skip {
   transition: fill 0.4s, fill-opacity 0.4s, stroke 0.2s;
 }
 .brain-scan.done .brain-region {
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 .brain-scan.done .brain-region:hover,
 .brain-region.sel {
@@ -5850,7 +5850,7 @@ button.skip {
   transform-box: fill-box;
   transform-origin: center;
   fill: var(--hi);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   animation: recpulse 1.6s ease-in-out infinite;
 }
 .brain-line {
@@ -6020,7 +6020,7 @@ button.skip {
 .cg-slider {
   width: 100%;
   accent-color: var(--accent);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 .cg-slider:disabled {
   cursor: default;
@@ -6156,7 +6156,7 @@ button.skip {
   padding: 0.55rem 1rem;
   font-size: 11px;
   letter-spacing: 0.2em;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   border-radius: var(--radius);
   border: 1px solid var(--accent);
   color: var(--accent);
@@ -6191,7 +6191,7 @@ button.skip {
 
 /* session entries: every inactive one can be hovered and picked */
 .session-item:not(.admin-session) {
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: background-color 0.15s;
 }
 .session-item:not(.admin-session):hover {
@@ -6675,4 +6675,24 @@ button.skip {
   .rows .report-row > strong { grid-area: title; }
   .rows .report-row > .row-meta { grid-area: meta; margin-top: 0; }
   .rows .report-row .row-arrow { display: none; }
+}
+
+/* ---- custom cursors ----------------------------------------------------- */
+/* Angular arrow with a dark outline so it reads on light and dark pages.
+   SCiPnet: white with a red notch; clickable things add a red target ring.
+   CRT terminal: amber. Text fields keep the normal I-beam. */
+.crt[data-theme='scip'] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M2 2 L2 19 L7 14.5 L10.5 22 L13.5 20.6 L10 13.2 L16.5 13.2 Z' fill='%23f4f6f8' stroke='%2307090b' stroke-width='1.5' stroke-linejoin='miter'/%3E%3Cpath d='M4 6 L4 10' stroke='%23d7263d' stroke-width='2'/%3E%3C/svg%3E") 2 2, default;
+}
+.crt[data-theme='scip'] {
+  --cur-pointer: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ccircle cx='18' cy='18' r='6' fill='none' stroke='%2307090b' stroke-width='3.5'/%3E%3Ccircle cx='18' cy='18' r='6' fill='none' stroke='%23d7263d' stroke-width='1.8'/%3E%3Ccircle cx='18' cy='18' r='1.6' fill='%23d7263d'/%3E%3Cpath d='M2 2 L2 19 L7 14.5 L10.5 22 L13.5 20.6 L10 13.2 L16.5 13.2 Z' fill='%23f4f6f8' stroke='%2307090b' stroke-width='1.5'/%3E%3C/svg%3E") 2 2, pointer;
+}
+.crt[data-theme='scip'] :is(button, a, [role='button'], select, summary):not(:disabled) {
+  cursor: var(--cur-pointer);
+}
+.crt:not([data-theme='scip']) {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M2 2 L2 19 L7 14.5 L10.5 22 L13.5 20.6 L10 13.2 L16.5 13.2 Z' fill='%23ffb000' stroke='%23070502' stroke-width='1.5'/%3E%3C/svg%3E") 2 2, default;
+}
+.crt :is(input:not([type='range']):not([type='checkbox']), textarea, [contenteditable='true']) {
+  cursor: text;
 }
