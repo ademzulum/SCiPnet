@@ -54,20 +54,21 @@ export default function Archive({ go }: { go: Go }) {
         </div>
       </div>
 
-      <div className="archive-grid filter-grid">
+      {/* same card as the field reports; the class colour takes the place of the classification colour */}
+      <div className="report-grid filter-grid">
         <AnimatePresence mode="popLayout" initial={false}>
           {items.map((s) => (
             <motion.button
               key={s.id}
               {...FILTER_CARD}
-              className={`scp-card class-edge-${s.objectClass}${s.locked && !solved ? ' locked' : ''}`}
+              className={`report-card archive-card class-edge-${s.objectClass}${s.locked && !solved ? ' locked' : ''}`}
               onClick={() => go({ view: 'scp', id: s.id })}
             >
-              <span className="scp-card-top">
-                <span className="scp-num">{s.id}</span>
+              <span className="report-card-top">
+                <span className="dim small">{s.id}</span>
                 <ClassBadge c={s.objectClass} />
               </span>
-              <strong>
+              <strong className="report-card-title">
                 {s.locked && solved ? (
                   s.locked.realName ?? s.name
                 ) : s.locked?.corrupt ? (
@@ -76,9 +77,9 @@ export default function Archive({ go }: { go: Go }) {
                   s.name
                 )}
               </strong>
-              <span className="dim small">{s.locked && !solved ? 'Inhalt gesperrt.' : s.summary}</span>
-              <span className="scp-card-foot">
-                <span className="small">{s.clearance}</span>
+              <span className="dim report-card-summary">{s.locked && !solved ? 'Inhalt gesperrt.' : s.summary}</span>
+              <span className="report-card-foot">
+                <span className="small">Freigabe {s.clearance}</span>
                 {s.locked && !solved && <span className="lock">GESPERRT</span>}
               </span>
             </motion.button>

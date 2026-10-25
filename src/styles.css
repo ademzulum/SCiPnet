@@ -5311,6 +5311,7 @@ button.skip {
 }
 /* Locked entries keep their warning stripes on top of the solid surface. */
 .crt[data-theme='scip'] .scp-card.locked,
+.crt[data-theme='scip'] .archive-card.locked,
 .crt[data-theme='scip'] .admin-card,
 .crt[data-theme='scip'] .locked-box,
 .crt[data-theme='scip'] .denied-doc {
@@ -6477,4 +6478,12 @@ button.skip {
 .locate-head .power-title {
   font-size: 28px;
   letter-spacing: 0.12em;
+}
+
+/* archive cards reuse the field report card; the object class sets the colour */
+.archive-card {
+  --cl: var(--edge);
+}
+.archive-card.locked .report-card-title {
+  opacity: 0.7;
 }
