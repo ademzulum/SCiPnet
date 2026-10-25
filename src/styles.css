@@ -7704,3 +7704,24 @@ html:not(.cur-lock) .cur-ring i {
 .crt :is(p, li, .inc-body, .career-text, .tl-card, .notice, .msg, .file-lead, .report-card-summary) {
   text-wrap: pretty;
 }
+
+/* scanned brain regions breathe, one after another; the picked one pulses stronger */
+.brain-scan.done .brain-region {
+  animation: regionpulse 2.4s ease-in-out infinite;
+  animation-delay: var(--pulse-delay, 0s);
+}
+.brain-scan.done .brain-region.sel {
+  animation-name: regionpulse-sel;
+  animation-duration: 1.4s;
+}
+@keyframes regionpulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; filter: brightness(1.25); }
+}
+@keyframes regionpulse-sel {
+  0%, 100% { opacity: 0.85; filter: brightness(1.2) saturate(1.2); }
+  50% { opacity: 1; filter: brightness(1.6) saturate(1.3) drop-shadow(0 0 6px currentColor); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brain-scan.done .brain-region { animation: none; }
+}

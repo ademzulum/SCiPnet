@@ -136,7 +136,11 @@ export function BrainScan({ p }: { p: Person }) {
                   }}
                   d={r.d}
                   className={`brain-region${sel === i ? ' sel' : ''}`}
-                  style={revealed ? { fill: heat(v), fillOpacity: 0.25 + (v / 100) * 0.45 } : undefined}
+                  style={
+                    revealed
+                      ? ({ fill: heat(v), fillOpacity: 0.25 + (v / 100) * 0.45, '--pulse-delay': `${i * 0.35}s` } as React.CSSProperties)
+                      : undefined
+                  }
                   onClick={() => phase === 'done' && pick(i)}
                 />
               );
@@ -155,17 +159,7 @@ export function BrainScan({ p }: { p: Person }) {
                 <circle cx={sweepX} cy={H * (0.5 + Math.sin(pct / 6) * 0.3)} r={6 * U} className="brain-reticle" strokeWidth={1.5 * U} />
               </>
             )}
-            {phase === 'done' &&
-              nodes.map((n, i) => (
-                <circle
-                  key={REGIONS[i].id}
-                  cx={n.x}
-                  cy={n.y}
-                  r={(sel === i ? 10 : 7) * U}
-                  className="brain-node"
-                  onClick={() => pick(i)}
-                />
-              ))}
+            {/* after the scan the regions themselves pulse (styles.css), no marker dots */}
           </svg>
         </div>
 
