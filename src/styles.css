@@ -7881,3 +7881,92 @@ html:not(.cur-lock) .cur-ring i {
   color: #1d8a4f;
   border-color: #1d8a4f;
 }
+
+/* ---- comms login: live traffic and relay panels beside the gate --------- */
+.cg-side {
+  display: none;
+}
+@media (min-width: 1280px) {
+  .cg-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 760px) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+    max-width: none;
+  }
+  .cg-layout > .commsgate {
+    margin: 2rem 0 0;
+    max-width: none;
+  }
+  .cg-side {
+    display: flex;
+    flex-direction: column;
+    margin-top: 2rem;
+    text-align: left;
+    max-width: 340px;
+  }
+  .cg-log { justify-self: end; width: 100%; }
+  .cg-relays { justify-self: start; width: 100%; }
+}
+.cg-log ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: 520px;
+  overflow: hidden;
+  mask-image: linear-gradient(180deg, #000 calc(100% - 48px), transparent);
+}
+.cg-log li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.6rem;
+  font-size: 11px;
+  line-height: 1.45;
+  animation: tlin 0.35s ease-out;
+}
+.cg-log time {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.cg-log li.warn span {
+  color: #e8b85a;
+}
+.cg-relays ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.cg-relays li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.55rem 0;
+  font-size: 12px;
+}
+.cg-relays li + li {
+  border-top: 1px dashed var(--line);
+}
+.cg-relays li.off {
+  opacity: 0.45;
+}
+.cg-relays li.route .cg-relay-name {
+  color: #7fe0a8;
+}
+.cg-relay-name {
+  color: var(--hi);
+}
+.cg-relay-ping {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+.cg-relay-foot {
+  margin-top: 0.8rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line);
+}

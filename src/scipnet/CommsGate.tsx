@@ -93,7 +93,8 @@ export default function CommsGate({ onDone }: { onDone: () => void }) {
   });
 
   return (
-    <div className="page">
+    <div className="page cg-layout">
+      <TrafficLog phase={phase} freq={freq} />
       <div className={`commsgate box cg-${phase}`}>
         <div className="cg-emblem" aria-hidden>
           <span className="cg-wave w1" />
@@ -208,6 +209,110 @@ export default function CommsGate({ onDone }: { onDone: () => void }) {
           )}
         </AnimatePresence>
       </div>
+      <Relays locked={phase === 'ready' || phase === 'handshake' || phase === 'ok'} />
     </div>
+  );
+}
+
+// ---- side panels on wide screens: live radio traffic and the relay network ----
+
+const CHATTER = [
+  'RELAIS SÜD · Paket 4F2A quittiert',
+  'MTF Delta-5 · Statusmeldung empfangen',
+  'Site-19 · Routinesynchronisation',
+  'Archiv 7 · Zugriff verweigert',
+  'RAISA · Prüfsumme gültig',
+  'Wachdienst Sektor 14 · Rundgang abgeschlossen',
+  'Unbekannte Quelle · Träger 79.3 MHz',
+  'O5-Büro · verschlüsselt, nicht lesbar',
+  'Site-80 Intern · Heartbeat',
+  'Feldteam Kiruna · Verbindung schwach',
+];
+const stamp = () => new Date().toLocaleTimeString('de-DE');
+
+function TrafficLog({ phase, freq }: { phase: Phase; freq: number }) {
+  const [lines, setLines] = useState<{ t: string; text: string; warn?: boolean }[]>(() =>
+    CHATTER.slice(0, 5).map((text) => ({ t: stamp(), text })),
+  );
+  const freqRef = useRef(freq);
+  freqRef.current = freq;
+  useEffect(() => {
+    const id = setInterval(() => {
+      const text = CHATTER[(Math.random() * CHATTER.length) | 0];
+      const line = { t: stamp(), text, warn: /Unbekannt|verweigert|schwach/.test(text) };
+      setLines((l) => [line, ...l].slice(0, 12));
+    }, 1600 + Math.random() * 900);
+    return () => clearInterval(id);
+  }, []);
+  // the gate's own steps show up in the log too
+  useEffect(() => {
+    const msg: Partial<Record<Phase, string>> = {
+      tuning: 'Kanalschlüssel geladen · Empfänger aktiv',
+      ready: `Träger gefunden · ${freqRef.current.toFixed(2)} MHz`,
+      handshake: 'Handshake mit Site-80 Intern',
+      ok: 'Teilnehmer authentifiziert',
+    };
+    if (msg[phase]) setLines((l) => [{ t: stamp(), text: msg[phase]!, warn: false }, ...l].slice(0, 12));
+  }, [phase]);
+  return (
+    <aside className="box cg-side cg-log" aria-label="Funkverkehr">
+      <div className="box-head">
+        <h3>Funkverkehr</h3>
+        <span className="small">
+          <span className="live-dot" /> LIVE
+        </span>
+      </div>
+      <ol>
+        {lines.map((l, i) => (
+          <li key={l.t + l.text + i} className={l.warn ? 'warn' : ''}>
+            <time>{l.t}</time>
+            <span>{l.text}</span>
+          </li>
+        ))}
+      </ol>
+    </aside>
+  );
+}
+
+const RELAYS = [
+  { name: 'Site-80 Intern', base: 12 },
+  { name: 'Relais Süd', base: 28 },
+  { name: 'Site-19', base: 64 },
+  { name: 'RAISA-Knoten', base: 41 },
+  { name: 'O5-Netz', base: 0 },
+];
+
+function Relays({ locked }: { locked: boolean }) {
+  const [t, setT] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setT((n) => n + 1), 1200);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <aside className="box cg-side cg-relays" aria-label="Relaisstationen">
+      <div className="box-head">
+        <h3>Relaisstationen</h3>
+        <span className="small dim">{locked ? 'Route steht' : 'Suche Route'}</span>
+      </div>
+      <ul>
+        {RELAYS.map((r, i) => {
+          const off = !r.base;
+          const ping = off ? 0 : Math.round(r.base + Math.abs(Math.sin(t * 0.9 + i * 2)) * r.base * 0.4);
+          const q = off ? 0 : Math.max(1, 4 - Math.floor(ping / 25));
+          return (
+            <li key={r.name} className={`${off ? 'off' : ''}${locked && i === 0 ? ' route' : ''}`}>
+              <span className="gf-bars" aria-hidden>
+                {[0, 1, 2, 3].map((b) => (
+                  <i key={b} className={b < q ? 'on' : ''} />
+                ))}
+              </span>
+              <span className="cg-relay-name">{r.name}</span>
+              <span className="cg-relay-ping">{off ? 'gesperrt' : `${ping} ms`}</span>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="cg-relay-foot small dim">Verschlüsselung AES-512 · 5 Knoten</div>
+    </aside>
   );
 }
