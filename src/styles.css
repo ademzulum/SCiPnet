@@ -6619,3 +6619,60 @@ button.skip {
   .scipa-input textarea, .scipa-input input { font-size: 13px; }
   .rv-stamp { font-size: 11px; padding: 0.3rem 0.6rem; }
 }
+
+/* ---- field report Verlauf: line, dots and times on one axis ------------- */
+/* The line is drawn per list, the dots are centred on it, and each dot and
+   time sit on the middle of the entry's first text line (15px * 1.7). */
+.rv-timeline {
+  --tl-line: 25.5px;
+  position: relative;
+  padding: 0;
+  border-left: none;
+}
+.rv-timeline::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  width: 2px;
+  background: color-mix(in srgb, var(--cl) 45%, transparent);
+}
+.rv-timeline li {
+  align-items: start;
+  padding: 0.35rem 0 0.35rem 1.6rem;
+}
+.rv-timeline li::before {
+  left: 0;
+  top: calc(0.35rem + var(--tl-line) / 2 - 7px);
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  box-sizing: border-box;
+}
+.rv-timeline time {
+  padding: 0;
+  line-height: var(--tl-line);
+  white-space: nowrap;
+}
+.rv-timeline p {
+  margin: 0;
+}
+
+/* voice message: the duration keeps clear of the bubble's right edge */
+.voice-time {
+  margin-right: 0.45rem;
+}
+
+@media (max-width: 600px) {
+  /* overview report rows: id and status on top, the title below at full width */
+  .rows .report-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'id meta' 'title title';
+    gap: 0.2rem 0.6rem;
+  }
+  .rows .report-row > .dim { grid-area: id; }
+  .rows .report-row > strong { grid-area: title; }
+  .rows .report-row > .row-meta { grid-area: meta; margin-top: 0; }
+  .rows .report-row .row-arrow { display: none; }
+}
