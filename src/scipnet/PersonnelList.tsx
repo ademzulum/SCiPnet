@@ -5,6 +5,7 @@ import { biometric, useAccount, useAdminUnlocked } from './session';
 import type { Go } from './routes';
 import { Corrupt } from './Admin';
 import { initials } from './Comms';
+import { photoUrl } from '../data/photos';
 
 const STATUSES = ['Alle', 'Aktiv', 'Beurlaubt', 'Beobachtung', 'Vermisst'] as const;
 
@@ -84,7 +85,7 @@ export default function PersonnelList({ go }: { go: Go }) {
               {p.status !== 'Aktiv' && <span className={`folder-status status-${p.status}`}>{p.status}</span>}
               <span className="folder-body">
                 <span className="folder-photo" aria-hidden>
-                  {p.photo ? <><img src={p.photo} alt="" />{p.eyeBar && !admin && <span className="eye-bar" style={{ top: `${p.eyeBar.top}%`, left: `${p.eyeBar.left}%`, width: `${p.eyeBar.width}%` }} />}</> : initials(p.name)}
+                  {p.photo ? <><img src={photoUrl(p.photo)} alt="" />{p.eyeBar && !admin && <span className="eye-bar" style={{ top: `${p.eyeBar.top}%`, left: `${p.eyeBar.left}%`, width: `${p.eyeBar.width}%` }} />}</> : initials(p.name)}
                 </span>
                 <span className="folder-info">
                   <strong className="folder-name">{p.name}</strong>

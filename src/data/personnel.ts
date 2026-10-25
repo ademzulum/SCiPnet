@@ -1,7 +1,3 @@
-import corvusFinch from '../../images/personell_pictures/corvus_finch.png';
-import duncanMaynard from '../../images/personell_pictures/duncan_maynard.png';
-import timothyQuebec from '../../images/personell_pictures/timothy_quebec_jr.png';
-import ilseBrandt from '../../images/personell_pictures/ilse_brandt.png';
 // Personnel files. Text may contain [[...]] for redacted passages.
 
 export type Person = {
@@ -12,7 +8,7 @@ export type Person = {
   clearance: string;
   status: 'Aktiv' | 'Beurlaubt' | 'Vermisst' | 'Beobachtung';
   since: string;
-  photo?: string; // optional image URL; a generated portrait is shown otherwise
+  photo?: string; // file name in images/personell_pictures/ (no extension); a generated portrait is shown otherwise
   eyeBar?: { top: number; left: number; width: number }; // black censor bar over the eyes, in % of the cropped photo
   quote?: string;
   summary: string;
@@ -34,7 +30,7 @@ export const PERSONNEL: Person[] = [
   {
     id: 'P-80-0001',
     name: 'Dr. Ilse Brandt',
-    photo: ilseBrandt,
+    photo: 'ilse_brandt',
     eyeBar: { top: 28.5, left: 33, width: 27 },
     role: 'Standortdirektorin',
     department: 'Standortleitung',
@@ -76,7 +72,7 @@ export const PERSONNEL: Person[] = [
   {
     id: 'P-80-0117',
     name: 'Dr. Duncan Maynard',
-    photo: duncanMaynard,
+    photo: 'duncan_maynard',
     role: 'Leitender Forscher',
     department: 'Anomalienforschung / RAISA-Verbindung',
     clearance: 'RAISA',
@@ -194,7 +190,7 @@ export const PERSONNEL: Person[] = [
   {
     id: 'P-80-0731',
     name: 'Dr. Timothy Quebec Jr.',
-    photo: timothyQuebec,
+    photo: 'timothy_quebec_jr',
     role: 'Wissenschaftler, Xenobiologie',
     department: 'Forschung und Entwicklung',
     clearance: 'Stufe 3',
@@ -227,7 +223,7 @@ export const PERSONNEL: Person[] = [
   {
     id: 'X-80-0003',
     name: 'Corvus Finch',
-    photo: corvusFinch,
+    photo: 'corvus_finch',
     eyeBar: { top: 16.5, left: 34, width: 34 },
     role: 'Externe Person von Interesse',
     department: 'FBI / Unusual Incidents Unit',
