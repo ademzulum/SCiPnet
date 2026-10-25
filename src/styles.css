@@ -7446,3 +7446,14 @@ button.skip {
 .redact-glue .declassified {
   white-space: normal;
 }
+
+/* brain scan card stretches to the EEG column: the body fills the space left
+   under the header and keeps the brain centred in it */
+.psych-scans > .brain-scan {
+  display: flex;
+  flex-direction: column;
+}
+.psych-scans > .brain-scan .brain-body {
+  flex: 1;
+  align-content: center;
+}
