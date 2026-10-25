@@ -53,12 +53,6 @@ export function customCursor() {
       const r = target.getBoundingClientRect();
       // exactly on the element's edges, so the frame never spills onto its neighbours
       tx = r.left; ty = r.top; tw = r.width; th = r.height;
-      // dock buttons lift on hover: keep their frame inside the dock
-      const dock = target.closest('.dock')?.getBoundingClientRect();
-      if (dock) {
-        const top = Math.max(ty, dock.top + 4), bottom = Math.min(ty + th, dock.bottom - 4);
-        ty = top; th = bottom - top;
-      }
     }
     // the ring sits on the pointer; only the move into and out of a frame is eased
     const k = target || w > SIZE + 1 || h > SIZE + 1 ? 0.35 : 1;
@@ -67,10 +61,12 @@ export function customCursor() {
     ring.style.transform = `translate(${x}px, ${y}px)`;
     ring.style.width = `${w}px`;
     ring.style.height = `${h}px`;
-    // the dock stays on top: hide the part of a frame that reaches under it
-    const dock = target && !target.closest('.dock') ? document.querySelector('.dock')?.getBoundingClientRect() : null;
-    const under = dock && x < dock.right && x + w > dock.left ? y + h - dock.top : 0;
-    ring.style.clipPath = under > 0 ? `inset(0 0 ${Math.min(under, h)}px 0)` : '';
+    // the dock stays on top: cut its exact shape out of a frame that reaches under it
+    const d = target && !target.closest('.dock') ? document.querySelector('.dock')?.getBoundingClientRect() : null;
+    if (d && d.left < x + w && d.right > x && d.top < y + h && d.bottom > y) {
+      const l = d.left - x, t = d.top - y, r = d.right - x, b = d.bottom - y, k = 18; // dock corner radius
+      ring.style.clipPath = `path(evenodd, 'M-10 -10H${w + 10}V${h + 10}H-10Z M${l + k} ${t}H${r - k}A${k} ${k} 0 0 1 ${r} ${t + k}V${b - k}A${k} ${k} 0 0 1 ${r - k} ${b}H${l + k}A${k} ${k} 0 0 1 ${l} ${b - k}V${t + k}A${k} ${k} 0 0 1 ${l + k} ${t}Z')`;
+    } else ring.style.clipPath = '';
     requestAnimationFrame(frame);
   };
   requestAnimationFrame(frame);

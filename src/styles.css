@@ -677,7 +677,6 @@ button.skip {
 }
 .dock button:hover:not(:disabled) {
   opacity: 1;
-  transform: translateY(-4px);
 }
 .dock button.active {
   opacity: 1;
