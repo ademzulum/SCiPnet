@@ -622,12 +622,14 @@ button.skip {
   width: 100%;
   margin-block: auto;
 }
-.shell-main > * > .page {
+.shell-main > * > .page,
+.rail-layout > .page {
   margin-inline: auto;
 }
 /* Pages whose height changes in place (tabs, filters) stay top-aligned so
    the content above doesn't jump when switching. */
-.shell-main > *:has(> .page-top) {
+.shell-main > *:has(> .page-top),
+.shell-main > *:has(> .rail-layout > .page-top) {
   margin-block: 0 auto;
 }
 
@@ -7971,26 +7973,38 @@ html:not(.cur-lock) .cur-ring i {
   border-top: 1px solid var(--line);
 }
 
-/* ---- side rails: fill the space beside the page on wide screens ----------- */
+/* ---- side rails: fill the space beside the page on wide screens -----------
+   A three-column grid with the page in the middle: the rails start at the
+   page's top edge and scroll with it. A short page is centred vertically, and
+   the rails with it. */
 .rail {
   display: none;
 }
 @media (min-width: 1500px) {
+  .rail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 900px) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+  .rail-layout > .page {
+    width: 100%;
+    margin: 0;
+  }
   .rail {
-    --rail-w: min(300px, calc((100vw - 900px) / 2 - 64px));
-    position: fixed;
-    top: 96px;
-    bottom: 120px;
-    z-index: 2;
-    width: var(--rail-w);
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
-    overflow: hidden;
-    animation: tlin 0.4s ease-out;
+    width: min(300px, 100%);
+    position: sticky;
+    top: 0;
   }
-  .rail-left { left: calc(50% - 450px - 32px - var(--rail-w)); }
-  .rail-right { right: calc(50% - 450px - 32px - var(--rail-w)); }
+  .rail-left { justify-self: end; }
+  .rail-right { justify-self: start; }
+  /* the page is the middle column, never the first */
+  .rail-layout > .page { grid-column: 2; grid-row: 1; }
+  .rail-left { grid-column: 1; grid-row: 1; }
+  .rail-right { grid-column: 3; grid-row: 1; }
 }
 .rail-box {
   margin: 0;
@@ -8002,7 +8016,6 @@ html:not(.cur-lock) .cur-ring i {
   margin-bottom: 0.7rem;
 }
 .rail-log {
-  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -8014,8 +8027,6 @@ html:not(.cur-lock) .cur-ring i {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  overflow: hidden;
-  mask-image: linear-gradient(180deg, #000 calc(100% - 60px), transparent);
 }
 .rail-log li {
   display: grid;
@@ -8111,4 +8122,9 @@ html:not(.cur-lock) .cur-ring i {
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+@media (min-width: 1500px) {
+  .rail-layout.rails-center {
+    align-items: center;
+  }
 }

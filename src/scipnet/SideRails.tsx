@@ -6,7 +6,8 @@ import { THREADS } from '../data/threads';
 import type { Go, Route } from './routes';
 
 // Panels in the empty space left and right of the page on wide screens
-// (styles.css shows them from 1500px). Left: a live system log, the same on
+// (styles.css shows them from 1500px); they sit in a grid with the page,
+// so their tops line up with it and they scroll with it. Left: a live system log, the same on
 // every tab. Right: context for the current tab, built from the site data.
 
 const EVENTS = [
@@ -21,14 +22,16 @@ const EVENTS = [
   { text: 'Wachwechsel Sektor 3', tone: '' },
   { text: 'Unbekannter Träger auf 79.3 MHz', tone: 'warn' },
 ];
+// a fixed number of lines, so the box is as tall as its content
+const LOG_LINES = 8;
 const clock = () => new Date().toLocaleTimeString('de-DE');
 
 function SystemLog() {
-  const [lines, setLines] = useState(() => EVENTS.map((e) => ({ ...e, t: clock() })));
+  const [lines, setLines] = useState(() => EVENTS.slice(0, LOG_LINES).map((e) => ({ ...e, t: clock() })));
   useEffect(() => {
     const id = setInterval(() => {
       const e = EVENTS[(Math.random() * EVENTS.length) | 0];
-      setLines((l) => [{ ...e, t: clock() }, ...l].slice(0, 14));
+      setLines((l) => [{ ...e, t: clock() }, ...l].slice(0, LOG_LINES));
     }, 2200 + Math.random() * 1500);
     return () => clearInterval(id);
   }, []);
@@ -197,15 +200,14 @@ function Context({ route, go }: { route: Route; go: Go }) {
   }
 }
 
-export default function SideRails({ route, go }: { route: Route; go: Go }) {
-  return (
-    <>
-      <aside className="rail rail-left" aria-label="Systemprotokoll">
-        <SystemLog />
-      </aside>
-      <aside className="rail rail-right" aria-label="Kontext">
-        <Context route={route} go={go} />
-      </aside>
-    </>
+export default function SideRails({ side, route, go }: { side: 'left' | 'right'; route: Route; go: Go }) {
+  return side === 'left' ? (
+    <aside className="rail rail-left" aria-label="Systemprotokoll">
+      <SystemLog />
+    </aside>
+  ) : (
+    <aside className="rail rail-right" aria-label="Kontext">
+      <Context route={route} go={go} />
+    </aside>
   );
 }

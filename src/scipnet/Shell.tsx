@@ -151,6 +151,19 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   }, [route.view, adminSolved, destruct]);
   const locked = meltdown || hacking;
   const notes = useNotifications(locked);
+  // Rails beside a page that fits without scrolling sit centred on it; beside
+  // a longer page they line up with its top.
+  const fitRails = (el: HTMLDivElement | null) => {
+    if (!el) return;
+    const check = () => {
+      const main = el.closest('.shell-main');
+      const page = el.querySelector<HTMLElement>(':scope > .page');
+      if (main && page) el.classList.toggle('rails-center', page.offsetHeight < main.clientHeight * 0.8);
+    };
+    check();
+    new ResizeObserver(check).observe(el);
+  };
+
   const go = (r: Route) => {
     if (locked) return;
     setRoute(r);
@@ -289,15 +302,20 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
           >
-            {page}
+            {/* wide screens: system log and tab context beside the page, top-aligned
+                with it and scrolling with it; the comms login brings its own panels */}
+            {!locked && !((route.view === 'comms' || route.view === 'thread') && !commsOk) && route.view !== 'admin' ? (
+              <div className="rail-layout" ref={fitRails}>
+                <SideRails side="left" route={route} go={go} />
+                {page}
+                <SideRails side="right" route={route} go={go} />
+              </div>
+            ) : (
+              page
+            )}
           </motion.div>
         </AnimatePresence>
       </main>
-      {/* wide screens: system log and tab context beside the page; the comms
-          login brings its own side panels */}
-      {!locked && !((route.view === 'comms' || route.view === 'thread') && !commsOk) && route.view !== 'admin' && (
-        <SideRails route={route} go={go} />
-      )}
 
       <Toast api={notes} go={go} hidden={locked} />
 
