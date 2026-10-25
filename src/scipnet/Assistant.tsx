@@ -265,12 +265,20 @@ export default function Assistant({ go, onSelfDestruct, notes }: { go: Go; onSel
   const field = useRef<HTMLTextAreaElement>(null);
   const { canListen, listening, toggleMic } = useDictation(setInput);
 
-  // The input grows with its text, up to a few lines, then scrolls.
+  // The input grows with its text up to three lines (two line breaks); only
+  // past that does it scroll.
   useLayoutEffect(() => {
     const el = field.current;
     if (!el) return;
+    const cs = getComputedStyle(el);
+    const line = parseFloat(cs.lineHeight);
+    const pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    const border = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+    const max = Math.ceil(line * 3 + pad + border);
     el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, 96)}px`;
+    const full = el.scrollHeight + border;
+    el.style.height = `${Math.min(full, max)}px`;
+    el.style.overflowY = full > max ? 'auto' : 'hidden';
   }, [input]);
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 

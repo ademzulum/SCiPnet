@@ -7569,3 +7569,28 @@ html:not(.cur-lock) .cur-ring i {
 .cur-ring i {
   border-color: var(--cur-accent, #fff);
 }
+
+/* ---- scrollbars: thin, square, in the theme colours ---------------------- */
+.crt * {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 55%, transparent) transparent;
+}
+.crt ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.crt ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.crt ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: 0;
+}
+.crt ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent);
+}
+.crt ::-webkit-scrollbar-corner {
+  background: transparent;
+}
