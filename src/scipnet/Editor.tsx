@@ -19,7 +19,8 @@ import type { Go, Route } from './routes';
 // lists below. Fields the form doesn't know (e.g. an SCP's lock) are kept as
 // they are. Text fields accept [[...]] for redacted passages, as everywhere.
 
-type Field =
+// `when` shows a field inside a row only when the row needs it
+type Field = (
   | { k: string; label: string; t: 'text' | 'area' | 'date' | 'number'; req?: boolean; hint?: string; ph?: (row: Obj) => string | undefined }
   | { k: string; label: string; t: 'group'; hint?: string }
   | { k: string; label: string; t: 'select'; options: () => Opt[]; empty?: string; apply?: (entry: Obj, v: string) => Obj; hint?: string }
@@ -30,7 +31,9 @@ type Field =
   | { k: string; label: string; t: 'pick'; what: PickWhat; single?: boolean; hint?: string }
   | { k: string; label: string; t: 'slider'; hint?: string }
   | { k: string; label: string; t: 'image'; folder: 'personnel' | 'reports' | 'mtf'; preview: (v?: string) => string | undefined }
-  | { k: string; label: string; t: 'rows'; fields: Field[]; blank: Record<string, unknown>; hint?: string; compact?: boolean };
+  | { k: string; label: string; t: 'rows'; fields: Field[]; blank: Record<string, unknown>; hint?: string; compact?: boolean }
+  | { k: string; label: string; t: 'lines'; hint?: string }
+) & { when?: (row: Obj) => boolean };
 
 const LEVELS = ['Stufe 1', 'Stufe 2', 'Stufe 3', 'Stufe 4', 'Stufe 5'];
 const TONES: Opt[] = [
@@ -74,18 +77,30 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
         k: 'addenda',
         label: 'Addenda',
         t: 'rows',
+        hint: 'Kopf „Addendum 8041/I · Art“, Beginn und Ende des Transkripts und „Ende Addendum …“ setzt die Akte selbst.',
         blank: { kind: 'note', title: '', body: [] },
         fields: [
-          { k: 'kind', label: 'Art', t: 'select', options: () => [
-              ['recovery', 'Bergung'],
-              ['test', 'Testprotokoll'],
-              ['interview', 'Befragung'],
-              ['incident', 'Vorfall'],
-              ['note', 'Vermerk'],
-            ] },
-          { k: 'title', label: 'Titel', t: 'text' },
-          { k: 'body', label: 'Text', t: 'paras', hint: 'Im Protokoll eine Zeile je Aussage: „Name: Text“, Regieanweisung in <…>.' },
-          { k: 'sign', label: 'Unterzeichnet', t: 'text' },
+          {
+            k: 'kind',
+            label: 'Art',
+            t: 'select',
+            options: () => Object.entries(ADDENDUM_KINDS).map(([k, a]): Opt => [k, a.label]),
+            apply: addendumKind,
+          },
+          { k: 'title', label: 'Titel', t: 'text', ph: (r) => ADDENDUM_KINDS[r.kind as string]?.example },
+          {
+            k: 'meta',
+            label: 'Kopfzeilen',
+            t: 'rows',
+            compact: true,
+            blank: ['', ''] as never,
+            fields: [
+              { k: '0', label: 'Bezeichnung', t: 'text' },
+              { k: '1', label: 'Eintrag', t: 'text', ph: (r) => META_HINT[r[0] as string] },
+            ],
+          },
+          { k: 'body', label: 'Inhalt', t: 'lines' },
+          { k: 'sign', label: 'Unterzeichnet', t: 'text', when: (r) => r.kind === 'note', ph: () => 'z. B. Dr. I. Brandt, Standortdirektion' },
         ],
       },
       { k: 'reports', label: 'Feldberichte', t: 'multi', options: reports },
@@ -396,6 +411,8 @@ const get = (o: Obj, path: string): unknown => path.split('.').reduce<unknown>((
 // object left empty by that is removed too.
 function set(o: Obj, path: string, value: unknown): Obj {
   const [k, ...rest] = path.split('.');
+  // a [label, value] pair stays a pair: its empty cells stay as ''
+  if (Array.isArray(o) && !rest.length) return Object.assign([...o], { [k]: value ?? '' }) as unknown as Obj;
   const next = { ...o };
   const v = rest.length ? set((o[k] as Obj) ?? {}, rest.join('.'), value) : value;
   const empty = v === '' || v === undefined || v === false || (Array.isArray(v) && !v.length) || (rest.length && !Object.keys(v as Obj).length);
@@ -536,9 +553,95 @@ function Input({ f, value, onChange, row }: { f: Field; value: unknown; onChange
         </div>
       );
     }
+    case 'lines':
+      return <LinesInput value={(value as string[]) ?? []} onChange={onChange} transcript={row?.kind === 'interview'} />;
     case 'rows':
       return <RowsInput f={f} rows={(value as Obj[]) ?? []} onChange={onChange} />;
   }
+}
+
+// Addendum kinds, after the old fixed addenda: the header rows each kind
+// starts with (Vorwort as a row, as in the old files) and a typical title.
+const ADDENDUM_KINDS: Record<string, { label: string; example: string; meta: string[] }> = {
+  recovery: { label: 'Bergungsprotokoll', example: 'z. B. Bergung aus dem Hafenbecken Kiel', meta: ['Datum', 'Fundort', 'Bergungsteam', 'Vorwort'] },
+  test: { label: 'Testprotokoll', example: 'z. B. Test 8041-03: Schallquelle unter Wasser', meta: ['Datum', 'Testleitung', 'Proband', 'Vorwort'] },
+  interview: { label: 'Transkript (Befragung)', example: 'z. B. Interview mit Archivarin L. Hofstetter', meta: ['Befragte', 'Befragt durch', 'Datum', 'Vorwort'] },
+  incident: { label: 'Vorfallbericht', example: 'z. B. Vorfall 8041-1: Ausfall der Sonaranlage', meta: ['Datum', 'Ort', 'Vorwort'] },
+  note: { label: 'Notiz', example: 'z. B. Anmerkung der Standortdirektion', meta: [] },
+};
+const META_HINT: Record<string, string> = {
+  Datum: 'z. B. 14.09.2026',
+  Fundort: 'Wo das Objekt geborgen wurde',
+  Bergungsteam: 'z. B. MTF Eta-11',
+  Testleitung: 'z. B. Dr. Kessler',
+  Proband: 'z. B. D-80312',
+  Befragte: 'Name und Funktion, z. B. L. Hofstetter, Archiv 7',
+  'Befragt durch': 'z. B. Dr. D. Maynard',
+  Ort: 'z. B. Sektor B, Zelle 12',
+  Vorwort: 'Ein, zwei Sätze zur Lage vor dem Protokoll',
+};
+// A new kind adds its header rows that are missing; rows with an entry stay.
+function addendumKind(row: Obj, v: string): Obj {
+  const meta = ((row.meta as [string, string][]) ?? []).filter(([k, val]) => val || ADDENDUM_KINDS[v]?.meta.includes(k));
+  for (const k of ADDENDUM_KINDS[v]?.meta ?? []) if (!meta.some(([m]) => m === k)) meta.push([k, '']);
+  return { ...row, meta };
+}
+
+// Addendum content line by line: a speaker's line, an action in <…> or plain
+// text. Stored as the strings the file reads („Name: Text“, „<Handlung>“).
+type Line = { type: 'say' | 'stage' | 'text'; who?: string; text?: string };
+const toLine = (s: string): Line => {
+  const stage = s.match(/^<(.*)>$/);
+  if (stage) return { type: 'stage', text: stage[1] };
+  const say = s.match(/^([^:]{1,30}):\s(.*)$/);
+  return say ? { type: 'say', who: say[1], text: say[2] } : { type: 'text', text: s };
+};
+const fromLine = (l: Line) => (l.type === 'stage' ? `<${l.text ?? ''}>` : l.type === 'say' ? `${l.who ?? ''}: ${l.text ?? ''}` : (l.text ?? ''));
+const LINE_ROWS: Extract<Field, { t: 'rows' }> = {
+  k: 'lines',
+  label: 'Zeilen',
+  t: 'rows',
+  blank: { type: 'text' },
+  fields: [
+    {
+      k: 'type',
+      label: 'Zeile',
+      t: 'select',
+      options: () => [
+        ['say', 'Aussage'],
+        ['stage', 'Handlung'],
+        ['text', 'Absatz'],
+      ],
+    },
+    { k: 'who', label: 'Sprecher', t: 'text', when: (r) => r.type === 'say', ph: () => 'z. B. Interviewer' },
+    {
+      k: 'text',
+      label: 'Text',
+      t: 'area',
+      ph: (r) => (r.type === 'say' ? 'Was gesagt wird' : r.type === 'stage' ? 'Was geschieht, z. B. Hofstetter schlägt das Notizbuch auf.' : 'Ein Absatz'),
+    },
+  ],
+};
+function LinesInput({ value, onChange, transcript }: { value: string[]; onChange: (v: string[]) => void; transcript: boolean }) {
+  // kept as rows while editing, so a line keeps its type while still empty
+  const [lines, setLines] = useState<Line[]>(() => value.map(toLine));
+  return (
+    <div className="ed-lines">
+      <span className="dim small ed-hint">
+        {transcript
+          ? 'Eine Zeile je Aussage oder Handlung. „Beginn Transkript“ und „Ende Transkript“ werden automatisch gesetzt.'
+          : 'Absätze, Aussagen oder Handlungen in der Reihenfolge, in der sie in der Akte stehen.'}
+      </span>
+      <RowsInput
+        f={LINE_ROWS}
+        rows={lines as Obj[]}
+        onChange={(rows) => {
+          setLines(rows as Line[]);
+          onChange((rows as Line[]).filter((l) => l.text?.trim()).map(fromLine));
+        }}
+      />
+    </div>
+  );
 }
 
 // A list of rows, reordered by dragging a row at its grip. Each row keeps a
@@ -570,12 +673,15 @@ function RowsInput({ f, rows, onChange }: { f: Extract<Field, { t: 'rows' }>; ro
           className={`ed-row${drag === i ? ' dragging' : ''}`}
           draggable={armed === i}
           onDragStartCapture={(e: React.DragEvent) => {
+            // only this row, not a row of a list inside it (addendum lines)
+            if (e.target !== e.currentTarget) return;
             e.dataTransfer.effectAllowed = 'move';
             setDrag(i);
           }}
           onDragOver={(e: React.DragEvent) => {
             if (drag === null) return;
             e.preventDefault();
+            e.stopPropagation();
             if (drag !== i) {
               move(drag, i);
               setDrag(i);
@@ -602,12 +708,20 @@ function RowsInput({ f, rows, onChange }: { f: Extract<Field, { t: 'rows' }>; ro
               <circle cx="7" cy="13" r="1.3" />
             </svg>
           </span>
-          {f.fields.map((sub) => (
-            <div key={sub.k} className={`ed-field t-${sub.t}`}>
-              <span className="label">{sub.label}</span>
-              <Input f={sub} value={get(r, sub.k)} row={r} onChange={(v) => put(i, set(r, sub.k, v))} />
-            </div>
-          ))}
+          {f.fields
+            .filter((sub) => !sub.when || sub.when(r))
+            .map((sub) => (
+              <div key={sub.k} className={`ed-field t-${sub.t}`}>
+                <span className="label">{sub.label}</span>
+                <Input
+                  f={sub}
+                  value={get(r, sub.k)}
+                  row={r}
+                  onChange={(v) => put(i, 'apply' in sub && sub.apply ? sub.apply(set(r, sub.k, v), v as string) : set(r, sub.k, v))}
+                />
+                {'hint' in sub && sub.hint && sub.t !== 'check' && <span className="dim small ed-hint">{sub.hint}</span>}
+              </div>
+            ))}
           <div className="ed-row-tools">
             <button
               type="button"
@@ -627,7 +741,7 @@ function RowsInput({ f, rows, onChange }: { f: Extract<Field, { t: 'rows' }>; ro
         className="card action ghost"
         onClick={() => {
           setKeys([...ks, next.current++]);
-          onChange([...rows, { ...f.blank }]);
+          onChange([...rows, structuredClone(f.blank)]);
         }}
       >
         + HINZUFÜGEN

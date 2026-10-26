@@ -10310,3 +10310,16 @@ div.rep-ref.broken-ref { cursor: default; border-style: dashed; }
 .rep-refs-body > :first-child { margin-top: 1rem; }
 .cp-search { grid-template-rows: auto auto 1fr auto; }
 .cp-group { display: grid; gap: 0.6rem; }
+
+/* editor: addendum lines */
+.ed-lines { display: grid; gap: 0.5rem; }
+.ed-grid .t-lines, .ed-row > .t-lines, .ed-row > .t-rows { grid-column: 1 / -1; }
+/* addendum lines: one compact line each, type, speaker and text side by side */
+.ed-lines .ed-rows { gap: 0.4rem; }
+.ed-lines .ed-row { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0.7rem; }
+.ed-lines .ed-row .label { display: none; }
+.ed-lines .ed-row > .ed-field:nth-of-type(1) { flex: 0 0 9.5rem; }
+.ed-lines .ed-row > .t-text { flex: 0 0 11rem; }
+.ed-lines .ed-row > .t-area { flex: 1; }
+.ed-lines .ed-row-tools { margin: 0.35rem 0 0; }
+@media (max-width: 700px) { .ed-lines .ed-row { flex-wrap: wrap; } .ed-lines .ed-row > .t-area { flex-basis: 100%; } }
