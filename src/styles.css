@@ -9922,3 +9922,10 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .mtf-acs-head { position: relative; overflow: hidden; }
 .mtf-acs-head > :not(.mtf-hero-bg) { position: relative; }
 .mtf-acs-head .mtf-hero-bg { left: 50%; right: auto; width: 240px; height: 240px; translate: -50% -50%; opacity: 0.09; }
+/* report cards: signer in the top right */
+.rep-author { flex: none; align-self: flex-start; display: flex; align-items: center; gap: 0.5rem; max-width: 45%; text-align: right; }
+.rep-author .avatar.sm { order: 2; width: 30px; height: 30px; font-size: 10px; flex: none; }
+.rep-author-text { display: flex; flex-direction: column; align-items: flex-end; min-width: 0; font-size: 11px; color: var(--hi); }
+.rep-author-text > span:last-child { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.rep-author .label { margin: 0; font-size: 8px; }
+.rep-meta { margin-top: -0.3rem; }
