@@ -18,10 +18,15 @@ export function masked(kind: Kind, e: Entry, real: string, a: Account = currentA
 }
 
 export function cardAccess(kind: Kind, e: Entry, a: Account) {
-  const closed = e.access?.mode === 'closed' || e.access?.mode === 'readers';
+  // The Administrator reads everything that reaches the browser: a closed entry
+  // only arrives when the database lets this login see it. The stripes stay as
+  // a reminder that the entry is closed; titles and text are shown as they are.
+  const admin = a === 'admin';
+  const closed = !admin && (e.access?.mode === 'closed' || e.access?.mode === 'readers');
   const blocked = !canRead(kind, e, a);
-  const corrupt = e.access?.mode === 'corrupt';
-  const cls = `${closed || blocked ? ' locked restricted' : ''}${corrupt ? ' corrupted' : ''}`;
+  const corrupt = !admin && e.access?.mode === 'corrupt';
+  const marked = closed || blocked || (admin && (e.access?.mode === 'closed' || e.access?.mode === 'readers'));
+  const cls = `${marked ? ' locked restricted' : ''}${corrupt ? ' corrupted' : ''}`;
   // the title gives the entry away no more: scrambled like SCP-8000, or a plain notice
   const title = (t: string) =>
     corrupt ? <Corrupt text="[DATEN GELÖSCHT]" amount={0.15} every={300} /> : closed ? '[ZUGRIFF BESCHRÄNKT]' : t;
