@@ -614,6 +614,7 @@ button.skip {
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-gutter: stable; /* a scrollbar coming and going never shifts the page sideways */
   padding: 2rem clamp(16px, 4vw, 3rem) calc(var(--dock-space) + 1rem);
 }
 /* Pages sit centred between header and dock; taller ones scroll from the top
@@ -8017,7 +8018,12 @@ html:not(.cur-lock) .cur-ring i {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* fixed height: new lines wrap differently, and a growing or shrinking log
+     would change the page height and move it while scrolled to the end */
+  height: 440px;
+  max-height: calc(100vh - 12rem);
 }
+.rail-log ol { min-height: 0; overflow: hidden; }
 .rail-log ol {
   list-style: none;
   margin: 0;
