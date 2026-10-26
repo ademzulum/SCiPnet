@@ -10225,3 +10225,33 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .ed-rows.compact .ed-row { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; align-items: start; padding: 0.6rem 0.8rem; }
 .ed-rows.compact .ed-row-tools { grid-column: auto; margin: 1.55rem 0 0; }
 @media (max-width: 700px) { .ed-rows.compact .ed-row { grid-template-columns: 1fr; } }
+
+/* editor: picking personnel, task forces and objects in a window */
+.pk-field { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; }
+.pk-chip { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.25rem 0.35rem 0.25rem 0.3rem; border: 1px solid var(--line); border-radius: 999px; font-size: 0.85rem; }
+.pk-chip .pk-face { width: 22px; height: 22px; font-size: 9px; }
+.pk-chip button { border: 0; background: none; color: inherit; opacity: 0.6; cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 0.2rem; }
+.pk-chip button:hover { opacity: 1; color: var(--accent); }
+.pk-open { padding: 0.35rem 0.8rem; }
+.pk { width: min(900px, 100%); grid-template-rows: auto auto 1fr auto; }
+.pk-grid { display: grid; gap: 0.6rem; }
+.pk-person, .pk-mtf { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+.pk-scp { grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); }
+.pk-card { display: grid; justify-items: center; align-content: start; gap: 0.35rem; padding: 0.7rem; text-align: center; min-width: 0; }
+.pk-card strong { font-size: 0.9rem; line-height: 1.25; overflow-wrap: anywhere; }
+.pk-card.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.pk-face { display: grid; place-items: center; overflow: hidden; width: 100%; aspect-ratio: 1; border-radius: var(--radius); border: 1px solid var(--line); font-size: 1.6rem; letter-spacing: 0.08em; background: color-mix(in srgb, currentColor 6%, transparent); }
+.pk-face img { width: 100%; height: 100%; object-fit: cover; }
+.pk-person .pk-face { width: 100%; }
+.pk-scp .pk-card { justify-items: stretch; text-align: left; }
+.pk-scp-top { display: flex; align-items: center; gap: 0.5rem; }
+.pk-scp-top .acs-ico { width: 26px; height: 26px; flex: none; }
+.pk-scp-top .acs-ico svg { width: 100%; height: 100%; }
+.pk-scp-top strong { flex: 1; }
+.pk-scp-name { font-size: 0.85rem; opacity: 0.8; line-height: 1.35; }
+/* rows: dragged at the grip */
+.ed-row { position: relative; padding-left: 2rem !important; }
+.ed-grip { position: absolute; left: 0.55rem; top: 50%; translate: 0 -50%; width: 12px; height: 20px; cursor: grab; opacity: 0.45; }
+.ed-grip:hover { opacity: 1; }
+.ed-grip svg { width: 100%; height: 100%; fill: currentColor; }
+.ed-row.dragging { opacity: 0.5; border-color: var(--accent); }

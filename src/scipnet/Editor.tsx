@@ -12,6 +12,7 @@ import { MTFS } from '../data/mtf';
 import { insigniaUrl, photoUrl, reportImageUrl } from '../data/photos';
 import { cachedAccounts, deleteEntry, listAccounts, references, saveEntry, uploadImage, type Kind, type Kinds } from '../data/store';
 import { useAccount } from './session';
+import EntityPicker, { type PickWhat } from './EntityPicker';
 import type { Go, Route } from './routes';
 
 // The Administrator's editor: one form per entry type, built from the field
@@ -25,6 +26,7 @@ type Field =
   | { k: string; label: string; t: 'paras' | 'tags' | 'check' | 'classes'; hint?: string; ph?: (row: Obj) => string | undefined }
   | { k: string; label: string; t: 'multi'; options: () => Opt[]; hint?: string }
   | { k: string; label: string; t: 'accounts'; hint?: string }
+  | { k: string; label: string; t: 'pick'; what: PickWhat; single?: boolean; hint?: string }
   | { k: string; label: string; t: 'slider'; hint?: string }
   | { k: string; label: string; t: 'image'; folder: 'personnel' | 'reports' | 'mtf'; preview: (v?: string) => string | undefined }
   | { k: string; label: string; t: 'rows'; fields: Field[]; blank: Record<string, unknown>; hint?: string; compact?: boolean };
@@ -35,9 +37,6 @@ const TONES: Opt[] = [
   ['warn', 'Auffällig'],
   ['bad', 'Kritisch'],
 ];
-// pick lists show who or what an id stands for
-const people = () => PERSONNEL.map((p): Opt => [p.id, `${p.name} · ${p.id}`]);
-const units = () => MTFS.map((m): Opt => [m.id, `MTF ${m.code} „${m.nickname}“`]);
 const reports = () => REPORTS.map((r): Opt => [r.id, `${r.id} · ${r.title}`]);
 
 const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kinds[K] } } = {
@@ -64,7 +63,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'acs.status', label: 'Status', t: 'text' },
       { k: 'acs.subclass', label: 'Unterklasse', t: 'text' },
       { k: 'clearance', label: 'Freigabe', t: 'select', options: () => LEVELS },
-      { k: 'mtf', label: 'Zugewiesene Mobile Task Forces', t: 'multi', options: units },
+      { k: 'mtf', label: 'Zugewiesene Mobile Task Forces', t: 'pick', what: 'mtf' },
       { k: 'antimemetic', label: 'Antimemetisch', t: 'check', hint: 'Beschreibung verblasst' },
       { k: 'warning', label: 'Warnhinweis', t: 'text' },
       { k: 'summary', label: 'Kurzbeschreibung', t: 'area', req: true },
@@ -169,7 +168,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'id', label: 'Kennung', t: 'text', req: true, hint: 'Aktenzeichen, z. B. FB-80-2026-040.' },
       { k: 'title', label: 'Titel', t: 'text', req: true, hint: 'Kurz und sachlich.' },
       { k: 'date', label: 'Datum', t: 'date' },
-      { k: 'author', label: 'Verfasst von', t: 'select', options: people, hint: 'Unterzeichnet den Bericht.' },
+      { k: 'author', label: 'Verfasst von', t: 'pick', what: 'person', single: true, hint: 'Unterzeichnet den Bericht.' },
       { k: 'location', label: 'Einsatzort', t: 'text', hint: 'Wo der Bericht spielt.' },
       {
         k: 'classification',
@@ -197,9 +196,9 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
           { k: 'value', label: 'Wert', t: 'text', ph: (r) => factHint(r.label as string) },
         ],
       },
-      { k: 'objects', label: 'Betroffene Objekte', t: 'multi', options: () => SCP.map((s): Opt => [s.id, `${s.id} · ${s.name}`]), hint: 'Erscheinen verlinkt in der Akte.' },
-      { k: 'units', label: 'Beteiligte Mobile Task Forces', t: 'multi', options: units },
-      { k: 'involved', label: 'Beteiligtes Personal', t: 'multi', options: people },
+      { k: 'objects', label: 'Betroffene Objekte', t: 'pick', what: 'scp', hint: 'Erscheinen verlinkt in der Akte.' },
+      { k: 'units', label: 'Beteiligte Mobile Task Forces', t: 'pick', what: 'mtf' },
+      { k: 'involved', label: 'Beteiligtes Personal', t: 'pick', what: 'person' },
       { k: '_body', label: 'Inhalt', t: 'group', hint: 'Jeder Teil wird in der Akte ein nummerierter Abschnitt. Leere Teile werden nicht angezeigt. Absätze durch eine Leerzeile trennen.' },
       { k: 'situation', label: 'Ausgangslage', t: 'paras', hint: 'Was vorher war: Anlass und Lage.' },
       {
@@ -476,6 +475,8 @@ function Input({ f, value, onChange, row }: { f: Field; value: unknown; onChange
           {'hint' in f && f.hint && <span className="dim small">{f.hint}</span>}
         </button>
       );
+    case 'pick':
+      return <EntityPicker what={f.what} single={f.single} value={value as string[] | string} onChange={onChange} />;
     case 'select':
       return <Dropdown value={(value as string) ?? ''} options={f.options()} empty={f.empty} onChange={onChange} />;
     case 'multi': {
@@ -534,36 +535,104 @@ function Input({ f, value, onChange, row }: { f: Field; value: unknown; onChange
         </div>
       );
     }
-    case 'rows': {
-      const rows = (value as Obj[]) ?? [];
-      const put = (i: number, r: Obj) => onChange(rows.map((x, j) => (j === i ? r : x)));
-      return (
-        <div className={`ed-rows${f.compact ? ' compact' : ''}`}>
-          {rows.map((r, i) => (
-            <div key={i} className="ed-row">
-              {f.fields.map((sub) => (
-                <div key={sub.k} className={`ed-field t-${sub.t}`}>
-                  <span className="label">{sub.label}</span>
-                  <Input f={sub} value={get(r, sub.k)} row={r} onChange={(v) => put(i, set(r, sub.k, v))} />
-                </div>
-              ))}
-              <div className="ed-row-tools">
-                <button type="button" className="link" disabled={!i} title="Nach oben" onClick={() => onChange(rows.map((x, j) => (j === i - 1 ? r : j === i ? rows[i - 1] : x)))}>
-                  Nach oben
-                </button>
-                <button type="button" className="link" onClick={() => onChange(rows.filter((_, j) => j !== i))}>
-                  Entfernen
-                </button>
-              </div>
+    case 'rows':
+      return <RowsInput f={f} rows={(value as Obj[]) ?? []} onChange={onChange} />;
+  }
+}
+
+// A list of rows, reordered by dragging a row at its grip. Each row keeps a
+// key of its own, so inputs that hold their text (paragraphs) move with it.
+function RowsInput({ f, rows, onChange }: { f: Extract<Field, { t: 'rows' }>; rows: Obj[]; onChange: (v: Obj[]) => void }) {
+  const next = useRef(0);
+  const [keys, setKeys] = useState<number[]>(() => rows.map(() => next.current++));
+  // rows added or removed from outside (a template) get or lose keys at the end
+  const ks = keys.length === rows.length ? keys : [...keys.slice(0, rows.length), ...rows.slice(keys.length).map(() => next.current++)];
+  if (ks !== keys) setKeys(ks);
+  const [armed, setArmed] = useState<number | null>(null);
+  const [drag, setDrag] = useState<number | null>(null);
+  const move = (from: number, to: number) => {
+    const r = [...rows];
+    const k = [...ks];
+    r.splice(to, 0, ...r.splice(from, 1));
+    k.splice(to, 0, ...k.splice(from, 1));
+    setKeys(k);
+    onChange(r);
+  };
+  const put = (i: number, r: Obj) => onChange(rows.map((x, j) => (j === i ? r : x)));
+  return (
+    <div className={`ed-rows${f.compact ? ' compact' : ''}`}>
+      {rows.map((r, i) => (
+        <motion.div
+          key={ks[i]}
+          layout="position"
+          transition={{ duration: 0.18 }}
+          className={`ed-row${drag === i ? ' dragging' : ''}`}
+          draggable={armed === i}
+          onDragStartCapture={(e: React.DragEvent) => {
+            e.dataTransfer.effectAllowed = 'move';
+            setDrag(i);
+          }}
+          onDragOver={(e: React.DragEvent) => {
+            if (drag === null) return;
+            e.preventDefault();
+            if (drag !== i) {
+              move(drag, i);
+              setDrag(i);
+            }
+          }}
+          onDragEnd={() => {
+            setDrag(null);
+            setArmed(null);
+          }}
+        >
+          <span
+            className="ed-grip"
+            title="Ziehen zum Verschieben"
+            aria-hidden
+            onPointerDown={() => setArmed(i)}
+            onPointerUp={() => drag === null && setArmed(null)}
+          >
+            <svg viewBox="0 0 10 16">
+              <circle cx="3" cy="3" r="1.3" />
+              <circle cx="7" cy="3" r="1.3" />
+              <circle cx="3" cy="8" r="1.3" />
+              <circle cx="7" cy="8" r="1.3" />
+              <circle cx="3" cy="13" r="1.3" />
+              <circle cx="7" cy="13" r="1.3" />
+            </svg>
+          </span>
+          {f.fields.map((sub) => (
+            <div key={sub.k} className={`ed-field t-${sub.t}`}>
+              <span className="label">{sub.label}</span>
+              <Input f={sub} value={get(r, sub.k)} row={r} onChange={(v) => put(i, set(r, sub.k, v))} />
             </div>
           ))}
-          <button type="button" className="card action ghost" onClick={() => onChange([...rows, { ...f.blank }])}>
-            + HINZUFÜGEN
-          </button>
-        </div>
-      );
-    }
-  }
+          <div className="ed-row-tools">
+            <button
+              type="button"
+              className="link"
+              onClick={() => {
+                setKeys(ks.filter((_, j) => j !== i));
+                onChange(rows.filter((_, j) => j !== i));
+              }}
+            >
+              Entfernen
+            </button>
+          </div>
+        </motion.div>
+      ))}
+      <button
+        type="button"
+        className="card action ghost"
+        onClick={() => {
+          setKeys([...ks, next.current++]);
+          onChange([...rows, { ...f.blank }]);
+        }}
+      >
+        + HINZUFÜGEN
+      </button>
+    </div>
+  );
 }
 
 // Secondary classes are too many for a list: a button opens a window with
