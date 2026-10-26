@@ -113,18 +113,20 @@ export function customCursor() {
       // exactly on the element's edges, so the frame never spills onto its neighbours
       tx = r.left; ty = r.top; tw = r.width; th = r.height;
     }
-    // The dock stays on top: a frame reaching under the dock is drawn next to
-    // it, one layer below, so the dock covers it like it covers the element.
-    // Dock buttons are framed from the top layer.
+    // The dock and the header stay on top: a frame reaching under one of them
+    // is drawn next to it, one layer below, so the bar covers it like it
+    // covers the element. The bars' own buttons are framed from the top layer.
     // Anything else (menus, the notification panel) stays on the top layer.
-    const dock = document.querySelector('.dock');
-    const d = dock?.getBoundingClientRect();
-    const under = !!d && !!target && !target.closest('.dock') && d.left < tx + tw && d.right > tx && d.top < ty + th && d.bottom > ty;
-    const host = under && dock?.parentElement ? dock.parentElement : document.body;
+    const bar = target
+      ? [...document.querySelectorAll<HTMLElement>('.dock, .topbar')].find((el) => {
+          const d = el.getBoundingClientRect();
+          return !target!.closest('.dock, .topbar') && d.left < tx + tw && d.right > tx && d.top < ty + th && d.bottom > ty;
+        })
+      : undefined;
+    const host = bar?.parentElement ?? document.body;
     if (ring.parentElement !== host) {
       host.append(ring);
-      const z = host === document.body ? '' : String(Math.max(0, (parseInt(getComputedStyle(dock!).zIndex) || 1) - 1));
-      ring.style.zIndex = z;
+      ring.style.zIndex = host === document.body ? '' : String(Math.max(0, (parseInt(getComputedStyle(bar!).zIndex) || 1) - 1));
     }
     // the ring sits on the pointer; only the move into and out of a frame is eased
     const k = target || w > SIZE + 1 || h > SIZE + 1 ? 0.35 : 1;
