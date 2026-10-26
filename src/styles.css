@@ -10179,3 +10179,7 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .lockhex.denied .lockhex-shackle { transition: none; animation: shackle-tug 1.1s cubic-bezier(0.3, 0, 0.2, 1) 0.15s; }
 @keyframes shackle-tug { 0%, 100% { transform: none; } 18% { transform: translateY(-3.5px); } 30% { transform: none; } 52% { transform: translateY(-2px); } 62% { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .lockhex.denied .lockhex-shackle { animation: none; } }
+
+/* assigned task force row: hover brightens the same gradient (a gradient cannot ease into a plain colour, which flashed) */
+.acs-mtf { transition: box-shadow 0.2s, filter 0.2s; }
+.acs-mtf:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, var(--acs-bg)), var(--acs-bg) 70%); box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 6%, transparent); }
