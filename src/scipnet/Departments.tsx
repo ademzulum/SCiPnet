@@ -1,3 +1,4 @@
+import { plural } from '../lib/plural';
 import { MTFS, mtfById, type Mtf } from '../data/mtf';
 import { masked } from './cardAccess';
 import { cardAccess } from './cardAccess';
@@ -107,7 +108,7 @@ export function Departments({ go }: { go: Go }) {
           <div className="label">Foundation intern · Site-80</div>
           <h2>Mobile Task Forces</h2>
           <p className="dim">
-            {MTFS.length} Einheiten · {MTFS.filter((m) => m.status === 'Im Einsatz').length} im Einsatz
+            {plural(MTFS.length, 'Einheit', 'Einheiten')} · {MTFS.filter((m) => m.status === 'Im Einsatz').length} im Einsatz
           </p>
         </div>
         <EditButton kind="mtf" go={go} />
@@ -222,7 +223,7 @@ function MtfBar({ m }: { m: Mtf }) {
                 <strong>
                   <Redacted text={m.strength} />
                 </strong>
-                <small>{m.log.length} Einträge im Einsatzprotokoll</small>
+                <small>{plural(m.log.length, 'Eintrag', 'Einträge')} im Einsatzprotokoll</small>
               </div>
             </div>
           </div>

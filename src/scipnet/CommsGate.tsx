@@ -1,3 +1,4 @@
+import { plural } from '../lib/plural';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useAccount } from './session';
@@ -21,7 +22,7 @@ const MAX_F = 84;
 const LOCK = 0.12; // close enough to snap onto the signal
 const BARS = 24;
 const CHANNELS = [
-  { name: 'Site-80 · Intern', note: `${THREADS.length} Kanäle`, open: true },
+  { name: 'Site-80 · Intern', note: plural(THREADS.length, 'Kanal', 'Kanäle'), open: true },
   { name: 'RAISA-Verbindung', note: 'nur lesend', open: true },
   { name: 'O5-Rat', note: 'gesperrt', open: false },
 ];

@@ -1,3 +1,4 @@
+import { plural } from '../lib/plural';
 import { useState } from 'react';
 import { masked } from './cardAccess';
 import { LockHex } from './AccessDenied';
@@ -166,7 +167,7 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
               <div className="box-head">
                 <h3>Werdegang</h3>
                 <span className="dim small">
-                  {p.timeline[0]?.year}–{p.timeline[p.timeline.length - 1]?.year} · {p.timeline.length} Stationen
+                  {p.timeline[0]?.year}–{p.timeline[p.timeline.length - 1]?.year} · {plural(p.timeline.length, 'Station', 'Stationen')}
                 </span>
               </div>
               <ol className="career">

@@ -1,3 +1,4 @@
+import { plural } from '../lib/plural';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
@@ -128,7 +129,7 @@ export function respond(input: string): Reply {
   // O5-13 and the Administrator need no biometric scan.
   if (best?.id === 'personnel' && currentAccount() !== 'maynard')
     return {
-      text: `${RETRIEVING[0].text} ${PERSONNEL.length + 2} Personalakten, ${currentAccount() === 'admin' ? 'Administrator' : 'O5-13'}. Die biometrische Prüfung entfällt für Ihre Freigabe, sämtliche Schwärzungen lassen sich aufheben.`,
+      text: `${RETRIEVING[0].text} ${plural(PERSONNEL.length + 2, 'Personalakte', 'Personalakten')}, ${currentAccount() === 'admin' ? 'Administrator' : 'O5-13'}. Die biometrische Prüfung entfällt für Ihre Freigabe, sämtliche Schwärzungen lassen sich aufheben.`,
       audio: RETRIEVING[0].audio,
       action: best.action,
     };

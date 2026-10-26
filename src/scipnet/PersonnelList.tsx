@@ -1,3 +1,4 @@
+import { plural } from '../lib/plural';
 import { useState } from 'react';
 import { cardAccess } from './cardAccess';
 import { EditButton } from './Editor';
@@ -52,7 +53,7 @@ export default function PersonnelList({ go }: { go: Go }) {
           <div className="label">Personalverwaltung · Site-80</div>
           <h2>Personalakten</h2>
           <p className="dim">
-            {PERSONNEL.length + 2} Einträge ·{' '}
+            {plural(PERSONNEL.length + 2, 'Eintrag', 'Einträge')} ·{' '}
             {admin ? `Biometrie überbrückt durch Freigabe ${me.clearance}` : 'Zugriff nur nach biometrischer Prüfung'}
           </p>
         </div>

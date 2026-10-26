@@ -1,3 +1,4 @@
+import { plural } from '../lib/plural';
 import { useState } from 'react';
 import { masked } from './cardAccess';
 import { cardAccess } from './cardAccess';
@@ -55,7 +56,7 @@ export default function ReportList({ go }: { go: Go }) {
           <div className="label">Einsatzdokumentation · Site-80</div>
           <h2>Feldberichte</h2>
           <p className="dim">
-            {REPORTS.length} Berichte · {REPORTS.filter((r) => r.status === 'Offen').length} offen
+            {plural(REPORTS.length, 'Bericht', 'Berichte')} · {REPORTS.filter((r) => r.status === 'Offen').length} offen
           </p>
         </div>
         <EditButton kind="report" go={go} />

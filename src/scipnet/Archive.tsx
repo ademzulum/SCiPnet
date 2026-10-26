@@ -1,3 +1,4 @@
+import { plural } from '../lib/plural';
 import { useEffect, useState } from 'react';
 import { masked } from './cardAccess';
 import { cardAccess } from './cardAccess';
@@ -48,7 +49,7 @@ export default function Archive({ go }: { go: Go }) {
         <div>
           <div className="label">Anomaliendatenbank · Site-80</div>
           <h2>SCP-Archiv</h2>
-          <p className="dim">{SCP.length} Einträge in Verwahrung von Site-80.</p>
+          <p className="dim">{plural(SCP.length, 'Eintrag', 'Einträge')} in Verwahrung von Site-80.</p>
         </div>
         <EditButton kind="scp" go={go} />
         <ScpLogo size={64} />

@@ -18,6 +18,7 @@ These are rules the project owner has given over time. Follow them for every cha
   - **Group of Interest names.**
 - Labels around those names are German, for example "Eindämmungsklasse:" or "Zugewiesene Mobile Task Force:".
 - Wiki content (icons, insignias, mission texts) is CC BY-SA 3.0. Keep a `LICENSE.txt` next to each image folder (`images/archive/acs/`, `images/archive/acs/secondary/`, `images/archive/mtf/`) naming the author of every file.
+- **Counts:** a number shown with a noun takes the singular at 1 ("1 Person", "1 Objekt", "1 Eintrag"). Build such text with `plural()` from `src/lib/plural.ts`.
 - The word "Admonition" never appears anywhere. The warning banner on SCP files is called "Warnhinweis".
 
 ## Shapes and layout

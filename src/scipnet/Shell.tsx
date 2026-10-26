@@ -1,3 +1,4 @@
+import { plural } from '../lib/plural';
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import ScpLogo, { LOGO_MASK as embossLogo } from '../components/ScpLogo';
@@ -402,7 +403,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
             <span className="expiry-count">{secondsLeft}</span>
             <span>
               <strong>Sitzung läuft ab</strong>
-              <span className="dim small">Automatische Abmeldung in {secondsLeft} Sekunden.</span>
+              <span className="dim small">Automatische Abmeldung in {plural(secondsLeft, 'Sekunde', 'Sekunden')}.</span>
             </span>
             <button className="card action" onClick={() => setExpiresAt(savedSession.extend())}>
               VERLÄNGERN

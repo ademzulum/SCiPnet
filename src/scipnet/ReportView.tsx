@@ -1,3 +1,4 @@
+import { plural } from '../lib/plural';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { personById } from '../data/personnel';
@@ -185,7 +186,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
             <button type="button" className="rep-refs-head" aria-expanded={showRefs} onClick={() => setShowRefs((v) => !v)}>
               <h3>Beteiligt</h3>
               <span className="dim small">
-                {objects.length + missing.length} Objekte · {units.length} Mobile Task Forces · {involved.length} Personen
+                {plural(objects.length + missing.length, 'Objekt', 'Objekte')} · {plural(units.length, 'Mobile Task Force', 'Mobile Task Forces')} · {plural(involved.length, 'Person', 'Personen')}
               </span>
               <svg className="rep-chev" viewBox="0 0 12 12" aria-hidden>
                 <path d="M2 4.5l4 4 4-4" />

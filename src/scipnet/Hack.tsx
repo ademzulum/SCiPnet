@@ -1,3 +1,4 @@
+import { plural } from '../lib/plural';
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { play } from '../lib/sound';
@@ -461,7 +462,7 @@ export default function Hack({
         </div>
         <div className="hack-stats">
           <span className={time <= 15 ? 'hack-time low' : 'hack-time'}>{String(Math.max(0, time)).padStart(2, '0')}s</span>
-          <span className="hack-lives" aria-label={`${lives} Versuche`}>
+          <span className="hack-lives" aria-label={plural(lives, 'Versuch', 'Versuche')}>
             {Array.from({ length: LIVES }, (_, i) => (
               <span key={i} className={i < lives ? 'pip on' : 'pip'} />
             ))}
