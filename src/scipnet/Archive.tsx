@@ -9,7 +9,7 @@ import Redacted from './Redacted';
 import { Corrupt } from './Admin';
 import { useAdminUnlocked } from './session';
 import ScpLogo from '../components/ScpLogo';
-import { AcsBar, AddendumBox } from './Acs';
+import { AcsBar, AddendumBox, WarnIcon } from './Acs';
 
 const CLASSES: ObjectClass[] = ['Safe', 'Euclid', 'Keter', 'Thaumiel'];
 
@@ -143,19 +143,20 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
 
         <AcsBar s={s} />
 
-        {s.admonition && (
-          <div className="admonition" role="note">
-            <span className="admonition-icon" aria-hidden>!</span>
+        {s.warning && (
+          <div className="file-warning" role="note">
+            <WarnIcon shape="octagon" />
             <div>
-              <div className="admonition-label">Admonition · Warnhinweis</div>
-              <p>{s.admonition}</p>
+              <div className="file-warning-label">Warnhinweis</div>
+              <p>{s.warning}</p>
             </div>
           </div>
         )}
 
         {s.antimemetic && (
           <div className="box amnestic-note">
-            ⚠ Antimemetischer Inhalt. Text verblasst, sobald Sie wegsehen. Mit dem Mauszeiger festhalten.
+            <WarnIcon />
+            Antimemetischer Inhalt. Text verblasst, sobald Sie wegsehen. Mit dem Mauszeiger festhalten.
           </div>
         )}
 

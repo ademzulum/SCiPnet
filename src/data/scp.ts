@@ -35,7 +35,7 @@ export type ScpObject = {
     status: string;
     subclass?: string;
   };
-  admonition?: string; // warning banner above the file
+  warning?: string; // warning banner above the file
   addenda: Addendum[];
   reports?: string[]; // field report ids
 };
@@ -47,7 +47,7 @@ export const SCP: ScpObject[] = [
     objectClass: 'Euclid',
     clearance: 'Stufe 2',
     acs: { disruption: 'Vlam', risk: 'Caution', status: 'Eingedämmt' },
-    admonition: 'Direkter Sichtkontakt mit dem Lichtpuls ist ohne Schutzbrille Klasse B untersagt.',
+    warning: 'Direkter Sichtkontakt mit dem Lichtpuls ist ohne Schutzbrille Klasse B untersagt.',
     summary: 'Metallischer Körper, der in regelmäßigen Abständen blaues Licht aussendet.',
     containment: [
       'SCP-8041 wird in einem abgedunkelten Wasserbecken (4 × 4 × 3 m) in Sektor 9 von Site-80 gelagert.',
@@ -88,7 +88,7 @@ export const SCP: ScpObject[] = [
     clearance: 'Stufe 3',
     antimemetic: true,
     acs: { disruption: 'Keneq', risk: 'Danger', status: 'Teilweise eingedämmt', subclass: 'Antimemetisch' },
-    admonition: 'Antimemetische Gefährdung. Dieses Dokument kann Ihre Erinnerung an sich selbst löschen. Notieren Sie, dass Sie es geöffnet haben.',
+    warning: 'Antimemetische Gefährdung. Dieses Dokument kann Ihre Erinnerung an sich selbst löschen. Notieren Sie, dass Sie es geöffnet haben.',
     summary: 'Ein Archivregal, an das sich niemand erinnern kann.',
     containment: [
       'Archiv 7 ist bis auf Weiteres gesperrt. Zutritt nur mit aktivem antimemetischem Filter.',
@@ -174,7 +174,7 @@ export const SCP: ScpObject[] = [
     clearance: 'Stufe 4',
     locked: { required: 'Stufe 4', realName: 'Der Totenfunk' },
     acs: { secondary: 'Nachrichtlich', disruption: 'Ekhi', risk: 'Critical', status: 'Nicht eindämmbar' },
-    admonition: 'Die in diesem Dokument genannte Zahlenfolge ist nicht auszuwerten. Zuwiderhandlung wird als Selbstgefährdung gewertet.',
+    warning: 'Die in diesem Dokument genannte Zahlenfolge ist nicht auszuwerten. Zuwiderhandlung wird als Selbstgefährdung gewertet.',
     summary: 'Ein Funkturm, der ein Signal sendet, das nur Verstorbene empfangen.',
     containment: [
       'Das Gelände um SCP-8066 ist als Sperrgebiet "Funkstation 80-Nord" ausgewiesen.',
@@ -201,7 +201,7 @@ export const SCP: ScpObject[] = [
     clearance: 'Stufe 5',
     locked: { required: 'Stufe 5', corrupt: true, realName: 'Raum Null' },
     acs: { containment: 'Esoteric', secondary: 'Thaumiel', disruption: 'Amida', risk: 'Danger', status: 'Fundament', subclass: 'Strukturell' },
-    admonition: 'Freigabe Stufe 5 erforderlich. Jeder Abruf wird dem Administrator persönlich gemeldet.',
+    warning: 'Freigabe Stufe 5 erforderlich. Jeder Abruf wird dem Administrator persönlich gemeldet.',
     summary: 'Das Fundament von Site-80.',
     containment: [
       'SCP-8000 kann und soll nicht eingedämmt werden. Site-80 wurde um das Objekt herum gebaut.',

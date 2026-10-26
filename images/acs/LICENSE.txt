@@ -1,0 +1,4 @@
+Anomaly Classification System icons from the SCP Wiki
+(https://scp-wiki.wikidot.com/anomaly-classification-system-guide),
+component:anomaly-class-bar. Licensed under CC BY-SA 3.0
+(https://creativecommons.org/licenses/by-sa/3.0/).

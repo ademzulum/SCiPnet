@@ -2,121 +2,127 @@ import { AnimatePresence, motion } from 'motion/react';
 import { DISRUPTION, RISK, type Addendum, type ScpObject } from '../data/scp';
 import Redacted from './Redacted';
 
-// The file header after the wiki's Anomaly Classification System: item number
-// and clearance on the left, the four classes in the middle, and the octagon
-// on the right (containment class around the rim, disruption on the left half,
-// risk on the right half). Subclass and status sit in a strip underneath.
+// The file header after the wiki's Anomaly Classification System bar: containment
+// and secondary class with their icons on the left, disruption and risk class on
+// the right with the diamond of all four, subclass and status underneath.
+// Icons: images/acs (SCP Wiki, CC BY-SA 3.0, see LICENSE.txt there).
 
-const CLEARANCE = ['Uneingeschränkt', 'Eingeschränkt', 'Vertraulich', 'Geheim', 'Streng geheim', 'Kosmisch streng geheim'];
-const CLASS_GLYPH: Record<string, string> = {
-  Safe: '■',
-  Euclid: '◉',
-  Keter: '▲',
-  Thaumiel: '✦',
-  Esoteric: '✦',
-  Neutralisiert: '✕',
-};
+const ICONS: Record<string, string> = Object.fromEntries(
+  Object.entries(import.meta.glob('../../images/acs/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>).map(
+    ([path, svg]) => [
+      path.match(/([a-z]+)\.svg$/)![1],
+      // drop the Illustrator header; the black parts take the page's ink colour
+      svg.slice(svg.indexOf('<svg')).replace(/#010101/gi, 'var(--acs-ink)'),
+    ],
+  ),
+);
+const ICON_FOR: Record<string, string> = { neutralisiert: 'neutralized' };
 
-function Pips({ n, of = 5 }: { n: number; of?: number }) {
-  return (
-    <span className="acs-pips" aria-hidden>
-      {Array.from({ length: of }, (_, i) => (
-        <i key={i} className={i < n ? 'on' : ''} />
-      ))}
-    </span>
-  );
+export function AcsIcon({ name, className = '' }: { name: string; className?: string }) {
+  const key = ICON_FOR[name.toLowerCase()] ?? name.toLowerCase();
+  const svg = ICONS[key] ?? ICONS.esoteric;
+  return <span className={`acs-ico ${className}`} aria-hidden dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
-function Octagon({ cls, disruption, risk }: { cls: string; disruption: string; risk: string }) {
-  // regular octagon in a 100 box
-  const pts = '30,2 70,2 98,30 98,70 70,98 30,98 2,70 2,30';
+// Warning sign for notes and banners, drawn inside its box so the stroke is never clipped.
+export function WarnIcon({ shape = 'triangle' }: { shape?: 'triangle' | 'octagon' }) {
+  const oct = shape === 'octagon';
   return (
-    <svg className="acs-octagon" viewBox="0 0 100 100" aria-hidden>
-      <defs>
-        <clipPath id="acs-oct">
-          <polygon points={pts} />
-        </clipPath>
-      </defs>
-      <g clipPath="url(#acs-oct)">
-        <rect x="0" y="0" width="50" height="100" className={`acs-fill dis-${disruption}`} />
-        <rect x="50" y="0" width="50" height="100" className={`acs-fill risk-${risk}`} />
-      </g>
-      <polygon points={pts} className={`acs-rim class-${cls}`} />
-      <line x1="50" y1="6" x2="50" y2="94" className="acs-split" />
-      <circle cx="50" cy="50" r="22" className={`acs-core class-${cls}`} />
-      <text x="50" y="51" className={`acs-glyph class-${cls}`}>
-        {CLASS_GLYPH[cls] ?? '?'}
-      </text>
+    <svg className={`warn-icon ${shape}`} viewBox="0 0 24 24" aria-hidden>
+      {oct ? <polygon points="8,2 16,2 22,8 22,16 16,22 8,22 2,16 2,8" /> : <path d="M12 3 L22 20 H2 Z" />}
+      <line x1="12" y1={oct ? 7 : 9.5} x2="12" y2={oct ? 13.5 : 14.5} />
+      <circle cx="12" cy={oct ? 17 : 17.3} r="0.6" />
     </svg>
   );
 }
 
+const CLEARANCE = ['Uneingeschränkt', 'Eingeschränkt', 'Vertraulich', 'Geheim', 'Streng geheim', 'Kosmisch streng geheim'];
+
 export function AcsBar({ s }: { s: ScpObject }) {
   const level = Number(s.clearance.match(/\d/)?.[0] ?? 1);
   const cls = s.acs.containment ?? s.objectClass;
+  const sec = s.acs.secondary;
   const dis = DISRUPTION.indexOf(s.acs.disruption) + 1;
   const risk = RISK.indexOf(s.acs.risk) + 1;
   return (
-    <section className="acs box">
-      <div className="acs-main">
-        <div className={`acs-item lvl-${level}`}>
-          <span className="label">Item #</span>
-          <strong className="acs-num">{s.id}</strong>
-          <span className="acs-level">
-            <span className="acs-level-bars" aria-hidden>
-              {Array.from({ length: 6 }, (_, i) => (
-                <i key={i} className={i < level ? 'on' : ''} />
-              ))}
-            </span>
-            Level {level} · {CLEARANCE[level - 1]}
+    <section className="acs">
+      <div className={`acs-head lvl-${level}`}>
+        <span>
+          <span className="label">Item #</span> <strong>{s.id}</strong>
+        </span>
+        <span className="acs-level">
+          <span className="acs-level-bars" aria-hidden>
+            {Array.from({ length: 6 }, (_, i) => (
+              <i key={i} className={i < level ? 'on' : ''} style={{ animationDelay: `${0.2 + i * 0.06}s` }} />
+            ))}
           </span>
-        </div>
-        <div className="acs-classes">
-          <div className={`acs-cell class-${cls}`}>
-            <span className="label">Eindämmungsklasse</span>
-            <strong>
-              <span className="acs-icon">{CLASS_GLYPH[cls] ?? '?'}</span>
-              {cls}
-            </strong>
-          </div>
-          <div className={`acs-cell${s.acs.secondary ? ` class-${s.acs.secondary}` : ' none'}`}>
-            <span className="label">Sekundärklasse</span>
-            <strong>
-              {s.acs.secondary && <span className="acs-icon">{CLASS_GLYPH[s.acs.secondary] ?? '◆'}</span>}
-              {s.acs.secondary ?? 'Keine'}
-            </strong>
-          </div>
-          <div className={`acs-cell dis-${s.acs.disruption}`}>
-            <span className="label">Störungsklasse</span>
-            <strong>
-              <span className="acs-num-icon">{dis}</span>
-              {s.acs.disruption}
-            </strong>
-            <Pips n={dis} />
-          </div>
-          <div className={`acs-cell risk-${s.acs.risk}`}>
-            <span className="label">Risikoklasse</span>
-            <strong>
-              <span className="acs-num-icon">{risk}</span>
-              {s.acs.risk}
-            </strong>
-            <Pips n={risk} />
-          </div>
-        </div>
-        <Octagon cls={cls} disruption={s.acs.disruption} risk={s.acs.risk} />
+          Level {level} · {CLEARANCE[level - 1]}
+        </span>
       </div>
-      <div className="acs-strip">
-        {s.acs.subclass && (
-          <span>
-            <span className="label">Subklasse</span> {s.acs.subclass}
+      <div className="acs-grid">
+        <div className={`acs-contain class-${cls}`}>
+          <div className="acs-texts">
+            <span className="label">Eindämmungsklasse:</span>
+            <strong>{cls}</strong>
+            {sec && (
+              <>
+                <span className="label">Sekundärklasse:</span>
+                <strong>{sec}</strong>
+              </>
+            )}
+          </div>
+          <span className="acs-pill">
+            <AcsIcon name={cls} />
+            {sec && <AcsIcon name={sec} className="sec" />}
           </span>
-        )}
-        <span>
-          <span className="label">Status</span> {s.acs.status}
-        </span>
-        <span>
-          <span className="label">Standort</span> Site-80
-        </span>
+        </div>
+
+        <div className="acs-right">
+          <div className="acs-rows">
+            <div className={`acs-row dis-${s.acs.disruption}`}>
+              <div className="acs-texts">
+                <span className="label">Störungsklasse:</span>
+                <strong>{s.acs.disruption}</strong>
+              </div>
+              <span className="acs-badge">
+                <b>{dis}</b>
+                <AcsIcon name={s.acs.disruption} />
+              </span>
+            </div>
+            <div className={`acs-row risk-${s.acs.risk}`}>
+              <div className="acs-texts">
+                <span className="label">Risikoklasse:</span>
+                <strong>{s.acs.risk}</strong>
+              </div>
+              <span className="acs-badge">
+                <b>{risk}</b>
+                <AcsIcon name={s.acs.risk} />
+              </span>
+            </div>
+          </div>
+          {/* the diamond: containment on top, risk right, disruption left, secondary below */}
+          <div className="acs-diamond" aria-hidden>
+            <span className={`class-${cls}`}>
+              <AcsIcon name={cls} />
+            </span>
+            <span className={`risk-${s.acs.risk}`}>
+              <AcsIcon name={s.acs.risk} />
+            </span>
+            <span className={`dis-${s.acs.disruption}`}>
+              <AcsIcon name={s.acs.disruption} />
+            </span>
+            <span className={sec ? 'sec' : 'empty'}>{sec && <AcsIcon name={sec} />}</span>
+          </div>
+        </div>
+
+        <div className={`acs-foot${s.acs.subclass ? '' : ' empty'}`}>
+          <span className="label">Subklasse:</span>
+          <strong>{s.acs.subclass ?? '—'}</strong>
+        </div>
+        <div className={`acs-foot risk-${s.acs.risk}`}>
+          <span className="label">Status:</span>
+          <strong>{s.acs.status}</strong>
+        </div>
       </div>
     </section>
   );
