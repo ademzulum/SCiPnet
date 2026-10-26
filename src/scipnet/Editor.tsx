@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { AcsIcon } from './Acs';
 import { DISRUPTION, RISK, SCP } from '../data/scp';
 import { PERSONNEL } from '../data/personnel';
-import { REPORTS, TEMPLATES, type ReportTemplate } from '../data/reports';
+import { REPORTS, TEMPLATES, factHint, sectionHint, type ReportTemplate } from '../data/reports';
 import { MTFS } from '../data/mtf';
 import { insigniaUrl, photoUrl, reportImageUrl } from '../data/photos';
 import { cachedAccounts, deleteEntry, listAccounts, references, saveEntry, uploadImage, type Kind, type Kinds } from '../data/store';
@@ -19,14 +19,15 @@ import type { Go, Route } from './routes';
 // they are. Text fields accept [[...]] for redacted passages, as everywhere.
 
 type Field =
-  | { k: string; label: string; t: 'text' | 'area' | 'date' | 'number'; req?: boolean; hint?: string }
+  | { k: string; label: string; t: 'text' | 'area' | 'date' | 'number'; req?: boolean; hint?: string; ph?: (row: Obj) => string | undefined }
+  | { k: string; label: string; t: 'group'; hint?: string }
   | { k: string; label: string; t: 'select'; options: () => Opt[]; empty?: string; apply?: (entry: Obj, v: string) => Obj; hint?: string }
-  | { k: string; label: string; t: 'paras' | 'tags' | 'check' | 'classes'; hint?: string }
-  | { k: string; label: string; t: 'multi'; options: () => Opt[] }
+  | { k: string; label: string; t: 'paras' | 'tags' | 'check' | 'classes'; hint?: string; ph?: (row: Obj) => string | undefined }
+  | { k: string; label: string; t: 'multi'; options: () => Opt[]; hint?: string }
   | { k: string; label: string; t: 'accounts'; hint?: string }
   | { k: string; label: string; t: 'slider'; hint?: string }
   | { k: string; label: string; t: 'image'; folder: 'personnel' | 'reports' | 'mtf'; preview: (v?: string) => string | undefined }
-  | { k: string; label: string; t: 'rows'; fields: Field[]; blank: Record<string, unknown> };
+  | { k: string; label: string; t: 'rows'; fields: Field[]; blank: Record<string, unknown>; hint?: string; compact?: boolean };
 
 const LEVELS = ['Stufe 1', 'Stufe 2', 'Stufe 3', 'Stufe 4', 'Stufe 5'];
 const TONES: Opt[] = [
@@ -164,20 +165,12 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       assessment: [],
     }),
     fields: [
-      {
-        k: 'template',
-        label: 'Vorlage',
-        t: 'select',
-        empty: 'Keine',
-        options: () => Object.entries(TEMPLATES).map(([k, t]): Opt => [k, t.label]),
-        apply: applyTemplate,
-        hint: 'Fügt die Eckdaten und Abschnitte der Vorlage hinzu. Nichts wird gelöscht.',
-      },
-      { k: 'id', label: 'Kennung', t: 'text', req: true, hint: 'z. B. FB-80-2026-040' },
-      { k: 'title', label: 'Titel', t: 'text', req: true },
+      { k: '_head', label: 'Kopfdaten', t: 'group', hint: 'Steht oben in der Akte und auf der Karte in der Übersicht.' },
+      { k: 'id', label: 'Kennung', t: 'text', req: true, hint: 'Aktenzeichen, z. B. FB-80-2026-040.' },
+      { k: 'title', label: 'Titel', t: 'text', req: true, hint: 'Kurz und sachlich.' },
       { k: 'date', label: 'Datum', t: 'date' },
-      { k: 'author', label: 'Verfasst von', t: 'select', options: people },
-      { k: 'location', label: 'Einsatzort', t: 'text' },
+      { k: 'author', label: 'Verfasst von', t: 'select', options: people, hint: 'Unterzeichnet den Bericht.' },
+      { k: 'location', label: 'Einsatzort', t: 'text', hint: 'Wo der Bericht spielt.' },
       {
         k: 'classification',
         label: 'Freigabe',
@@ -190,29 +183,33 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
           ['Streng geheim', 'Level 5 · Streng geheim'],
         ],
       },
-      { k: 'status', label: 'Status', t: 'select', options: () => ['Offen', 'Abgeschlossen'] },
-      { k: 'summary', label: 'Zusammenfassung', t: 'area', req: true },
+      { k: 'status', label: 'Status', t: 'select', options: () => ['Offen', 'Abgeschlossen'], hint: 'Offen, solange noch ermittelt oder nachgetragen wird.' },
+      { k: 'summary', label: 'Zusammenfassung', t: 'area', req: true, hint: 'Ein bis zwei Sätze, erscheinen auch auf der Karte.' },
+      { k: '_facts', label: 'Eckdaten und Beteiligte', t: 'group', hint: 'Die Tabelle unter dem Kopf der Akte. Leere Werte erscheinen als „–“; nicht benötigte Zeilen entfernen.' },
       {
         k: 'facts',
-        label: 'Eckdaten',
+        label: 'Zeilen',
         t: 'rows',
+        compact: true,
         blank: { label: '', value: '' },
         fields: [
           { k: 'label', label: 'Bezeichnung', t: 'text' },
-          { k: 'value', label: 'Wert', t: 'text' },
+          { k: 'value', label: 'Wert', t: 'text', ph: (r) => factHint(r.label as string) },
         ],
       },
-      { k: 'objects', label: 'Betroffene Objekte', t: 'multi', options: () => SCP.map((s): Opt => [s.id, `${s.id} · ${s.name}`]) },
+      { k: 'objects', label: 'Betroffene Objekte', t: 'multi', options: () => SCP.map((s): Opt => [s.id, `${s.id} · ${s.name}`]), hint: 'Erscheinen verlinkt in der Akte.' },
       { k: 'units', label: 'Beteiligte Mobile Task Forces', t: 'multi', options: units },
-      { k: 'situation', label: 'Ausgangslage', t: 'paras' },
+      { k: 'involved', label: 'Beteiligtes Personal', t: 'multi', options: people },
+      { k: '_body', label: 'Inhalt', t: 'group', hint: 'Jeder Teil wird in der Akte ein nummerierter Abschnitt. Leere Teile werden nicht angezeigt. Absätze durch eine Leerzeile trennen.' },
+      { k: 'situation', label: 'Ausgangslage', t: 'paras', hint: 'Was vorher war: Anlass und Lage.' },
       {
         k: 'sections',
-        label: 'Weitere Abschnitte',
+        label: 'Abschnitte der Vorlage',
         t: 'rows',
         blank: { title: '', body: [] },
         fields: [
           { k: 'title', label: 'Überschrift', t: 'text' },
-          { k: 'body', label: 'Text', t: 'paras' },
+          { k: 'body', label: 'Text', t: 'paras', ph: (r) => sectionHint(r.title as string) },
         ],
       },
       {
@@ -220,16 +217,17 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
         label: 'Verlauf',
         t: 'rows',
         blank: { time: '', text: '' },
+        hint: 'Optional: der Ablauf mit Uhrzeit, je Ereignis eine Zeile.',
         fields: [
-          { k: 'time', label: 'Zeit', t: 'text' },
+          { k: 'time', label: 'Zeit', t: 'text', ph: () => 'z. B. 02:14' },
           { k: 'text', label: 'Ereignis', t: 'text' },
         ],
       },
-      { k: 'measures', label: 'Maßnahmen', t: 'paras' },
-      { k: 'assessment', label: 'Bewertung und Empfehlung', t: 'paras' },
+      { k: 'measures', label: 'Maßnahmen', t: 'paras', hint: 'Was getan wurde oder getan werden muss, je Absatz eine Maßnahme.' },
+      { k: 'assessment', label: 'Bewertung und Empfehlung', t: 'paras', hint: 'Fazit und weiteres Vorgehen.' },
       {
         k: 'images',
-        label: 'Bilder',
+        label: 'Bildmaterial',
         t: 'rows',
         blank: { caption: '' },
         fields: [
@@ -237,7 +235,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
           { k: 'caption', label: 'Bildunterschrift', t: 'text' },
         ],
       },
-      { k: 'involved', label: 'Beteiligtes Personal', t: 'multi', options: people },
+      { k: '_access', label: 'Zugriff', t: 'group', hint: 'Wer den Bericht lesen darf.' },
       ...ACCESS(false),
     ],
   },
@@ -315,15 +313,71 @@ function ACCESS(level: boolean): Field[] {
   ];
 }
 
-// Adds a template's key data and sections that are not there yet.
-function applyTemplate(entry: Obj, v: string): Obj {
-  const t = TEMPLATES[v as ReportTemplate];
-  if (!t) return entry;
-  const facts = [...((entry.facts as { label: string }[]) ?? [])];
-  for (const label of t.facts) if (!facts.some((f) => f.label === label)) facts.push({ label });
-  const sections = [...((entry.sections as { title: string }[]) ?? [])];
-  for (const title of t.sections) if (!sections.some((s) => s.title === title)) sections.push({ title, body: [] } as never);
-  return { ...entry, ...(facts.length ? { facts } : {}), ...(sections.length ? { sections } : {}) };
+// Switches a report to a template: the old template's key data and sections
+// that are still empty go, the new one's that are missing are added. Anything
+// already written stays.
+function applyTemplate(entry: Obj, v: ReportTemplate): Obj {
+  const t = TEMPLATES[v];
+  const old = TEMPLATES[entry.template as ReportTemplate];
+  type Fact = { label: string; value?: string };
+  type Sec = { title: string; body?: string[] };
+  const facts = ((entry.facts as Fact[]) ?? []).filter((f) => f.value || !old?.facts.some(([n]) => n === f.label));
+  for (const [label] of t.facts) if (!facts.some((f) => f.label === label)) facts.push({ label });
+  const sections = ((entry.sections as Sec[]) ?? []).filter((s) => s.body?.length || !old?.sections.some(([n]) => n === s.title));
+  for (const [title] of t.sections) if (!sections.some((s) => s.title === title)) sections.push({ title, body: [] });
+  const out: Obj = { ...entry, template: v, facts, sections };
+  if (!facts.length) delete out.facts;
+  if (!sections.length) delete out.sections;
+  return out;
+}
+
+// The first step of a new report, and the switch later on: one card per
+// template with what it is for and what it asks for.
+function TemplatePicker({ value, onPick, onClose }: { value?: string; onPick: (t: ReportTemplate) => void; onClose?: () => void }) {
+  return (
+    <div className="tpl-pick">
+      <div className="tpl-pick-head">
+        <div>
+          <h3>Welche Art von Bericht?</h3>
+          <p className="dim small">
+            Die Vorlage legt fest, welche Eckdaten und Abschnitte vorbereitet werden. Alles lässt sich danach ergänzen oder entfernen; die Vorlage kann jederzeit gewechselt werden, ohne dass Geschriebenes verloren geht.
+          </p>
+        </div>
+        {onClose && (
+          <button type="button" className="link" onClick={onClose}>
+            Abbrechen
+          </button>
+        )}
+      </div>
+      <div className="tpl-grid">
+        {(Object.entries(TEMPLATES) as [ReportTemplate, (typeof TEMPLATES)[ReportTemplate]][]).map(([k, t]) => (
+          <button key={k} type="button" className={`card tpl-card${value === k ? ' active' : ''}`} onClick={() => onPick(k)}>
+            <strong>{t.label}</strong>
+            <span className="tpl-use">{t.use}</span>
+            <span className="tpl-ex dim small">z. B. „{t.example}“</span>
+            {t.facts.length + t.sections.length > 0 ? (
+              <span className="tpl-parts small">
+                {t.facts.length > 0 && (
+                  <span>
+                    <em>Eckdaten</em> {t.facts.map(([n]) => n).join(' · ')}
+                  </span>
+                )}
+                {t.sections.length > 0 && (
+                  <span>
+                    <em>Abschnitte</em> {t.sections.map(([n]) => n).join(' · ')}
+                  </span>
+                )}
+              </span>
+            ) : (
+              <span className="tpl-parts small">
+                <span>Nur die Grundfelder, frei gestaltbar.</span>
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export const EDITABLE: Kind[] = ['scp', 'personnel', 'report', 'mtf'];
@@ -364,7 +418,8 @@ const fromParas = (s: string) =>
     .map((p) => p.trim())
     .filter(Boolean);
 
-function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v: unknown) => void }) {
+function Input({ f, value, onChange, row }: { f: Field; value: unknown; onChange: (v: unknown) => void; row?: Obj }) {
+  const ph = 'ph' in f && f.ph && row ? f.ph(row) : undefined;
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -377,6 +432,7 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
           value={(value as string) ?? ''}
           onChange={onChange}
           onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+          placeholder={ph}
           oneLine
         />
       );
@@ -405,7 +461,7 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
     case 'area':
       return <AutoArea required={f.req} value={(value as string) ?? ''} onChange={onChange} />;
     case 'paras':
-      return <ParasInput value={(value as string[]) ?? []} onChange={onChange} />;
+      return <ParasInput value={(value as string[]) ?? []} onChange={onChange} placeholder={ph} />;
     case 'tags':
       return <TagsInput value={(value as string[]) ?? []} onChange={onChange} />;
     case 'accounts':
@@ -482,17 +538,17 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
       const rows = (value as Obj[]) ?? [];
       const put = (i: number, r: Obj) => onChange(rows.map((x, j) => (j === i ? r : x)));
       return (
-        <div className="ed-rows">
+        <div className={`ed-rows${f.compact ? ' compact' : ''}`}>
           {rows.map((r, i) => (
             <div key={i} className="ed-row">
               {f.fields.map((sub) => (
                 <div key={sub.k} className={`ed-field t-${sub.t}`}>
                   <span className="label">{sub.label}</span>
-                  <Input f={sub} value={get(r, sub.k)} onChange={(v) => put(i, set(r, sub.k, v))} />
+                  <Input f={sub} value={get(r, sub.k)} row={r} onChange={(v) => put(i, set(r, sub.k, v))} />
                 </div>
               ))}
               <div className="ed-row-tools">
-                <button type="button" className="link" disabled={!i} onClick={() => onChange(rows.map((x, j) => (j === i - 1 ? r : j === i ? rows[i - 1] : x)))}>
+                <button type="button" className="link" disabled={!i} title="Nach oben" onClick={() => onChange(rows.map((x, j) => (j === i - 1 ? r : j === i ? rows[i - 1] : x)))}>
                   Nach oben
                 </button>
                 <button type="button" className="link" onClick={() => onChange(rows.filter((_, j) => j !== i))}>
@@ -615,11 +671,12 @@ function AccountsInput({ value, onChange }: { value: string[]; onChange: (v: str
 
 // Kept as typed text while editing, so blank lines and commas don't vanish
 // under the cursor.
-function ParasInput({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+function ParasInput({ value, onChange, placeholder }: { value: string[]; onChange: (v: string[]) => void; placeholder?: string }) {
   const [text, setText] = useState(() => value.join('\n\n'));
   return (
     <AutoArea
       value={text}
+      placeholder={placeholder}
       onChange={(v) => {
         setText(v);
         onChange(fromParas(v));
@@ -697,6 +754,9 @@ export default function Editor({ kind, id, go }: { kind: Kind; id?: string; go: 
   const [start] = useState(() => JSON.stringify(entry));
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // a new report starts with the choice of template
+  const [picking, setPicking] = useState(kind === 'report' && !id);
+  const tpl = kind === 'report' ? TEMPLATES[entry.template as ReportTemplate] : undefined;
   // unsaved changes: Shell asks before leaving, the browser before closing
   const dirty = useRef(false);
   dirty.current = JSON.stringify(entry) !== start;
@@ -767,22 +827,57 @@ export default function Editor({ kind, id, go }: { kind: Kind; id?: string; go: 
           </div>
           <span className="dim small">Geschwärzte Passagen in [[doppelte eckige Klammern]].</span>
         </div>
-        <div className="ed-grid">
-          {spec.fields.map((f) => (
-            <div key={f.k} className={`ed-field t-${f.t}`}>
-              <span className="label">
-                {f.label}
-                {'req' in f && f.req ? ' *' : ''}
-              </span>
-              <Input
-                f={f}
-                value={get(entry, f.k)}
-                onChange={(v) => setEntry((o) => ('apply' in f && f.apply ? f.apply(set(o, f.k, v), v as string) : set(o, f.k, v)))}
-              />
-              {'hint' in f && f.hint && f.t !== 'check' && <span className="dim small">{f.hint}</span>}
+        {picking ? (
+          <TemplatePicker
+            value={entry.template as string}
+            onClose={id || entry.template ? () => setPicking(false) : undefined}
+            onPick={(t) => {
+              setEntry((o) => applyTemplate(o, t));
+              setPicking(false);
+            }}
+          />
+        ) : (
+          <>
+            {kind === 'report' && (
+              <div className="tpl-current">
+                <div>
+                  <span className="label">Vorlage</span>
+                  <strong>{tpl?.label ?? 'Keine Vorlage'}</strong>
+                  <span className="dim small">{tpl?.use ?? 'Ältere Berichte haben keine Vorlage. Eine Vorlage ergänzt passende Eckdaten und Abschnitte.'}</span>
+                </div>
+                <button type="button" className="card action ghost" onClick={() => setPicking(true)}>
+                  {tpl ? 'VORLAGE WECHSELN' : 'VORLAGE WÄHLEN'}
+                </button>
+              </div>
+            )}
+            <div className="ed-grid">
+              {spec.fields.map((f) => {
+                const hint = (tpl?.std as Record<string, string> | undefined)?.[f.k] ?? ('hint' in f ? f.hint : undefined);
+                if (f.t === 'group')
+                  return (
+                    <div key={f.k} className="ed-group">
+                      <h3>{f.label}</h3>
+                      {hint && <span className="dim small">{hint}</span>}
+                    </div>
+                  );
+                return (
+                  <div key={f.k} className={`ed-field t-${f.t}`}>
+                    <span className="label">
+                      {f.label}
+                      {'req' in f && f.req ? ' *' : ''}
+                    </span>
+                    <Input
+                      f={f}
+                      value={get(entry, f.k)}
+                      onChange={(v) => setEntry((o) => ('apply' in f && f.apply ? f.apply(set(o, f.k, v), v as string) : set(o, f.k, v)))}
+                    />
+                    {hint && f.t !== 'check' && <span className="dim small ed-hint">{hint}</span>}
+                  </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </>
+        )}
         {error && <p className="ed-error">{error}</p>}
         <div className="editor-actions">
           {id && (
