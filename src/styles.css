@@ -10090,3 +10090,6 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .cp-tile:hover, .cp-tile:focus-visible { border-color: var(--c, var(--accent)); }
 .cp-tile.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .cp-info { min-height: 3em; padding-top: 0.7rem; border-top: 1px dashed var(--line); line-height: 1.5; }
+
+/* overview notices: four tall, then a scroll bar */
+.notice-scroll { max-height: 24.75rem; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }

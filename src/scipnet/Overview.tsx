@@ -177,7 +177,8 @@ export default function Overview({ go }: { go: Go }) {
               </button>
             )}
           </div>
-          <div className="notice-list">
+          {/* four notices tall, then it scrolls */}
+          <div className="notice-list notice-scroll">
             {writing && <NoticeForm onClose={() => setWriting(false)} />}
             {[...NOTICES].reverse().map((n) => (
               <div key={n.id} className={`notice notice-${n.level}`}>
