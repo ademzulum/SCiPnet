@@ -75,7 +75,7 @@ function Bars({ title, rows, go }: { title: string; rows: { label: string; n: nu
         {rows.map((r) => (
           <li key={r.label}>
             <button className="rail-row" disabled={!r.to} onClick={() => r.to && go(r.to)}>
-              <span className="rail-label">{r.lvl ? <LevelPill n={r.lvl} of={5} label={r.label} /> : r.label}</span>
+              <span className="rail-label">{r.lvl ? <LevelPill n={r.lvl} of={5} label={`Level ${r.lvl}`} /> : r.label}</span>
               <span className="rail-n">
                 {r.n}
                 <small>{Math.round((r.n / total) * 100)} %</small>

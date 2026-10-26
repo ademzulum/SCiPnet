@@ -575,8 +575,10 @@ const toLine = (s: string): Line => {
 };
 const fromLine = (l: Line) => (l.type === 'stage' ? `<${l.text ?? ''}>` : l.type === 'say' ? `${l.who ?? ''}: ${l.text ?? ''}` : (l.text ?? ''));
 // Clearance choices, the same in every editor: every level as its pill in a
-// row (pips and name, as in the side rail), the chosen one lit, the others
+// row (pips and level number), the chosen one lit, the others
 // faint. Without a level (Extern, Keine) the choice is a plain chip.
+// Levels go by number; a name that is more than its level (RAISA) is kept.
+const levelName = (n: number, name: string) => (/^(Stufe \d|Uneingeschränkt|Eingeschränkt|Vertraulich|Geheim|Streng geheim)$/.test(name) ? `Level ${n}` : `Level ${n} · ${name}`);
 function LevelChooser({ value, options, empty, level, onChange }: { value: string; options: Opt[]; empty?: string; level: (v: string) => number; onChange: (v: string) => void }) {
   const all: Opt[] = empty ? [['', empty], ...options] : options;
   return (
@@ -586,7 +588,7 @@ function LevelChooser({ value, options, empty, level, onChange }: { value: strin
         const n = v ? level(v) : 0;
         return (
           <button key={v || '-'} type="button" role="radio" aria-checked={v === value} className={`lvl-opt${v === value ? ' on' : ''}`} onClick={() => onChange(v)}>
-            {n > 0 ? <LevelPill n={n} of={5} label={optLabel(o)} /> : <span className="lvl-plain">{optLabel(o)}</span>}
+            {n > 0 ? <LevelPill n={n} of={5} label={levelName(n, optLabel(o))} /> : <span className="lvl-plain">{optLabel(o)}</span>}
           </button>
         );
       })}
