@@ -12,8 +12,8 @@ import { initials } from './Comms';
 import { classKey } from './ReportList';
 import { ClassBadge } from './Archive';
 import { MtfInsignia } from './Departments';
-import { CLEARANCE } from './Acs';
-import { reportImageUrl } from '../data/photos';
+import { AcsIcon, CLEARANCE } from './Acs';
+import { photoUrl, reportImageUrl } from '../data/photos';
 import Picture from './Picture';
 import Pips from './Pips';
 import { useAccount } from './session';
@@ -132,48 +132,26 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
             </div>
           </div>
 
-          <dl className="rep-facts">
-            {(r.facts ?? []).map((f, i) => (
-              <div key={`f${i}`}>
-                <dt>{f.label}</dt>
-                <dd>{f.value ? <Redacted text={f.value} /> : <span className="dim">–</span>}</dd>
-              </div>
-            ))}
+          <div className="rep-meta">
             <div>
-              <dt>Datum</dt>
-              <dd>{fmtDate(r.date)}</dd>
+              <span className="label">Datum</span>
+              <strong>{fmtDate(r.date)}</strong>
             </div>
             <div>
-              <dt>Einsatzort</dt>
-              <dd>
+              <span className="label">Einsatzort</span>
+              <strong>
                 <Redacted text={r.location || '–'} />
-              </dd>
+              </strong>
             </div>
             <div>
-              <dt>Status</dt>
-              <dd>
-                <span className={`state-pill status-${r.status}`}>{r.status}</span>
-              </dd>
+              <span className="label">Verfasst von</span>
+              <strong>{author ? masked('personnel', author, author.name) : <Broken />}</strong>
             </div>
-            {involved.length > 0 && (
-              <div className="wide">
-                <dt>Beteiligte</dt>
-                <dd className="rv-people">
-                  {involved.map((p) =>
-                    typeof p === 'string' ? (
-                      <span key={p} className="small broken-ref">
-                        <Broken />
-                      </span>
-                    ) : (
-                      <button key={p.id} className="link small" onClick={() => go({ view: 'person', id: p.id })}>
-                        {masked('personnel', p, p.name)}
-                      </button>
-                    ),
-                  )}
-                </dd>
-              </div>
-            )}
-          </dl>
+            <div>
+              <span className="label">Status</span>
+              <span className={`state-pill status-${r.status}`}>{r.status}</span>
+            </div>
+          </div>
         </section>
 
         <section className="box doc-section">
@@ -183,42 +161,96 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
           </p>
         </section>
 
-        {(objects.length > 0 || missing.length > 0 || units.length > 0) && (
-          <div className="linked rep-links">
-            {objects.map((s) => (
-              <button key={s.id} className={`linked-card class-edge-${s.objectClass}`} onClick={() => go({ view: 'scp', id: s.id })}>
-                <span className="dim small">{s.id}</span>
-                <strong>{masked('scp', s, s.name)}</strong>
-                <ClassBadge c={s.objectClass} />
-                <span className="linked-arrow">→</span>
-              </button>
-            ))}
-            {missing.map((oid) => (
-              <div key={oid} className="linked-card broken-ref">
-                <span className="dim small">{oid}</span>
-                <strong>
-                  <Broken />
-                </strong>
-              </div>
-            ))}
-            {units.map((m) =>
-              typeof m === 'string' ? (
-                <div key={m} className="linked-card broken-ref">
-                  <strong>
-                    <Broken />
-                  </strong>
+        {(r.facts ?? []).length > 0 && (
+          <section className="box doc-section">
+            <h3>Eckdaten</h3>
+            <dl className="rep-facts">
+              {(r.facts ?? []).map((f, i) => (
+                <div key={i}>
+                  <dt className="label">{f.label}</dt>
+                  <dd>{f.value ? <Redacted text={f.value} /> : <span className="dim">–</span>}</dd>
                 </div>
-              ) : (
-                <button key={m.id} className="linked-card rep-unit" onClick={() => go({ view: 'mtf', id: m.id })}>
-                  <MtfInsignia m={m} size={28} />
-                  <strong>
-                    MTF {m.code} „{masked('mtf', m, m.nickname)}“
-                  </strong>
-                  <span className="linked-arrow">→</span>
-                </button>
-              ),
+              ))}
+            </dl>
+          </section>
+        )}
+
+        {/* who and what took part, grouped: objects, task forces, personnel */}
+        {(objects.length > 0 || missing.length > 0 || units.length > 0 || involved.length > 0) && (
+          <section className="box doc-section rep-refs">
+            <h3>Beteiligt</h3>
+            {(objects.length > 0 || missing.length > 0) && (
+              <div className="rep-group">
+                <span className="label">Objekte</span>
+                <div className="rep-grid">
+                  {objects.map((s) => (
+                    <button key={s.id} className="rep-ref" onClick={() => go({ view: 'scp', id: s.id })}>
+                      <AcsIcon name={s.acs.containment ?? s.objectClass} />
+                      <span className="rep-ref-text">
+                        <strong>{s.id}</strong>
+                        <span>{masked('scp', s, s.name)}</span>
+                      </span>
+                      <ClassBadge c={s.objectClass} />
+                    </button>
+                  ))}
+                  {missing.map((oid) => (
+                    <div key={oid} className="rep-ref broken-ref">
+                      <span className="rep-ref-text">
+                        <strong>{oid}</strong>
+                        <Broken />
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
-          </div>
+            {units.length > 0 && (
+              <div className="rep-group">
+                <span className="label">Mobile Task Forces</span>
+                <div className="rep-grid">
+                  {units.map((m) =>
+                    typeof m === 'string' ? (
+                      <div key={m} className="rep-ref broken-ref">
+                        <Broken />
+                      </div>
+                    ) : (
+                      <button key={m.id} className="rep-ref" onClick={() => go({ view: 'mtf', id: m.id })}>
+                        <MtfInsignia m={m} size={34} />
+                        <span className="rep-ref-text">
+                          <strong>{m.code}</strong>
+                          <span>„{masked('mtf', m, m.nickname)}“</span>
+                        </span>
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+            {involved.length > 0 && (
+              <div className="rep-group">
+                <span className="label">Personal</span>
+                <div className="rep-grid">
+                  {involved.map((p) =>
+                    typeof p === 'string' ? (
+                      <div key={p} className="rep-ref broken-ref">
+                        <Broken />
+                      </div>
+                    ) : (
+                      <button key={p.id} className="rep-ref" onClick={() => go({ view: 'person', id: p.id })}>
+                        <span className="rep-face" aria-hidden>
+                          {p.photo ? <Picture src={photoUrl(p.photo)} alt="" censored={!admin} cover /> : initials(p.name)}
+                        </span>
+                        <span className="rep-ref-text">
+                          <strong>{masked('personnel', p, p.name)}</strong>
+                          <span>{p.role}</span>
+                        </span>
+                      </button>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+          </section>
         )}
 
         {sections.map((s, i) => (
