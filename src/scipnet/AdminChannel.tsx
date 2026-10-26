@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { MESSAGES } from '../data/messages';
+import { MESSAGES, markMessagesSeen } from '../data/messages';
 import { deleteEntry, saveEntry, useEntriesVersion } from '../data/store';
 import type { Go } from './routes';
 import { useAccount } from './session';
@@ -30,6 +30,8 @@ export default function AdminChannel({ go }: { go: Go }) {
     setLeaveGuard(() => !!draft.current);
     return () => setLeaveGuard(null);
   }, []);
+  // opening the channel (and every message arriving while it is open) counts as read
+  useEffect(markMessagesSeen, [MESSAGES.length]);
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
   }, [MESSAGES.length]);

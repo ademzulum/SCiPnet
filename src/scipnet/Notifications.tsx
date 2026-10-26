@@ -4,7 +4,9 @@ import { THREADS } from '../data/threads';
 import { personById } from '../data/personnel';
 import { play } from '../lib/sound';
 import { getPrefs, setPref, usePrefs } from '../lib/prefs';
-import { threadState } from './session';
+import { currentAccount, threadState } from './session';
+import { unseenMessages } from '../data/messages';
+import { refreshKind } from '../data/store';
 import type { Go, Route } from './routes';
 
 // Site notifications: one for an unread message shortly after login, then
@@ -109,6 +111,25 @@ export function useNotifications(paused: boolean) {
           3500,
         ),
       );
+    // The Administrator's messages: announced once each, at login and whenever
+    // a new one arrives (checked every 15 s). The Administrator isn't told
+    // about his own messages.
+    const announced = new Set<string>();
+    const announce = () => {
+      if (currentAccount() === 'admin') return;
+      const fresh = unseenMessages().filter((m) => !announced.has(m.id));
+      if (!fresh.length) return;
+      fresh.forEach((m) => announced.add(m.id));
+      push({
+        level: 'msg',
+        title: 'Der Administrator',
+        text: fresh.length > 1 ? `${fresh.length} neue Nachrichten · Kanal einseitig` : 'Neue Nachricht · Kanal einseitig',
+        route: { view: 'admin-chat' },
+      });
+    };
+    timers.push(setTimeout(announce, unread ? 7000 : 3500));
+    const poll = setInterval(() => void refreshKind('message').then(announce), 15000);
+    timers.push(poll);
     let bag = [...POOL].sort(() => Math.random() - 0.5);
     let useAi = true;
     let alive = true;

@@ -18,3 +18,26 @@ export type AdminMessage = {
 
 export const NOTICES: Notice[] = []; // filled from the database at start, see src/data/store.ts
 export const MESSAGES: AdminMessage[] = []; // filled from the database at start, see src/data/store.ts
+
+// Which of the Administrator's messages this browser has opened. Kept beyond
+// the 15-minute session, so a message sent while nobody was logged in is
+// announced at the next login, like Lena's at the first start.
+const SEEN = 'scipnet.seenMessages';
+function seen(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(SEEN) ?? '[]') as string[];
+  } catch {
+    return [];
+  }
+}
+export const unseenMessages = () => {
+  const s = seen();
+  return MESSAGES.filter((m) => !s.includes(m.id));
+};
+export function markMessagesSeen() {
+  try {
+    localStorage.setItem(SEEN, JSON.stringify(MESSAGES.map((m) => m.id)));
+  } catch {
+    // storage unavailable: the messages are announced again next time
+  }
+}

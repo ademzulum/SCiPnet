@@ -2,7 +2,7 @@ import { personById } from '../data/personnel';
 import { THREADS } from '../data/threads';
 import type { Go } from './routes';
 import { threadState, useAccount } from './session';
-import { MESSAGES } from '../data/messages';
+import { MESSAGES, unseenMessages } from '../data/messages';
 import { Corrupt } from './Admin';
 
 export function initials(name: string) {
@@ -23,6 +23,7 @@ export default function Comms({ go }: { go: Go }) {
   // the Administrator's channel shows once there is a message, or for the Administrator himself
   const showAdmin = MESSAGES.length > 0 || useAccount().editor;
   const lastAdmin = MESSAGES[MESSAGES.length - 1];
+  const adminUnread = unseenMessages().length > 0;
 
   return (
     <div className="page">
@@ -43,11 +44,11 @@ export default function Comms({ go }: { go: Go }) {
         <section className="box">
           <div className="box-head">
             <h3>Kanäle</h3>
-            <span className="dim small">{unread} ungelesen</span>
+            <span className="dim small">{unread + Number(adminUnread)} ungelesen</span>
           </div>
           <div className="thread-list">
             {showAdmin && (
-              <button className="thread-card admin-thread" onClick={() => go({ view: 'admin-chat' })}>
+              <button className={`thread-card admin-thread${adminUnread ? ' unread' : ''}`} onClick={() => go({ view: 'admin-chat' })}>
                 <span className="avatar ghost">
                   <Corrupt text="??" amount={0.6} every={180} />
                 </span>
@@ -62,6 +63,7 @@ export default function Comms({ go }: { go: Go }) {
                   </span>
                   <span className="dim small preview">{lastAdmin ? '▒▒▒ ▒▒▒▒▒ ▒▒▒▒' : 'Keine Nachrichten.'}</span>
                 </span>
+                {adminUnread && <span className="unread-dot" aria-label="Ungelesen" />}
               </button>
             )}
             {THREADS.map((t) => {

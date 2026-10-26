@@ -47,6 +47,22 @@ export async function loadEntries(): Promise<string | null> {
   return null;
 }
 
+// Reloads one kind (e.g. new messages from the Administrator) without a page
+// reload; the pages re-render only when something changed.
+export async function refreshKind(kind: Kind): Promise<void> {
+  const url = import.meta.env.VITE_SUPABASE_URL as string;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+  if (!url || !key) return;
+  const res = await fetch(`${url}/rest/v1/entries?select=data&kind=eq.${kind}&order=position,id`, { headers: { apikey: key } }).catch(() => null);
+  if (!res?.ok) return;
+  const rows = (await res.json()) as { data: never }[];
+  const list = LISTS[kind] as unknown[];
+  const next = rows.map((r) => r.data);
+  if (JSON.stringify(next) === JSON.stringify(list)) return;
+  list.splice(0, list.length, ...next);
+  changed();
+}
+
 // Creates or replaces an entry. `oldId` is the id before editing, so a
 // renamed entry replaces its old row. Returns an error text or null.
 export async function saveEntry<K extends Kind>(kind: K, entry: Kinds[K], oldId?: string): Promise<string | null> {
