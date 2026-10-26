@@ -6,7 +6,6 @@ import { GOIS, goiById, type Goi } from '../data/gois';
 import { SCP, mtfIds } from '../data/scp';
 import type { Go } from './routes';
 import Redacted from './Redacted';
-import ScpLogo from '../components/ScpLogo';
 import scpMark from '../../images/scipnet_terminal/scp_logo.svg';
 import { ClassBadge } from './Archive';
 import mcdLogo from '../../images/archive/group_of_interest/mcd_logo.svg';
@@ -61,7 +60,6 @@ export function ArchiveHub({ go }: { go: Go }) {
           <h2>Archiv</h2>
           <p className="dim">Wählen Sie einen Bestand.</p>
         </div>
-        <ScpLogo size={64} />
       </div>
       <div className="hub-grid">
         {parts.map((p, i) => (
@@ -113,7 +111,6 @@ export function Departments({ go }: { go: Go }) {
           </p>
         </div>
         <EditButton kind="mtf" go={go} />
-        {MTFS[1] && <MtfInsignia m={MTFS[1]} size={60} />}
       </div>
 
       <div className="archive-tools">
