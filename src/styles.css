@@ -10106,9 +10106,9 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .ed-grid > .t-accounts { grid-column: 1 / -1; }
 /* new access-denied screen */
 .denied2 { padding: 0; overflow: hidden; border-color: color-mix(in srgb, var(--accent) 60%, transparent); background-color: var(--card-bg, var(--bg)); }
-.denied2-strip { display: flex; justify-content: space-between; gap: 1rem; padding: 0.5rem 1.2rem; font-size: 10px; letter-spacing: 0.2em; color: var(--bg); background: var(--accent); }
+.denied2-strip { display: flex; justify-content: space-between; gap: 1rem; padding: 0.5rem 1.2rem; font-size: 10px; letter-spacing: 0.2em; color: var(--bg); }
 .denied2-body { display: flex; align-items: center; gap: 1.4rem; padding: 1.6rem 1.4rem 1rem; }
-.denied2-icon { flex: none; width: 72px; height: 72px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; animation: shake 0.35s; }
+
 .denied2-text h2 { margin: 0 0 0.3rem; color: var(--accent); letter-spacing: 0.18em; }
 .denied2-text p { margin: 0; }
 .denied2-levels { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; padding: 0 1.4rem 1.2rem; }
@@ -10120,3 +10120,25 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .denied2-log .live-dot { background: var(--accent); }
 .corrupt-note { position: fixed; z-index: 30; top: 84px; left: 50%; transform: translateX(-50%); padding: 0.5rem 1rem; font-size: 12px; color: #b58cff; border-color: color-mix(in srgb, #b58cff 50%, transparent); background-color: var(--card-bg, var(--bg)); }
 @media (max-width: 640px) { .denied2-body { flex-direction: column; text-align: center; } .denied2-levels { grid-template-columns: 1fr; } }
+
+/* the lock in its hexagon (denied screen, psych gate); only the lock moves */
+.lockhex { flex: none; width: 72px; height: 72px; fill: none; stroke: var(--gate, var(--accent)); stroke-width: 2; stroke-linejoin: round; transition: stroke 0.3s; }
+.lockhex-lock { transform-box: fill-box; transform-origin: 50% 50%; }
+.lockhex.denied .lockhex-lock { animation: lockshake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97); }
+.lockhex-shackle { transform-box: fill-box; transform-origin: 100% 100%; transition: transform 0.45s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.lockhex.open .lockhex-shackle { transform: translateY(-5px); }
+.denied2 { --gate: var(--accent); }
+.denied2.gate-locked { --gate: color-mix(in srgb, var(--fg) 55%, transparent); border-color: var(--line); }
+.denied2.gate-open { --gate: #4fbf7a; border-color: color-mix(in srgb, #4fbf7a 55%, transparent); }
+.denied2-strip { background: var(--gate); }
+.denied2-text h2 { color: var(--gate); }
+.denied2.gate-locked .denied2-text h2 { color: var(--hi); }
+.denied2-log .live-dot { background: var(--gate); }
+.denied2-log .action { margin-left: auto; }
+/* list cards: closed or above clearance get stripes, corrupted ones scramble */
+.restricted-tag { color: var(--accent); letter-spacing: 0.12em; font-weight: 600; }
+.crt[data-theme='scip'] .restricted { background-image: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--accent) 7%, transparent) 10px 20px), var(--surface); }
+.corrupted .corrupt { position: relative; display: inline-block; }
+.corrupted .corrupt::before, .corrupted .corrupt::after { content: attr(data-text); position: absolute; inset: 0; pointer-events: none; opacity: 0.7; }
+.corrupted .corrupt::before { color: #ff2a55; transform: translateX(-1px); clip-path: inset(0 0 50% 0); }
+.corrupted .corrupt::after { color: #00e1ff; transform: translateX(1px); clip-path: inset(50% 0 0 0); }

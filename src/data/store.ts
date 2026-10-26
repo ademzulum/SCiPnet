@@ -125,11 +125,11 @@ export async function deleteEntry(kind: Kind, id: string): Promise<string | null
 }
 
 // Accounts that can be picked as readers (admins only; empty when unavailable).
-let accounts: { id: string; email: string }[] | null = null;
+let accounts: { id: string; name: string }[] | null = null;
 export async function listAccounts() {
   if (accounts || !supabase) return accounts ?? [];
   const { data, error } = await supabase.rpc('list_accounts');
-  if (!error) accounts = data as { id: string; email: string }[];
+  if (!error) accounts = data as { id: string; name: string }[];
   return accounts ?? [];
 }
 export const cachedAccounts = () => accounts ?? [];

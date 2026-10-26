@@ -43,8 +43,8 @@ export default function AdminLogin({ onClose, onDone }: { onClose: () => void; o
         <div className="label">Administrator-Ebene · Freigabe Stufe 6</div>
         <h2>Anmeldung</h2>
         <label>
-          <span className="label">Kennung (E-Mail)</span>
-          <input className="search" type="email" autoComplete="username" autoFocus required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <span className="label">Kennung</span>
+          <input className="search" type="text" autoComplete="username" autoFocus required value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <label>
           <span className="label">Passwort</span>

@@ -519,7 +519,7 @@ function ClassPicker({ value, onChange }: { value: string; onChange: (v: string)
   );
 }
 
-// Supabase accounts to share a closed entry with, by e-mail.
+// Supabase accounts to share a closed entry with, by name.
 function AccountsInput({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
   const [list, setList] = useState(cachedAccounts);
   useEffect(() => {
@@ -535,7 +535,7 @@ function AccountsInput({ value, onChange }: { value: string[]; onChange: (v: str
           className={value.includes(a.id) ? 'chip active' : 'chip'}
           onClick={() => onChange(value.includes(a.id) ? value.filter((v) => v !== a.id) : [...value, a.id])}
         >
-          {a.email}
+          {a.name}
         </button>
       ))}
     </div>

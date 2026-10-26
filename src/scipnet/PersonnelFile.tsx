@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { LockHex } from './AccessDenied';
+import { READER_LABEL, READER_LEVEL, levelOf } from '../data/access';
+import Pips from './Pips';
 import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
 import { personById, type Person } from '../data/personnel';
@@ -267,6 +270,7 @@ function FileTab({ p }: { p: Person }) {
 }
 
 function PsychTab({ p, onGranted }: { p: Person; onGranted: () => void }) {
+  const me = useAccount();
   const [phase, setPhase] = useState<'locked' | 'asking' | 'opening' | 'granted' | 'denied'>(() =>
     psychAccess.has(p.id) ? 'granted' : 'locked',
   );
@@ -373,30 +377,65 @@ function PsychTab({ p, onGranted }: { p: Person; onGranted: () => void }) {
     );
   }
 
+  // same frame as the access-denied screen: neutral while locked, red when
+  // refused, green while the profile opens
   const denied = phase === 'denied';
   const opening = phase === 'opening';
+  const need = levelOf(p.psych.required) || READER_LEVEL[me.id] + 1;
   return (
-    <section className={`box psych-lock${denied ? ' denied' : ''}${opening ? ' opening' : ''}`}>
-      <span className="psych-lock-icon" aria-hidden>
-        <svg viewBox="0 0 24 24">
-          <rect x="5" y="11" width="14" height="10" rx="2" />
-          <path className="shackle" d="M8 11V8a4 4 0 0 1 8 0v3" />
-        </svg>
-      </span>
-      <div className="label">Psychologisches Profil · {p.id}</div>
-      <h3>{denied ? 'Zugriff verweigert' : opening ? 'Zugriff gewährt' : 'Geschützte Akte'}</h3>
-      <p className="dim">
-        {denied
-          ? `Ihre Freigabe reicht nicht aus. Erforderlich: ${p.psych.required}.`
-          : opening
-            ? 'Profil wird entschlüsselt …'
-            : 'Beurteilung, Kennwerte, Neuralscan und EEG sind nur auf Anfrage einsehbar.'}
-      </p>
-      {!denied && !opening && (
-        <button className="card action" onClick={request} disabled={phase === 'asking'}>
-          {phase === 'asking' ? <span className="dots">ANFRAGE LÄUFT</span> : 'ZUGRIFF ANFORDERN'}
-        </button>
+    <section className={`box denied2 gate-${denied ? 'denied' : opening ? 'open' : 'locked'}`}>
+      <div className="denied2-strip">
+        <span>PSYCHOLOGISCHES PROFIL</span>
+        <span>{p.id}</span>
+      </div>
+      <div className="denied2-body">
+        <LockHex state={denied ? 'denied' : opening ? 'open' : 'locked'} />
+        <div className="denied2-text">
+          <h2>{denied ? 'ZUGRIFF VERWEIGERT' : opening ? 'ZUGRIFF GEWÄHRT' : 'GESCHÜTZTE AKTE'}</h2>
+          <p>
+            {denied
+              ? 'Ihre Freigabe reicht für dieses Profil nicht aus.'
+              : opening
+                ? 'Profil wird entschlüsselt …'
+                : 'Beurteilung, Kennwerte, Neuralscan und EEG sind nur auf Anfrage einsehbar.'}
+          </p>
+        </div>
+      </div>
+      {denied && (
+        <div className="denied2-levels">
+          <div>
+            <span className="label">Erforderlich</span>
+            <strong>{p.psych.required ?? `Level ${need}`}</strong>
+            <span className="denied2-pips need">
+              <Pips n={need} of={6} />
+            </span>
+          </div>
+          <div>
+            <span className="label">Ihre Freigabe</span>
+            <strong>{READER_LABEL[me.id]}</strong>
+            <span className="denied2-pips have">
+              <Pips n={READER_LEVEL[me.id]} of={6} />
+            </span>
+          </div>
+        </div>
       )}
+      <div className="denied2-log">
+        {denied ? (
+          <>
+            <span className="live-dot" />
+            Anfrage abgelehnt und an die Abteilung für Psychologie gemeldet.
+          </>
+        ) : opening ? (
+          <>
+            <span className="live-dot" />
+            Anfrage bestätigt.
+          </>
+        ) : (
+          <button className="card action" onClick={request} disabled={phase === 'asking'}>
+            {phase === 'asking' ? <span className="dots">ANFRAGE LÄUFT</span> : 'ZUGRIFF ANFORDERN'}
+          </button>
+        )}
+      </div>
     </section>
   );
 }

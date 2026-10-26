@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { canRead } from '../data/access';
+import { cardAccess } from './cardAccess';
 import { useAccount } from './session';
 import { Broken } from './Admin';
 import { EditButton } from './Editor';
@@ -80,11 +80,12 @@ export default function ReportList({ go }: { go: Go }) {
         <AnimatePresence mode="popLayout" initial={false}>
           {items.map((r) => {
             const author = personById(r.author);
+            const ca = cardAccess('report', r, account);
             return (
               <motion.button
                 key={r.id}
                 {...FILTER_CARD}
-                className={`report-card card2 cl-${classKey(r.classification)}`}
+                className={`report-card card2 cl-${classKey(r.classification)}${ca.cls}`}
                 onClick={() => go({ view: 'report', id: r.id })}
               >
                 <span className="card2-top">
@@ -101,8 +102,8 @@ export default function ReportList({ go }: { go: Go }) {
                     </span>
                   </span>
                 </span>
-                <strong className="report-card-title">{r.title}</strong>
-                <span className="dim report-card-summary">{canRead('report', r, account) ? r.summary : 'Inhalt gesperrt.'}</span>
+                <strong className="report-card-title">{ca.title(r.title)}</strong>
+                <span className="dim report-card-summary">{ca.summary(r.summary, r.summary)}</span>
                 {/* the place gets its own line above the footer, clear of the signer */}
                 <span className="rep-place">
                   <span className="label">Einsatzort</span>

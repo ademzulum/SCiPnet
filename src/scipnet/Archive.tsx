@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { cardAccess } from './cardAccess';
 import AccessDenied from './AccessDenied';
-import { READER_LEVEL, canRead, levelOf } from '../data/access';
+import { READER_LEVEL, levelOf } from '../data/access';
 import { useAccount } from './session';
 import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
@@ -71,11 +72,13 @@ export default function Archive({ go }: { go: Go }) {
       {/* same card as the field reports; the class colour takes the place of the classification colour */}
       <div className="report-grid filter-grid">
         <AnimatePresence mode="popLayout" initial={false}>
-          {items.map((s) => (
+          {items.map((s) => {
+            const ca = cardAccess('scp', s, account);
+            return (
             <motion.button
               key={s.id}
               {...FILTER_CARD}
-              className={`report-card archive-card scp-card2 acs class-${s.acs.containment ?? s.objectClass} class-edge-${s.objectClass}${s.locked && !solved ? ' locked' : ''}`}
+              className={`report-card archive-card scp-card2 acs class-${s.acs.containment ?? s.objectClass} class-edge-${s.objectClass}${s.locked && !solved ? ' locked' : ''}${ca.cls}`}
               onClick={() => go({ view: 'scp', id: s.id })}
             >
               <span className="scp-card2-top">
@@ -92,10 +95,10 @@ export default function Archive({ go }: { go: Go }) {
                 ) : s.locked?.corrupt ? (
                   <Corrupt text={s.name} amount={0.15} every={300} />
                 ) : (
-                  s.name
+                  ca.title(s.name)
                 )}
               </strong>
-              <span className="dim report-card-summary">{(s.locked && !solved) || !canRead('scp', s, account) ? 'Inhalt gesperrt.' : s.summary}</span>
+              <span className="dim report-card-summary">{s.locked && !solved ? 'Inhalt gesperrt.' : ca.summary(s.summary, s.summary)}</span>
               <span className="scp-card2-foot">
                 <span className={`scp-card2-cls dis-${s.acs.disruption}`}>
                   <AcsIcon name={s.acs.disruption} />
@@ -106,10 +109,11 @@ export default function Archive({ go }: { go: Go }) {
                   {s.acs.risk}
                 </span>
                 <ClearanceLevel c={s.clearance} />
-                {((s.locked && !solved) || !canRead('scp', s, account)) && <span className="lock">GESPERRT</span>}
+                {((s.locked && !solved) || ca.blocked || ca.closed) && <span className="lock">{ca.closed ? 'BESCHRÄNKT' : 'GESPERRT'}</span>}
               </span>
             </motion.button>
-          ))}
+            );
+          })}
         </AnimatePresence>
       </div>
       {!items.length && <p className="dim">Keine Einträge gefunden.</p>}

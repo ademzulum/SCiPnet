@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { cardAccess } from './cardAccess';
 import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
 import { FILTER_CARD } from './filterAnim';
@@ -83,7 +84,7 @@ export default function PersonnelList({ go }: { go: Go }) {
             <motion.button
               key={p.id}
               {...FILTER_CARD}
-              className={`folder st-${p.status}${p.id.startsWith('X-') ? ' external' : ''}`}
+              className={`folder st-${p.status}${p.id.startsWith('X-') ? ' external' : ''}${cardAccess('personnel', p, me.id).cls}`}
               onClick={() => go({ view: 'person', id: p.id })}
             >
               <span className="folder-tab">{p.id}</span>
@@ -92,14 +93,16 @@ export default function PersonnelList({ go }: { go: Go }) {
                   {p.photo ? <Picture src={photoUrl(p.photo)} alt="" censored={!admin} cover /> : initials(p.name)}
                 </span>
                 <span className="folder-info">
-                  <strong className="folder-name">{p.name}</strong>
+                  <strong className="folder-name">{cardAccess('personnel', p, me.id).title(p.name)}</strong>
                   <span className="small">{p.role}</span>
                   <span className="dim small">{p.department}</span>
                 </span>
                 <span className={`state-pill status-${p.status}`}>{p.status}</span>
               </span>
               {/* always a quote line, so cards in a row line up even without one */}
-              {p.quote ? (
+              {cardAccess('personnel', p, me.id).cls ? (
+                <span className="folder-quote">{cardAccess('personnel', p, me.id).summary(p.quote ?? p.summary, null)}</span>
+              ) : p.quote ? (
                 <span className="folder-quote">
                   „<Redacted text={p.quote} />“
                 </span>

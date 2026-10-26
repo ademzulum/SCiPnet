@@ -125,6 +125,8 @@ function setAdmin(on: boolean) {
 // Real login with the Supabase account. Returns an error text or null.
 export async function adminLogin(email: string, password: string): Promise<string | null> {
   if (!supabase) return 'Keine Verbindung zur Datenbank.';
+  // a name without @ stands for <name>@scipnet.local, see supabase/004_usernames.sql
+  if (!email.includes('@')) email = `${email.toLowerCase()}@scipnet.local`;
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return 'Kennung oder Passwort falsch.';
   if (!isAdmin(data.session)) {

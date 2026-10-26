@@ -7,6 +7,22 @@ import { Corrupt } from './Admin';
 import Pips from './Pips';
 import type { Go, Route } from './routes';
 
+// The lock in its hexagon, shared by this screen and the psych profile gate.
+// Only the lock moves: it shakes when access is refused and its shackle
+// springs open when access is granted.
+export function LockHex({ state }: { state: 'locked' | 'denied' | 'open' }) {
+  return (
+    <svg className={`lockhex ${state}`} viewBox="0 0 64 64" aria-hidden>
+      <path className="lockhex-frame" d="M32 4l24 14v28L32 60 8 46V18z" />
+      <g className="lockhex-lock">
+        <path className="lockhex-shackle" d="M24 30v-5a8 8 0 0 1 16 0v5" />
+        <rect x="21" y="30" width="22" height="16" rx="2" />
+        <path d="M32 36v4" />
+      </g>
+    </svg>
+  );
+}
+
 // The screen for a file the reader may not open: too low a clearance, a file
 // sealed until the signal puzzle, or one that doesn't exist for this account
 // (closed, deleted). Shows what is required against what the reader holds,
@@ -47,12 +63,7 @@ export default function AccessDenied({
           <span>{id}</span>
         </div>
         <div className="denied2-body">
-          <svg className="denied2-icon" viewBox="0 0 64 64" aria-hidden>
-            <path d="M32 4l24 14v28L32 60 8 46V18z" />
-            <path d="M24 30v-5a8 8 0 0 1 16 0v5" />
-            <rect x="21" y="30" width="22" height="16" rx="2" />
-            <path d="M32 36v4" />
-          </svg>
+          <LockHex state="denied" />
           <div className="denied2-text">
             <h2>{corrupt ? <Corrupt text={title} amount={0.12} every={160} /> : title}</h2>
             <p>

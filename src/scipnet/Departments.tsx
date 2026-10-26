@@ -1,4 +1,5 @@
 import { MTFS, mtfById, type Mtf } from '../data/mtf';
+import { cardAccess } from './cardAccess';
 import { EditButton } from './Editor';
 import { GOIS, goiById, type Goi } from '../data/gois';
 import { SCP, mtfIds } from '../data/scp';
@@ -12,7 +13,7 @@ import mcdMark from '../../images/archive/group_of_interest/mcd_logomark.svg';
 import valravnLogo from '../../images/archive/group_of_interest/valravn_logo.svg';
 import valravnMark from '../../images/archive/group_of_interest/valravn_logomark.svg';
 import Pips from './Pips';
-import { useCleared } from './session';
+import { useAccount, useCleared } from './session';
 import { insigniaUrl } from '../data/photos';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -90,6 +91,7 @@ const STATUS_FILTERS = ['Alle', 'Einsatzbereit', 'Im Einsatz', 'Bereitschaft', '
 // its insignia, status pill and readiness, a mission line and a footer with
 // its specialties. Filterable by status.
 export function Departments({ go }: { go: Go }) {
+  const account = useAccount().id;
   const [filter, setFilter] = useState<(typeof STATUS_FILTERS)[number]>('Alle');
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
@@ -130,7 +132,7 @@ export function Departments({ go }: { go: Go }) {
             <motion.button
               key={m.id}
               {...FILTER_CARD}
-              className={`report-card scp-card2 mtf-card2 st-${stKey(m)}`}
+              className={`report-card scp-card2 mtf-card2 st-${stKey(m)}${cardAccess('mtf', m, account).cls}`}
               onClick={() => go({ view: 'mtf', id: m.id })}
             >
               <span className="scp-card2-top">
@@ -146,9 +148,9 @@ export function Departments({ go }: { go: Go }) {
                   {m.readiness}%
                 </span>
               </span>
-              <strong className="report-card-title">„{m.nickname}“</strong>
+              <strong className="report-card-title">„{cardAccess('mtf', m, account).title(m.nickname)}“</strong>
               <span className="dim report-card-summary">
-                <Redacted text={m.mission[0]} />
+                {cardAccess('mtf', m, account).summary(m.mission[0] ?? '', <Redacted text={m.mission[0] ?? ''} />)}
               </span>
               <span className="scp-card2-foot">
                 {m.specialty.slice(0, 2).map((t) => (
