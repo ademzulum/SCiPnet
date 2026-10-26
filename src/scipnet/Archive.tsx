@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
 import { FILTER_CARD } from './filterAnim';
 import { SCP, scpById, type ObjectClass } from '../data/scp';
@@ -42,6 +43,7 @@ export default function Archive({ go }: { go: Go }) {
           <h2>SCP-Archiv</h2>
           <p className="dim">{SCP.length} Einträge in Verwahrung von Site-80.</p>
         </div>
+        <EditButton kind="scp" go={go} />
         <ScpLogo size={64} />
       </div>
 
@@ -123,9 +125,12 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
   if (!s) return <p className="page">Eintrag nicht gefunden.</p>;
 
   const back = (
-    <button className="link back" onClick={() => go({ view: 'scps' })}>
-      ← SCP-Archiv
-    </button>
+    <>
+      <EditButton kind="scp" id={s.id} go={go} />
+      <button className="link back" onClick={() => go({ view: 'scps' })}>
+        ← SCP-Archiv
+      </button>
+    </>
   );
 
   if (s.locked && sealed)

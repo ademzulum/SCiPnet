@@ -1,3 +1,5 @@
+import type { Kind } from '../data/store';
+
 export type Route =
   | { view: 'overview' }
   | { view: 'personnel' }
@@ -16,6 +18,7 @@ export type Route =
   | { view: 'goi'; id: string }
   | { view: 'assistant'; ask?: string } // ask: a question sent on arrival (side rail)
   | { view: 'comms' }
-  | { view: 'thread'; id: string };
+  | { view: 'thread'; id: string }
+  | { view: 'edit'; kind: Kind; id?: string }; // the Administrator's editor; no id: new entry
 
 export type Go = (r: Route) => void;

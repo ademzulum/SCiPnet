@@ -9997,3 +9997,43 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   background: #07090b;
 }
 .boot-error button { font: inherit; padding: 0.5rem 1rem; color: inherit; background: none; border: 1px solid #d7263d; border-radius: 6px; }
+
+/* ---- the Administrator's editor ---------------------------------------- */
+.edit-btn { white-space: nowrap; }
+.archive-hero .edit-btn { margin-left: auto; margin-right: 1rem; align-self: center; }
+.page > .edit-btn { float: right; }
+.editor { display: grid; gap: 1.2rem; padding: 1.4rem; background-color: var(--card-bg, var(--bg)); }
+.editor-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 0.6rem; }
+.editor-head h2 { margin: 0.2rem 0 0; }
+.ed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 0.9rem 1rem; }
+.ed-field { display: grid; gap: 0.35rem; align-content: start; min-width: 0; }
+.ed-field .search { min-width: 0; width: 100%; box-sizing: border-box; }
+.ed-field textarea.search { resize: vertical; line-height: 1.5; }
+.ed-field select.search { appearance: auto; }
+.ed-grid > .t-area,
+.ed-grid > .t-paras,
+.ed-grid > .t-rows,
+.ed-grid > .t-multi { grid-column: 1 / -1; }
+.ed-field.t-check { grid-template-columns: auto 1fr; align-items: center; }
+.ed-field.t-check .label { order: 2; }
+.ed-multi { flex-wrap: wrap; }
+.ed-rows { display: grid; gap: 0.7rem; }
+.ed-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+  gap: 0.6rem 0.8rem;
+  padding: 0.8rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+.ed-row > .t-paras { grid-column: 1 / -1; }
+.ed-row-tools { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 1rem; }
+.ed-rows > .action { justify-self: start; }
+.ed-image { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem; }
+.ed-image img { width: 64px; height: 64px; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card-bg, transparent); }
+.ed-image .action { cursor: pointer; }
+.ed-error { margin: 0; color: var(--accent); }
+.editor-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; padding-top: 1rem; border-top: 1px dashed var(--line); }
+.editor-spacer { flex: 1; }
+.action.ghost { border-color: var(--line); }
+.action.danger { border-color: var(--accent); color: var(--accent); }

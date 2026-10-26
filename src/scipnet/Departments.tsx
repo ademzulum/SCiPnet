@@ -1,4 +1,5 @@
 import { MTFS, mtfById, type Mtf } from '../data/mtf';
+import { EditButton } from './Editor';
 import { GOIS, goiById, type Goi } from '../data/gois';
 import { SCP } from '../data/scp';
 import type { Go } from './routes';
@@ -47,7 +48,7 @@ const GLOBE = (
 export function ArchiveHub({ go }: { go: Go }) {
   const parts = [
     { key: 'scps', label: 'SCP-Objekte', sub: 'Anomaliendatenbank mit Eindämmungsakten.', n: SCP.length, to: { view: 'scps' } as const, icon: <span className="hub-scp-mark" style={{ '--img': `url("${scpMark}")` } as React.CSSProperties} /> },
-    { key: 'departments', label: 'Abteilungen', sub: 'Interne Stellen der Foundation. Mobile Task Forces.', n: MTFS.length, to: { view: 'departments' } as const, icon: <MtfInsignia m={MTFS[1]} size={52} /> },
+    { key: 'departments', label: 'Abteilungen', sub: 'Interne Stellen der Foundation. Mobile Task Forces.', n: MTFS.length, to: { view: 'departments' } as const, icon: (MTFS[1] ?? MTFS[0]) && <MtfInsignia m={MTFS[1] ?? MTFS[0]} size={52} /> },
     { key: 'gois', label: 'Interessengruppen', sub: 'Organisationen außerhalb der Foundation mit Bezug zum Anomalen.', n: GOIS.length, to: { view: 'gois' } as const, icon: GLOBE },
   ];
   return (
@@ -108,7 +109,8 @@ export function Departments({ go }: { go: Go }) {
             {MTFS.length} Einheiten · {MTFS.filter((m) => m.status === 'Im Einsatz').length} im Einsatz
           </p>
         </div>
-        <MtfInsignia m={MTFS[1]} size={60} />
+        <EditButton kind="mtf" go={go} />
+        {MTFS[1] && <MtfInsignia m={MTFS[1]} size={60} />}
       </div>
 
       <div className="archive-tools">
@@ -269,6 +271,7 @@ export function MtfView({ id, go }: { id: string; go: Go }) {
   const objects = SCP.filter((s) => s.mtf === m.id);
   return (
     <div className="page">
+      <EditButton kind="mtf" id={m.id} go={go} />
       {back(go, { view: 'departments' }, 'Mobile Task Forces')}
       <article className={`scp-doc mtf-doc st-${stKey(m)}`}>
         <MtfBar m={m} />

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
 import { FILTER_CARD } from './filterAnim';
 import { REPORTS, type Report } from '../data/reports';
@@ -52,6 +53,7 @@ export default function ReportList({ go }: { go: Go }) {
             {REPORTS.length} Berichte · {REPORTS.filter((r) => r.status === 'Offen').length} offen
           </p>
         </div>
+        <EditButton kind="report" go={go} />
       </div>
 
       <div className="archive-tools">

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
 import { personById, type Person } from '../data/personnel';
 import { REPORTS } from '../data/reports';
@@ -77,6 +78,7 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
 
   return (
     <div className="page page-top">
+      {!p.id.startsWith('A-') && !p.id.startsWith('O5') && <EditButton kind="personnel" id={p.id} go={go} />}
       <button className="link back" onClick={() => go({ view: 'personnel' })}>
         ← Personalakten
       </button>

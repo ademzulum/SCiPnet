@@ -14,6 +14,8 @@ import GlitchLayer from './GlitchLayer';
 import { ScipaDestruct, SelfDestruct } from './Admin';
 import { ADMIN_PERSON, O5_PERSON } from '../data/personnel';
 import AdminLogin from './AdminLogin';
+import Editor from './Editor';
+import { useEntriesVersion } from '../data/store';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
 import { ArchiveHub, Departments, GoiList, GoiView, MtfView } from './Departments';
@@ -115,7 +117,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
 
   // Remember the page for reloads; never the O5-13 or Administrator file.
   useEffect(
-    () => savedSession.setRoute(['o5', 'admin', 'hack'].includes(route.view) ? { view: 'personnel' } : route),
+    () => savedSession.setRoute(['o5', 'admin', 'hack', 'edit'].includes(route.view) ? { view: 'personnel' } : route),
     [route],
   );
 
@@ -150,6 +152,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   const [hacking, setHacking] = useState(false);
   const o5Solved = useO5Unlocked();
   const adminIn = useAdminSession();
+  useEntriesVersion(); // pages re-render after an entry was saved or deleted
   // the Administrator's login form; opening that file without a session shows it
   const [login, setLogin] = useState(false);
   // Before the puzzle is solved, opening the O5-13 file goes straight into the
@@ -160,7 +163,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   }, [route.view, o5Solved, destruct]);
   // logged out elsewhere (or the session ran out): leave the Administrator file
   useEffect(() => {
-    if (route.view === 'admin' && !adminIn) setRoute({ view: 'personnel' });
+    if ((route.view === 'admin' || route.view === 'edit') && !adminIn) setRoute({ view: 'personnel' });
   }, [route.view, adminIn]);
   const locked = meltdown || hacking;
   const notes = useNotifications(locked);
@@ -233,6 +236,8 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
         return <Comms go={go} />;
       case 'thread':
         return <ThreadView id={route.id} go={go} />;
+      case 'edit':
+        return <Editor key={`${route.kind}-${route.id}`} kind={route.kind} id={route.id} go={go} />;
     }
   })();
 

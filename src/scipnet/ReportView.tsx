@@ -1,4 +1,5 @@
 import { personById } from '../data/personnel';
+import { EditButton } from './Editor';
 import { reportById } from '../data/reports';
 import { scpForReport } from '../data/scp';
 import type { Go } from './routes';
@@ -22,6 +23,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
 
   return (
     <div className="page page-wide page-top">
+      <EditButton kind="report" id={r.id} go={go} />
       <button className="link back" onClick={() => go({ view: 'reports' })}>
         ← Feldberichte
       </button>

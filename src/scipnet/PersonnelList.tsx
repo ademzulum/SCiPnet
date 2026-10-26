@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
 import { FILTER_CARD } from './filterAnim';
 import { ADMIN_PERSON, O5_PERSON, PERSONNEL } from '../data/personnel';
@@ -54,6 +55,7 @@ export default function PersonnelList({ go }: { go: Go }) {
             {admin ? `Biometrie überbrückt durch Freigabe ${me.clearance}` : 'Zugriff nur nach biometrischer Prüfung'}
           </p>
         </div>
+        <EditButton kind="personnel" go={go} />
         <span className={admin ? 'bio-chip ok' : 'bio-chip'}>
           <span className="live-dot" /> {admin ? 'BYPASS' : 'BIOMETRIE'}
         </span>
