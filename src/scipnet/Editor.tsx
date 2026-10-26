@@ -325,8 +325,19 @@ const fromParas = (s: string) =>
 function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v: unknown) => void }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   switch (f.t) {
     case 'text':
+      // one line of text that wraps instead of scrolling sideways; Enter adds no line break
+      return (
+        <AutoArea
+          required={f.req}
+          value={(value as string) ?? ''}
+          onChange={onChange}
+          onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+          oneLine
+        />
+      );
     case 'date':
       return <input className="search" type={f.t} required={f.req} value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)} />;
     case 'number':
@@ -350,7 +361,7 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
       );
     }
     case 'area':
-      return <textarea className="search" rows={3} required={f.req} value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)} />;
+      return <AutoArea required={f.req} value={(value as string) ?? ''} onChange={onChange} />;
     case 'paras':
       return <ParasInput value={(value as string[]) ?? []} onChange={onChange} />;
     case 'tags':
@@ -395,9 +406,12 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
       return (
         <div className="ed-image">
           {src ? <img src={src} alt="" /> : <span className="dim small">Kein Bild</span>}
-          <label className="card action">
+          {/* a real button opens the hidden file input, so only the button itself does */}
+          <button type="button" className="card action" disabled={busy} onClick={() => fileRef.current?.click()}>
             {busy ? 'LÄDT…' : 'HOCHLADEN'}
-            <input
+          </button>
+          <input
+              ref={fileRef}
               type="file"
               accept="image/png,image/jpeg,image/webp,image/svg+xml"
               hidden
@@ -410,12 +424,12 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
                 setBusy(false);
                 if (r.url) onChange(r.url);
                 else setErr(r.error ?? null);
+                e.target.value = '';
               }}
             />
-          </label>
           {!!value && (
-            <button type="button" className="link" onClick={() => onChange('')}>
-              Entfernen
+            <button type="button" className="card action ghost" onClick={() => onChange('')}>
+              ENTFERNEN
             </button>
           )}
           {err && <span className="ed-error small">{err}</span>}
@@ -430,10 +444,10 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
           {rows.map((r, i) => (
             <div key={i} className="ed-row">
               {f.fields.map((sub) => (
-                <label key={sub.k} className={`ed-field t-${sub.t}`}>
+                <div key={sub.k} className={`ed-field t-${sub.t}`}>
                   <span className="label">{sub.label}</span>
                   <Input f={sub} value={get(r, sub.k)} onChange={(v) => put(i, set(r, sub.k, v))} />
-                </label>
+                </div>
               ))}
               <div className="ed-row-tools">
                 <button type="button" className="link" disabled={!i} onClick={() => onChange(rows.map((x, j) => (j === i - 1 ? r : j === i ? rows[i - 1] : x)))}>
@@ -562,27 +576,68 @@ function AccountsInput({ value, onChange }: { value: string[]; onChange: (v: str
 function ParasInput({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
   const [text, setText] = useState(() => value.join('\n\n'));
   return (
-    <textarea
-      className="search"
-      rows={Math.min(14, Math.max(3, text.split('\n').length + 1))}
+    <AutoArea
       value={text}
-      onChange={(e) => {
-        setText(e.target.value);
-        onChange(fromParas(e.target.value));
+      onChange={(v) => {
+        setText(v);
+        onChange(fromParas(v));
       }}
+    />
+  );
+}
+
+// A text field that grows with its text, so nothing hides behind a scroll bar.
+function AutoArea({
+  value,
+  onChange,
+  oneLine,
+  ...rest
+}: { value: string; onChange: (v: string) => void; oneLine?: boolean } & Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'onChange'>) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const fit = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight + 2}px`;
+  };
+  useEffect(fit, [value]);
+  // the width settles after fonts and the page animation; measure again then
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let w = el.clientWidth;
+    const ro = new ResizeObserver(() => {
+      if (el.clientWidth !== w) {
+        w = el.clientWidth;
+        fit();
+      }
+    });
+    ro.observe(el);
+    void document.fonts?.ready.then(fit);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <textarea
+      ref={ref}
+      className={`search ed-auto${oneLine ? ' one-line' : ''}`}
+      rows={oneLine ? 1 : 3}
+      value={value}
+      onChange={(e) => onChange(oneLine ? e.target.value.replace(/\n/g, ' ') : e.target.value)}
+      {...rest}
     />
   );
 }
 function TagsInput({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
   const [text, setText] = useState(() => value.join(', '));
   return (
-    <input
-      className="search"
+    <AutoArea
+      oneLine
       value={text}
-      onChange={(e) => {
-        setText(e.target.value);
+      onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+      onChange={(v) => {
+        setText(v);
         onChange(
-          e.target.value
+          v
             .split(',')
             .map((t) => t.trim())
             .filter(Boolean),
@@ -672,14 +727,14 @@ export default function Editor({ kind, id, go }: { kind: Kind; id?: string; go: 
         </div>
         <div className="ed-grid">
           {spec.fields.map((f) => (
-            <label key={f.k} className={`ed-field t-${f.t}`}>
+            <div key={f.k} className={`ed-field t-${f.t}`}>
               <span className="label">
                 {f.label}
                 {'req' in f && f.req ? ' *' : ''}
               </span>
               <Input f={f} value={get(entry, f.k)} onChange={(v) => setEntry((o) => set(o, f.k, v))} />
               {'hint' in f && f.hint && f.t !== 'check' && <span className="dim small">{f.hint}</span>}
-            </label>
+            </div>
           ))}
         </div>
         {error && <p className="ed-error">{error}</p>}

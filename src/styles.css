@@ -10151,3 +10151,13 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .ed-slider input::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--hi); border: 2px solid var(--accent); }
 .ed-grid > .t-slider { grid-column: span 2; }
 @media (max-width: 700px) { .ed-grid > .t-slider { grid-column: 1 / -1; } }
+
+/* editor: text grows with its content; one-line fields wrap */
+.ed-auto { resize: none; overflow: hidden; line-height: 1.5; }
+.ed-auto.one-line { white-space: pre-wrap; }
+.ed-image .action { white-space: nowrap; }
+.ed-field textarea.ed-auto { resize: none; }
+.ed-image { display: grid; grid-template-columns: 64px auto; grid-auto-flow: column; grid-template-rows: auto auto; justify-content: start; gap: 0.4rem 0.8rem; align-items: center; }
+.ed-image > img, .ed-image > .dim { grid-row: 1 / span 2; }
+.ed-image > .action { justify-self: start; }
+.ed-image > .ed-error { grid-column: 1 / -1; }
