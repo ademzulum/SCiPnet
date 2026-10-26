@@ -9,6 +9,7 @@ import Redacted from './Redacted';
 import { Corrupt } from './Admin';
 import { useAdminUnlocked } from './session';
 import ScpLogo from '../components/ScpLogo';
+import { AcsBar, AddendumBox } from './Acs';
 
 const CLASSES: ObjectClass[] = ['Safe', 'Euclid', 'Keter', 'Thaumiel'];
 
@@ -140,20 +141,17 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
           </div>
         </header>
 
-        <div className="scp-meta">
-          <div className={`box meta-tile class-edge-${s.objectClass}`}>
-            <span className="label">Objektklasse</span>
-            <ClassBadge c={s.objectClass} />
+        <AcsBar s={s} />
+
+        {s.admonition && (
+          <div className="admonition" role="note">
+            <span className="admonition-icon" aria-hidden>!</span>
+            <div>
+              <div className="admonition-label">Admonition · Warnhinweis</div>
+              <p>{s.admonition}</p>
+            </div>
           </div>
-          <div className="box meta-tile">
-            <span className="label">Freigabe</span>
-            <strong>{s.clearance}</strong>
-          </div>
-          <div className="box meta-tile">
-            <span className="label">Standort</span>
-            <strong>Site-80</strong>
-          </div>
-        </div>
+        )}
 
         {s.antimemetic && (
           <div className="box amnestic-note">
@@ -182,34 +180,7 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
         {s.addenda.length > 0 && (
           <section className="addenda">
             {s.addenda.map((a, i) => (
-              <div key={a.title} className={`box addendum${open === i ? ' open' : ''}`}>
-                <button className="addendum-head" onClick={() => setOpen(open === i ? null : i)}>
-                  <span>
-                    <span className="label">Addendum {String.fromCharCode(65 + i)}</span>
-                    {a.title}
-                  </span>
-                  <span className="addendum-arrow">{open === i ? '−' : '+'}</span>
-                </button>
-                <AnimatePresence initial={false}>
-                  {open === i && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25 }}
-                      style={{ overflow: 'hidden' }}
-                    >
-                      <div className="addendum-body">
-                        {a.body.map((p, j) => (
-                          <p key={j} className="fade-text">
-                            <Redacted text={p} />
-                          </p>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              <AddendumBox key={a.title} a={a} n={i} id={s.id} open={open === i} toggle={() => setOpen(open === i ? null : i)} />
             ))}
           </section>
         )}

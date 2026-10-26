@@ -2,6 +2,20 @@
 
 export type ObjectClass = 'Safe' | 'Euclid' | 'Keter' | 'Thaumiel' | 'Neutralisiert';
 
+export type Disruption = 'Dark' | 'Vlam' | 'Keneq' | 'Ekhi' | 'Amida';
+export type Risk = 'Notice' | 'Caution' | 'Warning' | 'Danger' | 'Critical';
+export const DISRUPTION: Disruption[] = ['Dark', 'Vlam', 'Keneq', 'Ekhi', 'Amida'];
+export const RISK: Risk[] = ['Notice', 'Caution', 'Warning', 'Danger', 'Critical'];
+
+// Body lines of a transcript read "Name: text"; a line in <...> is a stage direction.
+export type Addendum = {
+  kind: 'recovery' | 'test' | 'interview' | 'incident' | 'note';
+  title: string;
+  meta?: [string, string][]; // labelled header rows: date, lead, ...
+  body: string[];
+  sign?: string; // sign-off under a note
+};
+
 export type ScpObject = {
   id: string;
   name: string;
@@ -12,7 +26,17 @@ export type ScpObject = {
   summary: string;
   containment: string[];
   description: string[];
-  addenda: { title: string; body: string[] }[];
+  // Anomaly Classification System: the bar at the top of each file
+  acs: {
+    containment?: string; // shown instead of objectClass, e.g. Esoteric for a Thaumiel secondary
+    secondary?: string;
+    disruption: Disruption;
+    risk: Risk;
+    status: string;
+    subclass?: string;
+  };
+  admonition?: string; // warning banner above the file
+  addenda: Addendum[];
   reports?: string[]; // field report ids
 };
 
@@ -22,6 +46,8 @@ export const SCP: ScpObject[] = [
     name: 'Der Seegrund-Puls',
     objectClass: 'Euclid',
     clearance: 'Stufe 2',
+    acs: { disruption: 'Vlam', risk: 'Caution', status: 'Eingedämmt' },
+    admonition: 'Direkter Sichtkontakt mit dem Lichtpuls ist ohne Schutzbrille Klasse B untersagt.',
     summary: 'Metallischer Körper, der in regelmäßigen Abständen blaues Licht aussendet.',
     containment: [
       'SCP-8041 wird in einem abgedunkelten Wasserbecken (4 × 4 × 3 m) in Sektor 9 von Site-80 gelagert.',
@@ -35,14 +61,18 @@ export const SCP: ScpObject[] = [
     ],
     addenda: [
       {
+        kind: 'recovery',
         title: 'Bergungsprotokoll 80-041-A',
+        meta: [['Datum', '03.06.2026'], ['Fundort', 'Waldsee, Schwarzwald'], ['Einheit', 'Bergungsteam Süd']],
         body: [
           'Geborgen am 03.06.2026 aus einem Waldsee im Schwarzwald durch Bergungsteam Süd.',
           'Zivile Zeugen erhielten Amnestika Klasse A. Keine Verletzten.',
         ],
       },
       {
+        kind: 'test',
         title: 'Testprotokoll 80-041-T3',
+        meta: [['Datum', '14.07.2026'], ['Leitung', 'Forschung Sektor 9'], ['Ergebnis', 'Abgebrochen']],
         body: [
           'Wassertemperatur auf 12 °C erhöht. Pulsintervall sank auf 19 Minuten.',
           'Test nach [[Vorfall 80-041-Δ (Verlust einer Messsonde)]] abgebrochen.',
@@ -57,6 +87,8 @@ export const SCP: ScpObject[] = [
     objectClass: 'Keter',
     clearance: 'Stufe 3',
     antimemetic: true,
+    acs: { disruption: 'Keneq', risk: 'Danger', status: 'Teilweise eingedämmt', subclass: 'Antimemetisch' },
+    admonition: 'Antimemetische Gefährdung. Dieses Dokument kann Ihre Erinnerung an sich selbst löschen. Notieren Sie, dass Sie es geöffnet haben.',
     summary: 'Ein Archivregal, an das sich niemand erinnern kann.',
     containment: [
       'Archiv 7 ist bis auf Weiteres gesperrt. Zutritt nur mit aktivem antimemetischem Filter.',
@@ -71,11 +103,15 @@ export const SCP: ScpObject[] = [
     ],
     addenda: [
       {
+        kind: 'interview',
         title: 'Interview mit Archivarin L. Hofstetter',
+        meta: [['Befragte', 'L. Hofstetter, Archiv 7'], ['Vorwort', 'Hofstetter verließ Archiv 7 nach 6 Stunden ohne Erinnerung an den Aufenthalt.']],
         body: [
+          '<Hofstetter hält ein Notizbuch in beiden Händen.>',
           'Hofstetter: "Ich weiß, dass ich dort war. Ich habe es aufgeschrieben."',
           'Interviewer: "Was steht in Ihren Notizen?"',
           'Hofstetter: "Dass ich nicht hätte hingehen sollen."',
+          '<Hofstetter schlägt das Notizbuch auf. Die Seiten sind leer.>',
         ],
       },
     ],
@@ -86,6 +122,7 @@ export const SCP: ScpObject[] = [
     name: 'Der stille Gast',
     objectClass: 'Euclid',
     clearance: 'Stufe 2',
+    acs: { disruption: 'Vlam', risk: 'Warning', status: 'Eingedämmt', subclass: 'Visuell' },
     summary: 'Eine Gestalt, die nur auf Kameraaufnahmen von Zelle 14-B sichtbar ist.',
     containment: [
       'Zelle 14-B ist dauerhaft mit vier unabhängigen Kameras zu überwachen.',
@@ -98,8 +135,13 @@ export const SCP: ScpObject[] = [
     ],
     addenda: [
       {
+        kind: 'incident',
         title: 'Vorfall 80-019-1',
-        body: ['Stromausfall von 11 Sekunden während Wartung. Siehe Feldbericht FB-80-2026-011.'],
+        meta: [['Dauer', '11 Sekunden'], ['Ursache', 'Wartung der Stromversorgung'], ['Bericht', 'FB-80-2026-011']],
+        body: [
+          'Während des Ausfalls zeichnete Kamera 3 auf Notstrom weiter. SCP-8019 stand auf und wandte sich der Kamera zu.',
+          'Nach Rückkehr der Stromversorgung saß SCP-8019 wieder an seinem Platz. Die Sitzposition war um 40 cm verschoben.',
+        ],
       },
     ],
     reports: ['FB-80-2026-011'],
@@ -109,6 +151,7 @@ export const SCP: ScpObject[] = [
     name: 'Kuckucksuhr ohne Zeiger',
     objectClass: 'Safe',
     clearance: 'Stufe 1',
+    acs: { disruption: 'Dark', risk: 'Notice', status: 'Eingedämmt' },
     summary: 'Eine Kuckucksuhr, deren Kuckuck jeweils kurz vor einem Erdbeben ruft.',
     containment: ['SCP-8002 hängt im Büro der Standortdirektion. Batterien sind nicht nötig.'],
     description: [
@@ -117,8 +160,10 @@ export const SCP: ScpObject[] = [
     ],
     addenda: [
       {
+        kind: 'note',
         title: 'Notiz der Standortdirektorin',
-        body: ['"Sie ist laut. Sie ist zuverlässig. Sie bleibt."'],
+        body: ['Sie ist laut. Sie ist zuverlässig. Sie bleibt.'],
+        sign: 'Standortdirektion Site-80',
       },
     ],
   },
@@ -128,6 +173,8 @@ export const SCP: ScpObject[] = [
     objectClass: 'Keter',
     clearance: 'Stufe 4',
     locked: { required: 'Stufe 4', realName: 'Der Totenfunk' },
+    acs: { secondary: 'Nachrichtlich', disruption: 'Ekhi', risk: 'Critical', status: 'Nicht eindämmbar' },
+    admonition: 'Die in diesem Dokument genannte Zahlenfolge ist nicht auszuwerten. Zuwiderhandlung wird als Selbstgefährdung gewertet.',
     summary: 'Ein Funkturm, der ein Signal sendet, das nur Verstorbene empfangen.',
     containment: [
       'Das Gelände um SCP-8066 ist als Sperrgebiet "Funkstation 80-Nord" ausgewiesen.',
@@ -140,7 +187,9 @@ export const SCP: ScpObject[] = [
     ],
     addenda: [
       {
+        kind: 'note',
         title: 'Notiz der Standortdirektion',
+        sign: 'Standortdirektion Site-80',
         body: ['Die Liste wird nicht mehr ausgewertet. Wer sie liest, findet irgendwann einen bekannten Namen.'],
       },
     ],
@@ -151,6 +200,8 @@ export const SCP: ScpObject[] = [
     objectClass: 'Thaumiel',
     clearance: 'Stufe 5',
     locked: { required: 'Stufe 5', corrupt: true, realName: 'Raum Null' },
+    acs: { containment: 'Esoteric', secondary: 'Thaumiel', disruption: 'Amida', risk: 'Danger', status: 'Fundament', subclass: 'Strukturell' },
+    admonition: 'Freigabe Stufe 5 erforderlich. Jeder Abruf wird dem Administrator persönlich gemeldet.',
     summary: 'Das Fundament von Site-80.',
     containment: [
       'SCP-8000 kann und soll nicht eingedämmt werden. Site-80 wurde um das Objekt herum gebaut.',
@@ -162,8 +213,10 @@ export const SCP: ScpObject[] = [
     ],
     addenda: [
       {
+        kind: 'note',
         title: 'Vermerk des Administrators',
-        body: ['"Manche Türen sichern wir nicht, um etwas drinnen zu halten. Sondern damit niemand vergisst, warum es sie gibt."'],
+        body: ['Manche Türen sichern wir nicht, um etwas drinnen zu halten. Sondern damit niemand vergisst, warum es sie gibt.'],
+        sign: 'Der Administrator',
       },
     ],
   },
