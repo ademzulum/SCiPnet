@@ -9004,7 +9004,6 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .acs-mtf-nick { opacity: 0.75; font-weight: 600; }
 .acs-mtf-status { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.7; }
 .acs-mtf-go { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
-.acs-grid:has(.acs-mtf) > .acs-foot { border-radius: 0 !important; }
 @media (max-width: 640px) {
   .acs-mtf { flex-wrap: wrap; }
   .acs-mtf-status, .acs-mtf-go { display: none; }
@@ -9655,3 +9654,58 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 /* level meters everywhere use the personnel pips (Pips.tsx); colour via --st */
 .acs-pips .pips, .goi-threat .pips { margin-left: 0; }
 .goi-threat { --st: currentColor; }
+
+/* ---- SCP list: the clearance level is a pill in the level's colour ---- */
+.scp-card2-lvl {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--lvl) 55%, transparent);
+  background: color-mix(in srgb, var(--lvl) 12%, transparent);
+  color: var(--lvl);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  --st: var(--lvl);
+}
+.scp-card2-lvl .pips { margin-left: 0; }
+.crt[data-mode='light'] .scp-card2-lvl { color: color-mix(in srgb, var(--lvl) 70%, #000); }
+
+/* ---- SCP file header: larger pips next to the level badge ---- */
+.acs-pips .pip { width: 11px; height: 11px; }
+.acs-pips .pips { gap: 4px; }
+
+/* ---- GoI overview: cards share one height; the footer sits at the bottom ---- */
+.goi-grid { align-items: stretch; }
+.goi-card-body { flex: 1; }
+.goi-card-foot { margin-top: auto; }
+
+/* ---- side rails: centred in the visible area between header and dock ----
+   Each rail is a sticky column as tall as the visible area and centres its
+   boxes in it, so the space above and below is the same on every page. */
+.shell-main { container-type: size; }
+@media (min-width: 1500px) {
+  .rail {
+    height: 100cqh;
+    justify-content: center;
+    align-self: start;
+  }
+  .rail > * { flex: none; }
+  .rail-log { max-height: 100%; }
+}
+@media (min-width: 1500px) {
+  /* sticks below the scroll area's top padding; a rail taller than the
+     visible area starts at the top instead of spilling over both edges */
+  .rail { top: 2rem; justify-content: safe center; }
+}
+/* compact guide rows so the SCP list's right rail fits a 900 px window */
+.rail-guide button { padding: 0.22rem 0.4rem; }
+.rail-guide .acs-ico { width: 22px; height: 22px; }
+@media (min-width: 1500px) {
+  .rail { gap: 0.6rem; }
+  .rail-box { padding: 0.85rem 1rem; }
+}

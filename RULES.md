@@ -21,6 +21,8 @@ These are rules the project owner has given over time. Follow them for every cha
 ## Shapes and layout
 
 - **Corners:** cards, banners, chips and panels are rounded with `var(--radius)`, or `999px` for pills. Do not use square cards or cut corners made with `clip-path`.
+- **Same element, same corners:** a component looks the same in every file. Never change its corners (or other shape) depending on what sits next to it, e.g. a `:has()` or `:last-child` rule that squares the subclass and status boxes only when a task force row follows. Check at least two files with different content (SCP-8019 with an MTF row, SCP-8002 without).
+- **Cards in one row:** cards in a grid share one height (stretch). Any spare space goes above the card footer, which sits at the bottom.
 - **No tilted shapes:**
   - No skewed or rotated decoration: stamps, badges, tags and bars stay at 0°.
   - Rotation is only for real motion: a spinning ring, a gauge.
@@ -34,6 +36,7 @@ These are rules the project owner has given over time. Follow them for every cha
   - a soft colour wash on a solid `--card-bg`
   - a dashed line above the card footer
 - **Side rails:**
+  - Both rails sit centred in the visible area between header and dock, with equal space above and below. A rail fits a 1600×900 window; tighten its boxes before letting it overflow.
   - Every tab has side rails on wide screens.
   - The right rail shows context for the current section. When a new section appears, give it its own rail content.
 
