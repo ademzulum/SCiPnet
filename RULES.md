@@ -87,6 +87,8 @@ These are rules the project owner has given over time. Follow them for every cha
 - **S.C.I.P.A.:**
   - Explanations of site concepts (classes, clearance and so on) come from her script in `src/data/assistant.ts`, not from the model.
   - Answers can show ACS icons as chips (`icons`).
+  - The conversation stays when the tab is left. A side rail question continues it; she never greets again in the same page load.
+- **Field report cards:** no round icon badge next to the report ID; it looks cartoonish.
 
 ## Working
 
