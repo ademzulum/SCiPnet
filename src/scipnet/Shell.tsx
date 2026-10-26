@@ -307,7 +307,8 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       <main className="shell-main">
         <AnimatePresence mode="wait">
           <motion.div
-            key={JSON.stringify(route) + commsOk}
+            // a side rail question (ask) goes to the open S.C.I.P.A. chat, not a new page
+            key={JSON.stringify(route.view === 'assistant' ? { view: 'assistant' } : route) + commsOk}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}

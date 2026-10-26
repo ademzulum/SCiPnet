@@ -54,9 +54,6 @@ let lastUnknown = -1;
 // Recorded lines the model's answers can reuse (matched by their opening sentence).
 const SPOKEN: Answer[] = [...YES_NO, ...UNKNOWN, REFUSE, ...RETRIEVING, WELCOME_BACK, { text: 'Ich werde Sie nicht heiraten.', audio: 'will_not_marry_you.mp3' }];
 let visited = false; // later visits in the same page load greet with WELCOME_BACK
-// The conversation survives leaving the tab, so a question from the side rail
-// continues it instead of starting over with a new greeting.
-let kept: Msg[] | null = null;
 
 // Answers built from the site data: SCP numbers, report ids, people, time.
 function fromData(q: string): Reply | null {
@@ -268,11 +265,7 @@ function applyCommands(text: string, notes: Notices): Reply {
 
 export default function Assistant({ go, onSelfDestruct, notes, ask: question }: { go: Go; onSelfDestruct: () => void; notes: Notices; ask?: string }) {
   const [greeting] = useState(() => (visited ? WELCOME_BACK : pick(GREETINGS)));
-  const [resumed] = useState(() => kept !== null);
-  const [log, setLog] = useState<Msg[]>(() => kept ?? [{ from: 'scipa', text: greeting.text }]);
-  useEffect(() => {
-    kept = log;
-  }, [log]);
+  const [log, setLog] = useState<Msg[]>([{ from: 'scipa', text: greeting.text }]);
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const [speaking, setSpeaking] = useState(false);
@@ -299,7 +292,7 @@ export default function Assistant({ go, onSelfDestruct, notes, ask: question }: 
 
   useEffect(() => {
     visited = true;
-    if (!resumed && speak(greeting.audio, () => setSpeaking(false))) setSpeaking(true);
+    if (speak(greeting.audio, () => setSpeaking(false))) setSpeaking(true);
     return () => {
       clearTimeout(timer.current);
       voice?.pause();
