@@ -8,10 +8,10 @@ import type { Go } from './routes';
 // The file header after the wiki's Anomaly Classification System bar: containment
 // and secondary class with their icons on the left, disruption and risk class on
 // the right with the octagon emblem of all four, subclass and status underneath.
-// Icons: images/acs (SCP Wiki, CC BY-SA 3.0, see LICENSE.txt there).
+// Icons: images/archive/acs (SCP Wiki, CC BY-SA 3.0, see LICENSE.txt there).
 
 const ICONS: Record<string, string> = Object.fromEntries(
-  Object.entries(import.meta.glob('../../images/acs/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>).map(
+  Object.entries(import.meta.glob('../../images/archive/acs/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>).map(
     ([path, svg]) => [
       path.match(/([a-z]+)\.svg$/)![1],
       // drop the Illustrator header; the black parts take the page's ink colour

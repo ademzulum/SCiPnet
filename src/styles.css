@@ -9071,12 +9071,6 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 }
 .goi-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px color-mix(in srgb, var(--g-accent) 22%, transparent); }
 .goi-card-text { display: flex; flex-direction: column; gap: 0.35rem; }
-.goi-mark { width: 64px; height: 64px; flex: none; }
-.goi-mark-frame { fill: none; stroke: var(--g-accent); stroke-width: 2.2; }
-.goi-mark-frame.thin { stroke-width: 0.8; }
-.goi-mark-fill { fill: var(--g-accent); }
-.goi-mark-eye { fill: var(--g-bg); }
-.goi-mark-text { fill: var(--g-accent); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 15px; font-weight: 600; text-anchor: middle; }
 .goi-card.goi-valravn {
   background: linear-gradient(135deg, var(--g-panel), var(--g-bg));
   border: 1px solid var(--g-line);
@@ -9480,7 +9474,7 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   padding: 1.3rem 1.2rem;
   border-bottom: 1px solid var(--g-line);
 }
-.goi-card-bg { position: absolute; right: -30px; top: -40px; opacity: 0.08; pointer-events: none; }
+.goi-card-bg { position: absolute; right: -40px; top: -20px; opacity: 0.06; pointer-events: none; }
 .goi-card-bg .goi-mark { width: 190px; height: 190px; }
 .goi-card-banner > .goi-mark { width: 60px; height: 60px; position: relative; }
 .goi-card-title { position: relative; display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
@@ -9520,3 +9514,16 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .goi-mcd { --g-font: 'Cormorant Garamond', Georgia, serif; }
 .goi-card .label, .goi-card .goi-kicker, .goi-card .goi-threat, .goi-card .goi-card-go { font-family: 'Barlow', sans-serif !important; }
 .goi-stance, .goi-lots li { border-radius: var(--radius); }
+
+/* GoI logomark and full logo as masks in the group's accent */
+.goi-mark {
+  display: block;
+  width: 64px;
+  height: 64px;
+  flex: none;
+  background: var(--g-accent);
+  -webkit-mask: var(--img) center / contain no-repeat;
+  mask: var(--img) center / contain no-repeat;
+}
+.goi-hero-bg .goi-mark.goi-logo { width: 460px; height: 330px; }
+.goi-card-bg .goi-mark.goi-logo { width: 260px; height: 190px; }

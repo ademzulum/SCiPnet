@@ -6,6 +6,10 @@ import Redacted from './Redacted';
 import ScpLogo from '../components/ScpLogo';
 import scpMark from '../../images/scipnet_terminal/scp_logo.svg';
 import { ClassBadge } from './Archive';
+import mcdLogo from '../../images/archive/group_of_interest/mcd_logo.svg';
+import mcdMark from '../../images/archive/group_of_interest/mcd_logomark.svg';
+import valravnLogo from '../../images/archive/group_of_interest/valravn_logo.svg';
+import valravnMark from '../../images/archive/group_of_interest/valravn_logomark.svg';
 import { useAdminUnlocked } from './session';
 
 // The archive hub and what hangs off it: SCP objects, Foundation departments
@@ -254,7 +258,7 @@ export function GoiList({ go }: { go: Go }) {
             {/* banner in the group's own look, its mark large and faint behind */}
             <span className="goi-card-banner">
               <span className="goi-card-bg" aria-hidden>
-                <GoiMark theme={g.theme} />
+                <GoiMark theme={g.theme} logo />
               </span>
               <GoiMark theme={g.theme} />
               <span className="goi-card-title">
@@ -285,24 +289,20 @@ export function GoiList({ go }: { go: Go }) {
   );
 }
 
-// Each group's own mark, drawn for this site.
-function GoiMark({ theme }: { theme: Goi['theme'] }) {
-  return theme === 'valravn' ? (
-    <svg className="goi-mark" viewBox="0 0 64 64" aria-hidden>
-      {/* a raven's head in a shield */}
-      <path className="goi-mark-frame" d="M32 3 L58 12 V32 C58 47 46 56 32 61 C18 56 6 47 6 32 V12 Z" />
-      <path className="goi-mark-fill" d="M17 30 C22 21 33 18 41 22 L51 24 L42 28 C44 34 41 42 33 45 L35 52 L28 46 C21 44 16 38 17 30 Z" />
-      <circle cx="35" cy="28" r="2.2" className="goi-mark-eye" />
-    </svg>
-  ) : (
-    <svg className="goi-mark" viewBox="0 0 64 64" aria-hidden>
-      {/* monogram in a double ring */}
-      <circle cx="32" cy="32" r="29" className="goi-mark-frame" />
-      <circle cx="32" cy="32" r="24.5" className="goi-mark-frame thin" />
-      <text x="32" y="38" className="goi-mark-text">
-        MC&amp;D
-      </text>
-    </svg>
+// Each group's own mark and full logo (images/archive/group_of_interest), drawn
+// as a mask so they take the group's accent colour in both modes.
+const GOI_ART = {
+  valravn: { mark: valravnMark, logo: valravnLogo },
+  mcd: { mark: mcdMark, logo: mcdLogo },
+};
+function GoiMark({ theme, logo }: { theme: Goi['theme']; logo?: boolean }) {
+  const art = GOI_ART[theme];
+  return (
+    <span
+      className={logo ? 'goi-mark goi-logo' : 'goi-mark'}
+      style={{ '--img': `url("${logo ? art.logo : art.mark}")` } as React.CSSProperties}
+      aria-hidden
+    />
   );
 }
 
@@ -329,7 +329,7 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
       {back(go, { view: 'gois' }, 'Interessengruppen')}
       <header className="goi-hero">
         <span className="goi-hero-bg" aria-hidden>
-          <GoiMark theme={g.theme} />
+          <GoiMark theme={g.theme} logo />
         </span>
         <GoiMark theme={g.theme} />
         <div>

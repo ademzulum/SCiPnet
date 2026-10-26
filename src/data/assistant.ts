@@ -11,7 +11,7 @@
 
 import type { Route } from '../scipnet/routes';
 
-// icons: ACS icon names (images/acs) shown as a row of class chips under the text
+// icons: ACS icon names (images/archive/acs) shown as a row of class chips under the text
 export type Answer = { text: string; audio?: string; icons?: string[] };
 
 export type Intent = {

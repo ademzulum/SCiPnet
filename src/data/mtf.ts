@@ -1,12 +1,12 @@
 // Mobile Task Forces on file at Site-80. Missions after the SCP Wiki's task force
-// list (scp-wiki.wikidot.com/task-forces); insignias in images/mtf (CC BY-SA 3.0).
-import alpha1 from '../../images/mtf/alpha1.png';
-import beta43 from '../../images/mtf/beta43.png';
-import epsilon11 from '../../images/mtf/epsilon11.png';
-import eta10 from '../../images/mtf/eta10.png';
-import gamma5 from '../../images/mtf/gamma5.png';
-import gamma6 from '../../images/mtf/gamma6.png';
-import omega1 from '../../images/mtf/omega1.png';
+// list (scp-wiki.wikidot.com/task-forces); insignias in images/archive/mtf (CC BY-SA 3.0).
+import alpha1 from '../../images/archive/mtf/alpha1.png';
+import beta43 from '../../images/archive/mtf/beta43.png';
+import epsilon11 from '../../images/archive/mtf/epsilon11.png';
+import eta10 from '../../images/archive/mtf/eta10.png';
+import gamma5 from '../../images/archive/mtf/gamma5.png';
+import gamma6 from '../../images/archive/mtf/gamma6.png';
+import omega1 from '../../images/archive/mtf/omega1.png';
 
 export type MtfStatus = 'Einsatzbereit' | 'Im Einsatz' | 'Bereitschaft' | 'Klassifiziert';
 
