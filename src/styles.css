@@ -10161,3 +10161,8 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .ed-image > img, .ed-image > .dim { grid-row: 1 / span 2; }
 .ed-image > .action { justify-self: start; }
 .ed-image > .ed-error { grid-column: 1 / -1; }
+
+/* denied lock: a short, soft sway instead of a hard shake; the log dot glows in the gate colour */
+.lockhex.denied .lockhex-lock { animation: lock-sway 0.9s cubic-bezier(0.45, 0, 0.25, 1); }
+@keyframes lock-sway { 0%, 100% { transform: none; } 20% { transform: translateX(-1.5px); } 45% { transform: translateX(1.5px); } 70% { transform: translateX(-0.8px); } 88% { transform: translateX(0.4px); } }
+.denied2-log .live-dot { background: var(--gate); box-shadow: 0 0 8px var(--gate); }
