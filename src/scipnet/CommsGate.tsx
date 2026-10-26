@@ -101,7 +101,8 @@ export default function CommsGate({ onDone }: { onDone: () => void }) {
           <span className="cg-wave w1" />
           <span className="cg-wave w2" />
           <span className="cg-wave w3" />
-          <span className="cg-core">{phase === 'ok' ? '✓' : '⌁'}</span>
+          {/* on success the core becomes the same mark as the biometric scan */}
+          {phase === 'ok' ? <SuccessMark size={52} /> : <span className="cg-core">⌁</span>}
         </div>
 
         <div className="label">Kommunikationszentrale · Site-80</div>
