@@ -56,7 +56,8 @@ These are rules the project owner has given over time. Follow them for every cha
   - `var(--radius)` corners.
   - The same layout order.
     - Overview card: banner, then body, then footer.
-    - Themed page: header, then a facts column, then a main column.
+    - File page (`.gf`): cover (logo, name, tagline, status pill, threat meter), then a figures strip, then numbered sections in the main column with side cards (Steckbrief, Weisung der Foundation, Begegnungen) on the right.
+  - Readable text: body text on GoI pages and overview cards at least 16px.
   - The 3-bar threat meter.
   - A "Weisung der Foundation" box.
   - The same padding.
