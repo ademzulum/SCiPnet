@@ -15,7 +15,6 @@ import type { Go } from './routes';
 import Redacted from './Redacted';
 import { Corrupt } from './Admin';
 import { useCleared } from './session';
-import ScpLogo from '../components/ScpLogo';
 import { AcsBar, AcsIcon, AddendumBox, WarnIcon } from './Acs';
 import { MtfInsignia } from './Departments';
 import { LevelPill } from './Pips';
@@ -52,7 +51,6 @@ export default function Archive({ go }: { go: Go }) {
           <p className="dim">{plural(SCP.length, 'Eintrag', 'Einträge')} in Verwahrung von Site-80.</p>
         </div>
         <EditButton kind="scp" go={go} />
-        <ScpLogo size={64} />
       </div>
 
       <div className="archive-tools">
