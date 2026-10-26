@@ -24,6 +24,7 @@ type Field =
   | { k: string; label: string; t: 'paras' | 'tags' | 'check' | 'classes'; hint?: string }
   | { k: string; label: string; t: 'multi'; options: () => Opt[] }
   | { k: string; label: string; t: 'accounts'; hint?: string }
+  | { k: string; label: string; t: 'slider'; hint?: string }
   | { k: string; label: string; t: 'image'; folder: 'personnel' | 'reports' | 'mtf'; preview: (v?: string) => string | undefined }
   | { k: string; label: string; t: 'rows'; fields: Field[]; blank: Record<string, unknown> };
 
@@ -140,7 +141,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
         blank: { label: '', value: 50 },
         fields: [
           { k: 'label', label: 'Wert', t: 'text' },
-          { k: 'value', label: 'Prozent', t: 'number' },
+          { k: 'value', label: 'Prozent', t: 'slider' },
         ],
       },
       { k: 'psych.text', label: 'Psychologische Einschätzung', t: 'paras' },
@@ -233,7 +234,12 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'motto', label: 'Leitsatz', t: 'text' },
       { k: 'insignia', label: 'Abzeichen', t: 'image', folder: 'mtf', preview: insigniaUrl },
       { k: 'status', label: 'Status', t: 'select', options: () => ['Einsatzbereit', 'Im Einsatz', 'Bereitschaft', 'Klassifiziert'] },
-      { k: 'readiness', label: 'Bereitschaft (%)', t: 'number' },
+      {
+        k: 'readiness',
+        label: 'Bereitschaft',
+        t: 'slider',
+        hint: 'Wie schnell und vollständig die Einheit einsetzbar ist: Personal, Ausrüstung und Erholung nach dem letzten Einsatz. Erscheint als Anzeige in der Akte und auf der Karte.',
+      },
       { k: 'base', label: 'Stationierung', t: 'text' },
       { k: 'strength', label: 'Stärke', t: 'text' },
       { k: 'lead', label: 'Führung', t: 'text' },
@@ -334,6 +340,15 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
           onChange={(e) => onChange(e.target.value === '' ? 0 : Number(e.target.value))}
         />
       );
+    case 'slider': {
+      const v = Number(value ?? 0);
+      return (
+        <span className="ed-slider" style={{ '--v': `${v}%` } as React.CSSProperties}>
+          <input type="range" min={0} max={100} step={1} value={v} onChange={(e) => onChange(Number(e.target.value))} />
+          <strong>{v}%</strong>
+        </span>
+      );
+    }
     case 'area':
       return <textarea className="search" rows={3} required={f.req} value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)} />;
     case 'paras':
