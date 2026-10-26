@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import Dropdown, { optLabel, optValue, type Opt } from './Dropdown';
 import { askConfirm, setLeaveGuard } from './Confirm';
-import { CONTAINMENT, SECONDARY, ESOTERIC } from '../data/acsClasses';
+import { CONTAINMENT, SECONDARY, ESOTERIC, type AcsClass } from '../data/acsClasses';
+import { AnimatePresence, motion } from 'motion/react';
+import { AcsIcon } from './Acs';
 import { DISRUPTION, RISK, SCP } from '../data/scp';
 import { PERSONNEL } from '../data/personnel';
 import { REPORTS } from '../data/reports';
@@ -18,7 +20,7 @@ import type { Go, Route } from './routes';
 type Field =
   | { k: string; label: string; t: 'text' | 'area' | 'date' | 'number'; req?: boolean; hint?: string }
   | { k: string; label: string; t: 'select'; options: () => Opt[]; empty?: string }
-  | { k: string; label: string; t: 'paras' | 'tags' | 'check'; hint?: string }
+  | { k: string; label: string; t: 'paras' | 'tags' | 'check' | 'classes'; hint?: string }
   | { k: string; label: string; t: 'multi'; options: () => Opt[] }
   | { k: string; label: string; t: 'image'; folder: 'personnel' | 'reports' | 'mtf'; preview: (v?: string) => string | undefined }
   | { k: string; label: string; t: 'rows'; fields: Field[]; blank: Record<string, unknown> };
@@ -33,7 +35,6 @@ const TONES: Opt[] = [
 const people = () => PERSONNEL.map((p): Opt => [p.id, `${p.name} · ${p.id}`]);
 const units = () => MTFS.map((m): Opt => [m.id, `MTF ${m.code} „${m.nickname}“`]);
 const reports = () => REPORTS.map((r): Opt => [r.id, `${r.id} · ${r.title}`]);
-const secondary = () => [...SECONDARY, ...ESOTERIC].map((c) => c.name);
 
 const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kinds[K] } } = {
   scp: {
@@ -53,7 +54,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'id', label: 'Kennung', t: 'text', req: true, hint: 'z. B. SCP-8050' },
       { k: 'name', label: 'Name', t: 'text', req: true },
       { k: 'objectClass', label: 'Eindämmungsklasse', t: 'select', options: () => CONTAINMENT.map((c) => c.name) },
-      { k: 'acs.secondary', label: 'Sekundärklasse', t: 'select', options: secondary, empty: 'Keine' },
+      { k: 'acs.secondary', label: 'Sekundärklasse', t: 'classes' },
       { k: 'acs.disruption', label: 'Störungsklasse', t: 'select', options: () => DISRUPTION },
       { k: 'acs.risk', label: 'Risikoklasse', t: 'select', options: () => RISK },
       { k: 'acs.status', label: 'Status', t: 'text' },
@@ -163,7 +164,18 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'date', label: 'Datum', t: 'date' },
       { k: 'author', label: 'Verfasst von', t: 'select', options: people },
       { k: 'location', label: 'Einsatzort', t: 'text' },
-      { k: 'classification', label: 'Einstufung', t: 'select', options: () => ['Vertraulich', 'Geheim', 'Streng geheim'] },
+      {
+        k: 'classification',
+        label: 'Freigabe',
+        t: 'select',
+        options: () => [
+          ['Uneingeschränkt', 'Level 1 · Uneingeschränkt'],
+          ['Eingeschränkt', 'Level 2 · Eingeschränkt'],
+          ['Vertraulich', 'Level 3 · Vertraulich'],
+          ['Geheim', 'Level 4 · Geheim'],
+          ['Streng geheim', 'Level 5 · Streng geheim'],
+        ],
+      },
       { k: 'status', label: 'Status', t: 'select', options: () => ['Offen', 'Abgeschlossen'] },
       { k: 'summary', label: 'Zusammenfassung', t: 'area', req: true },
       { k: 'situation', label: 'Ausgangslage', t: 'paras' },
@@ -299,6 +311,8 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
       return <ParasInput value={(value as string[]) ?? []} onChange={onChange} />;
     case 'tags':
       return <TagsInput value={(value as string[]) ?? []} onChange={onChange} />;
+    case 'classes':
+      return <ClassPicker value={(value as string) ?? ''} onChange={onChange} />;
     case 'check':
       return <input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} />;
     case 'select':
@@ -385,6 +399,82 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
       );
     }
   }
+}
+
+// Secondary classes are too many for a list: a button opens a window with
+// every class icon; hovering one shows its explanation.
+function ClassPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState<AcsClass | null>(null);
+  const current = [...SECONDARY, ...ESOTERIC].find((c) => c.name === value);
+  const shown = hover ?? current;
+  const pick = (v: string) => {
+    onChange(v);
+    setOpen(false);
+  };
+  const tile = (c: AcsClass) => (
+    <button
+      key={c.name}
+      type="button"
+      className={`cp-tile sec-${c.name}${c.name === value ? ' on' : ''}`}
+      onPointerEnter={() => setHover(c)}
+      onFocus={() => setHover(c)}
+      onClick={() => pick(c.name)}
+    >
+      <AcsIcon name={c.name} />
+      <span>{c.name}</span>
+    </button>
+  );
+  return (
+    <>
+      <button type="button" className="search dd-btn cp-btn" onClick={() => setOpen(true)}>
+        {current ? (
+          <span className={`cp-current sec-${current.name}`}>
+            <AcsIcon name={current.name} /> {current.name}
+          </span>
+        ) : (
+          <span className="dim">Keine</span>
+        )}
+        <span className="dim small">Auswählen…</span>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="admin-login-back"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onPointerDown={(e) => e.target === e.currentTarget && setOpen(false)}
+            onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
+          >
+            <motion.div className="box cp" role="dialog" aria-label="Sekundärklasse wählen" initial={{ y: 12 }} animate={{ y: 0 }} exit={{ y: 12 }}>
+              <div className="cp-head">
+                <h2>Sekundärklasse</h2>
+                <button type="button" className="card action ghost" onClick={() => pick('')}>
+                  KEINE
+                </button>
+              </div>
+              <div className="cp-scroll">
+                <div className="label">Offizielle Klassen</div>
+                <div className="cp-grid">{SECONDARY.map(tile)}</div>
+                <div className="label">Esoterische Klassen</div>
+                <div className="cp-grid">{ESOTERIC.map(tile)}</div>
+              </div>
+              <div className="cp-info">
+                {shown ? (
+                  <>
+                    <strong>{shown.name}</strong> <span className="dim">{shown.info}</span>
+                  </>
+                ) : (
+                  <span className="dim">Mit dem Mauszeiger über eine Klasse fahren, um ihre Bedeutung zu sehen.</span>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
 }
 
 // Kept as typed text while editing, so blank lines and commas don't vanish

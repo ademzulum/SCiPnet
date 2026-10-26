@@ -10071,3 +10071,22 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .admin-compose .search { flex: 1; resize: none; }
 .notice-form { display: grid; gap: 0.5rem; }
 @media (prefers-reduced-motion: reduce) { .admin-channel .chat-window::after, .admin-msg { animation: none; } }
+
+/* drop-down and class picker scroll on their own, never the page */
+.dd-panel, .cp-scroll { overscroll-behavior: contain; }
+.cp-btn { justify-content: space-between; }
+.cp-current { display: inline-flex; align-items: center; gap: 0.5rem; }
+.cp-current .acs-ico, .cp-tile .acs-ico { display: grid; place-items: center; border-radius: 50%; background: var(--c, #8a96a8); --acs-ink: #0d0f12; }
+.cp-current .acs-ico { width: 22px; height: 22px; padding: 3px; box-sizing: border-box; }
+.cp-current .acs-ico svg, .cp-tile .acs-ico svg { width: 100%; height: 100%; }
+.cp { width: min(760px, 100%); max-height: min(720px, calc(100vh - 32px)); display: grid; grid-template-rows: auto 1fr auto; gap: 0.8rem; padding: 1.2rem; background-color: var(--card-bg, var(--bg)); }
+.cp-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.cp-head h2 { margin: 0; }
+.cp-scroll { overflow-y: auto; display: grid; gap: 0.6rem; align-content: start; padding-right: 4px; }
+.cp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(122px, 1fr)); gap: 0.5rem; }
+.cp-tile { display: grid; justify-items: center; gap: 0.35rem; padding: 0.6rem 0.3rem; font: inherit; font-size: 11px; color: var(--fg); background: none; border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.cp-tile .acs-ico { width: 44px; height: 44px; padding: 8px; box-sizing: border-box; }
+.cp-tile span:last-child { text-align: center; white-space: nowrap; }
+.cp-tile:hover, .cp-tile:focus-visible { border-color: var(--c, var(--accent)); }
+.cp-tile.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.cp-info { min-height: 3em; padding-top: 0.7rem; border-top: 1px dashed var(--line); line-height: 1.5; }

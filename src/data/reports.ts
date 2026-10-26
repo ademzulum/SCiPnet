@@ -12,7 +12,7 @@ export type Report = {
   date: string;
   author: string; // personnel id
   location: string;
-  classification: 'Vertraulich' | 'Geheim' | 'Streng geheim';
+  classification: 'Uneingeschränkt' | 'Eingeschränkt' | 'Vertraulich' | 'Geheim' | 'Streng geheim'; // shown as clearance level 1-5
   status: 'Offen' | 'Abgeschlossen';
   summary: string;
   situation: string[]; // Ausgangslage

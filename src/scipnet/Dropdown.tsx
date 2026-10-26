@@ -14,18 +14,28 @@ export default function Dropdown({ value, options, onChange, empty }: { value: s
   const [q, setQ] = useState('');
   const [hi, setHi] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+  // only keyboard moves scroll the list to the highlight; the pointer never does
+  const byKey = useRef(false);
   const list = q ? all.filter((o) => optLabel(o).toLowerCase().includes(q.toLowerCase())) : all;
   const current = all.find((o) => optValue(o) === value);
 
   useEffect(() => {
     if (!open) return;
+    byKey.current = true; // show the current choice
     setHi(Math.max(0, list.findIndex((o) => optValue(o) === value)));
     const close = (e: PointerEvent) => !ref.current?.contains(e.target as Node) && setOpen(false);
     window.addEventListener('pointerdown', close);
     return () => window.removeEventListener('pointerdown', close);
   }, [open]);
   useEffect(() => {
-    ref.current?.querySelector('.dd-opt.hi')?.scrollIntoView({ block: 'nearest' });
+    if (!byKey.current) return;
+    byKey.current = false;
+    // scroll the panel itself, never the page around it
+    const panel = ref.current?.querySelector<HTMLElement>('.dd-panel');
+    const opt = panel?.querySelector<HTMLElement>('.dd-opt.hi');
+    if (!panel || !opt) return;
+    if (opt.offsetTop < panel.scrollTop) panel.scrollTop = opt.offsetTop - 4;
+    else if (opt.offsetTop + opt.offsetHeight > panel.scrollTop + panel.clientHeight) panel.scrollTop = opt.offsetTop + opt.offsetHeight - panel.clientHeight + 4;
   }, [hi, open]);
 
   const pick = (o: Opt) => {
@@ -37,6 +47,7 @@ export default function Dropdown({ value, options, onChange, empty }: { value: s
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       if (!open) return setOpen(true);
+      byKey.current = true;
       setHi((h) => (h + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % Math.max(1, list.length));
     } else if (e.key === 'Enter' && open) {
       e.preventDefault();

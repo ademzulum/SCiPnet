@@ -139,6 +139,12 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   useEffect(() => {
     const tick = () => {
       const left = Math.ceil((expiresAt - Date.now()) / 1000);
+      // the Administrator's session never runs out; it is extended quietly
+      if (adminRef.current) {
+        setSecondsLeft(null);
+        if (left < 120) setExpiresAt(savedSession.extend());
+        return;
+      }
       if (left <= 0) onLogoutRef.current();
       else setSecondsLeft(left <= WARN_S ? left : null);
     };
@@ -146,6 +152,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
     const t = setInterval(tick, 500);
     return () => clearInterval(t);
   }, [expiresAt]);
+  const adminRef = useRef(false);
   const onLogoutRef = useRef(onLogout);
   onLogoutRef.current = onLogout;
   const [destruct, setDestruct] = useState<'none' | 'countdown' | 'scipa' | 'collapse'>('none');
@@ -154,6 +161,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   const [hacking, setHacking] = useState(false);
   const o5Solved = useO5Unlocked();
   const adminIn = useAdminSession();
+  adminRef.current = adminIn;
   useEntriesVersion(); // pages re-render after an entry was saved or deleted
   // the Administrator's login form; opening that file without a session shows it
   const [login, setLogin] = useState(false);
