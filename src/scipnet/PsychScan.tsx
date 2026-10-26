@@ -92,6 +92,16 @@ export function BrainScan({ p }: { p: Person }) {
         <div>
           <div className="label">Neuralscan · fMRT-Rekonstruktion</div>
           <strong>{p.name}</strong>
+          {/* a fixed cue under the name instead of a floating label: the regions can be picked */}
+          {phase === 'done' && !touched && (
+            <span className="brain-cue">
+              <svg viewBox="0 0 24 24" aria-hidden>
+                <path d="M5 3l12 7-5 1.5L9.5 17z" />
+                <path d="M12 11.5l4 5" />
+              </svg>
+              Region anklicken
+            </span>
+          )}
         </div>
         {phase === 'idle' ? (
           <button className="card action" onClick={() => setPhase('scan')}>
@@ -164,11 +174,6 @@ export function BrainScan({ p }: { p: Person }) {
             )}
             {/* after the scan the regions themselves pulse (styles.css), no marker dots */}
           </svg>
-          {phase === 'done' && (
-            <span className={`brain-hint${touched ? ' gone' : ''}`} aria-hidden>
-              <span className="brain-hint-dot" /> Regionen anwählbar
-            </span>
-          )}
         </div>
 
         <div className="brain-side">
