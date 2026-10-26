@@ -132,7 +132,6 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                 <span className="acs-pips" style={{ '--st': 'var(--lvl)' } as React.CSSProperties}>
                   <Pips n={level} of={5} />
                 </span>
-                <small>{clear.info}</small>
               </span>
             </div>
           </div>

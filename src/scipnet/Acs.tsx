@@ -142,7 +142,6 @@ export function AcsBar({ s, go, name }: { s: ScpObject; go: Go; name?: string })
             <span className="acs-pips" style={{ '--st': 'var(--lvl)' } as React.CSSProperties}>
               <Pips n={level} of={5} />
             </span>
-            <small>{clear.info}</small>
           </span>
         </div>
       </div>

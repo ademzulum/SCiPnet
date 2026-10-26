@@ -10389,3 +10389,11 @@ div.rep-ref.broken-ref { cursor: default; border-style: dashed; }
 .lvl-opt:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
 .lvl-plain { display: inline-flex; align-items: center; height: 100%; padding: 0.25rem 0.8rem; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
 .lvl-opt.on .lvl-plain { border-color: var(--accent); color: var(--hi); }
+
+/* clearance block: the number box runs from the top of the name to the bottom of the pips */
+.acs-clear { align-items: stretch; }
+.acs-clear-text { justify-content: space-between; gap: 0.35rem; }
+.acs-clear-text strong { line-height: 0.9; }
+.acs-clear-text .acs-pips { display: flex; line-height: 0; }
+.acs-lvl-badge { align-content: center; gap: 0.1rem; padding: 0.2rem 0.55rem; min-width: 44px; font-size: 22px; line-height: 0.9; }
+.acs-lvl-badge small { font-size: 7px; line-height: 1; }
