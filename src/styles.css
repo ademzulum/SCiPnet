@@ -10378,3 +10378,14 @@ div.rep-ref.broken-ref { cursor: default; border-style: dashed; }
 .ed-add-pick-head { display: flex; justify-content: space-between; align-items: center; }
 .ed-add-kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); gap: 0.5rem; }
 .ed-grid > .t-addenda { grid-column: 1 / -1; }
+
+/* clearance choice: the level pills in a row, the chosen one lit */
+.ed-grid > .t-level { grid-column: 1 / -1; }
+.lvl-choose { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.lvl-opt { all: unset; box-sizing: border-box; cursor: pointer; border-radius: 999px; opacity: 0.4; filter: saturate(0.4); transition: opacity 0.15s, filter 0.15s, transform 0.15s; }
+.lvl-opt:hover { opacity: 0.8; filter: none; }
+.lvl-opt.on { opacity: 1; filter: none; transform: scale(1.06); }
+.lvl-opt.on .level-pill { box-shadow: 0 0 0 2px color-mix(in srgb, var(--lvl, var(--accent)) 35%, transparent); }
+.lvl-opt:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+.lvl-plain { display: inline-flex; align-items: center; height: 100%; padding: 0.25rem 0.8rem; border: 1px solid var(--line); border-radius: 999px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+.lvl-opt.on .lvl-plain { border-color: var(--accent); color: var(--hi); }

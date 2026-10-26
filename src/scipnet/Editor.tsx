@@ -470,7 +470,8 @@ function Input({ f, value, onChange, row }: { f: Field; value: unknown; onChange
     case 'pick':
       return <EntityPicker what={f.what} single={f.single} value={value as string[] | string} onChange={onChange} />;
     case 'select':
-      return <Dropdown value={(value as string) ?? ''} options={f.options()} empty={f.empty} onChange={onChange} show={f.level && levelShow(f.level)} />;
+      if (f.level) return <LevelChooser value={(value as string) ?? ''} options={f.options()} empty={f.empty} level={f.level} onChange={onChange} />;
+      return <Dropdown value={(value as string) ?? ''} options={f.options()} empty={f.empty} onChange={onChange} />;
     case 'multi': {
       // a single id (older entries) counts as a list of one
       const picked = Array.isArray(value) ? (value as string[]) : value ? [value as string] : [];
@@ -573,13 +574,25 @@ const toLine = (s: string): Line => {
   return say ? { type: 'say', who: say[1], text: say[2] } : { type: 'text', text: s };
 };
 const fromLine = (l: Line) => (l.type === 'stage' ? `<${l.text ?? ''}>` : l.type === 'say' ? `${l.who ?? ''}: ${l.text ?? ''}` : (l.text ?? ''));
-// Clearance choices, the same in every editor: a level pill in the level's
-// colour with its pips and name (Stufe 2, Vertraulich, RAISA, ...), as in the
-// side rail. Without a level (Extern) the name stands alone.
-const levelShow = (level: (v: string) => number) => (o: Opt) => {
-  const n = level(optValue(o));
-  return <span className="dd-level">{n > 0 ? <LevelPill n={n} of={5} label={optLabel(o)} /> : optLabel(o)}</span>;
-};
+// Clearance choices, the same in every editor: every level as its pill in a
+// row (pips and name, as in the side rail), the chosen one lit, the others
+// faint. Without a level (Extern, Keine) the choice is a plain chip.
+function LevelChooser({ value, options, empty, level, onChange }: { value: string; options: Opt[]; empty?: string; level: (v: string) => number; onChange: (v: string) => void }) {
+  const all: Opt[] = empty ? [['', empty], ...options] : options;
+  return (
+    <div className="lvl-choose" role="radiogroup">
+      {all.map((o) => {
+        const v = optValue(o);
+        const n = v ? level(v) : 0;
+        return (
+          <button key={v || '-'} type="button" role="radio" aria-checked={v === value} className={`lvl-opt${v === value ? ' on' : ''}`} onClick={() => onChange(v)}>
+            {n > 0 ? <LevelPill n={n} of={5} label={optLabel(o)} /> : <span className="lvl-plain">{optLabel(o)}</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 // Stable keys for a list edited in place, so inputs that hold their text
 // (paragraphs) move with their row. Rows added or removed from outside (a
@@ -1299,7 +1312,7 @@ export default function Editor({ kind, id, go }: { kind: Kind; id?: string; go: 
                     </div>
                   );
                 return (
-                  <div key={f.k} className={`ed-field t-${f.t}`}>
+                  <div key={f.k} className={`ed-field t-${f.t}${'level' in f && f.level ? ' t-level' : ''}`}>
                     <span className="label">
                       {f.label}
                       {'req' in f && f.req ? ' *' : ''}
