@@ -59,7 +59,7 @@ export function WarnIcon({ shape = 'triangle' }: { shape?: 'triangle' | 'octagon
 
 // Clearance levels and class meanings after the Classification Committee memo
 // (scp-wiki.wikidot.com/classification-committee-memo).
-const CLEARANCE = [
+export const CLEARANCE = [
   { name: 'Uneingeschränkt', info: 'Für alle Mitarbeitenden einsehbar.' },
   { name: 'Eingeschränkt', info: 'Ab Freigabe Stufe 2.' },
   { name: 'Vertraulich', info: 'Ab Freigabe Stufe 3.' },

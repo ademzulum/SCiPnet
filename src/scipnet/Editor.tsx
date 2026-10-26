@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { AcsIcon } from './Acs';
 import { DISRUPTION, RISK, SCP } from '../data/scp';
 import { PERSONNEL } from '../data/personnel';
-import { REPORTS } from '../data/reports';
+import { REPORTS, TEMPLATES, type ReportTemplate } from '../data/reports';
 import { MTFS } from '../data/mtf';
 import { insigniaUrl, photoUrl, reportImageUrl } from '../data/photos';
 import { cachedAccounts, deleteEntry, listAccounts, references, saveEntry, uploadImage, type Kind, type Kinds } from '../data/store';
@@ -20,7 +20,7 @@ import type { Go, Route } from './routes';
 
 type Field =
   | { k: string; label: string; t: 'text' | 'area' | 'date' | 'number'; req?: boolean; hint?: string }
-  | { k: string; label: string; t: 'select'; options: () => Opt[]; empty?: string }
+  | { k: string; label: string; t: 'select'; options: () => Opt[]; empty?: string; apply?: (entry: Obj, v: string) => Obj; hint?: string }
   | { k: string; label: string; t: 'paras' | 'tags' | 'check' | 'classes'; hint?: string }
   | { k: string; label: string; t: 'multi'; options: () => Opt[] }
   | { k: string; label: string; t: 'accounts'; hint?: string }
@@ -164,6 +164,15 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       assessment: [],
     }),
     fields: [
+      {
+        k: 'template',
+        label: 'Vorlage',
+        t: 'select',
+        empty: 'Keine',
+        options: () => Object.entries(TEMPLATES).map(([k, t]): Opt => [k, t.label]),
+        apply: applyTemplate,
+        hint: 'Fügt die Eckdaten und Abschnitte der Vorlage hinzu. Nichts wird gelöscht.',
+      },
       { k: 'id', label: 'Kennung', t: 'text', req: true, hint: 'z. B. FB-80-2026-040' },
       { k: 'title', label: 'Titel', t: 'text', req: true },
       { k: 'date', label: 'Datum', t: 'date' },
@@ -183,7 +192,29 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       },
       { k: 'status', label: 'Status', t: 'select', options: () => ['Offen', 'Abgeschlossen'] },
       { k: 'summary', label: 'Zusammenfassung', t: 'area', req: true },
+      {
+        k: 'facts',
+        label: 'Eckdaten',
+        t: 'rows',
+        blank: { label: '', value: '' },
+        fields: [
+          { k: 'label', label: 'Bezeichnung', t: 'text' },
+          { k: 'value', label: 'Wert', t: 'text' },
+        ],
+      },
+      { k: 'objects', label: 'Betroffene Objekte', t: 'multi', options: () => SCP.map((s): Opt => [s.id, `${s.id} · ${s.name}`]) },
+      { k: 'units', label: 'Beteiligte Mobile Task Forces', t: 'multi', options: units },
       { k: 'situation', label: 'Ausgangslage', t: 'paras' },
+      {
+        k: 'sections',
+        label: 'Weitere Abschnitte',
+        t: 'rows',
+        blank: { title: '', body: [] },
+        fields: [
+          { k: 'title', label: 'Überschrift', t: 'text' },
+          { k: 'body', label: 'Text', t: 'paras' },
+        ],
+      },
       {
         k: 'timeline',
         label: 'Verlauf',
@@ -282,6 +313,17 @@ function ACCESS(level: boolean): Field[] {
       : []),
     { k: 'access.readers', label: 'Ausgewählte Konten', t: 'accounts', hint: 'Nur bei „Ausgewählte Konten“. Der Ersteller sieht die Akte immer.' },
   ];
+}
+
+// Adds a template's key data and sections that are not there yet.
+function applyTemplate(entry: Obj, v: string): Obj {
+  const t = TEMPLATES[v as ReportTemplate];
+  if (!t) return entry;
+  const facts = [...((entry.facts as { label: string }[]) ?? [])];
+  for (const label of t.facts) if (!facts.some((f) => f.label === label)) facts.push({ label });
+  const sections = [...((entry.sections as { title: string }[]) ?? [])];
+  for (const title of t.sections) if (!sections.some((s) => s.title === title)) sections.push({ title, body: [] } as never);
+  return { ...entry, ...(facts.length ? { facts } : {}), ...(sections.length ? { sections } : {}) };
 }
 
 export const EDITABLE: Kind[] = ['scp', 'personnel', 'report', 'mtf'];
@@ -732,7 +774,11 @@ export default function Editor({ kind, id, go }: { kind: Kind; id?: string; go: 
                 {f.label}
                 {'req' in f && f.req ? ' *' : ''}
               </span>
-              <Input f={f} value={get(entry, f.k)} onChange={(v) => setEntry((o) => set(o, f.k, v))} />
+              <Input
+                f={f}
+                value={get(entry, f.k)}
+                onChange={(v) => setEntry((o) => ('apply' in f && f.apply ? f.apply(set(o, f.k, v), v as string) : set(o, f.k, v)))}
+              />
               {'hint' in f && f.hint && f.t !== 'check' && <span className="dim small">{f.hint}</span>}
             </div>
           ))}

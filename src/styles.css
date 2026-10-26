@@ -10183,3 +10183,19 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 /* assigned task force row: hover brightens the same gradient (a gradient cannot ease into a plain colour, which flashed) */
 .acs-mtf { transition: box-shadow 0.2s, filter 0.2s; }
 .acs-mtf:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, var(--acs-bg)), var(--acs-bg) 70%); box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 6%, transparent); }
+
+/* report file: built on the SCP file (ACS head, key data, document sections) */
+.rep-acs .acs-head { border-radius: var(--radius) var(--radius) 0 0; }
+.rep-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); margin: 0; background: var(--acs-bg, var(--card-bg)); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+.rep-facts > div { display: grid; gap: 0.25rem; align-content: start; padding: 0.7rem 1rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 0 -1px -1px 0; }
+.rep-facts > div.wide { grid-column: 1 / -1; }
+.rep-facts dt { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.6; }
+.rep-facts dd { margin: 0; color: var(--hi); overflow-wrap: anywhere; }
+.rep-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 0.5rem; }
+.rep-unit .mtf-insignia { background: var(--accent); flex: none; }
+.rep-section h3 { display: flex; align-items: baseline; gap: 0.6rem; }
+.rep-num { font-size: 11px; letter-spacing: 0.1em; color: var(--accent); }
+.rep-section .mtf-log { margin-top: 0.4rem; }
+.rep-sign { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.rep-sign .label { display: block; }
+.rep-dist { margin-left: auto; }
