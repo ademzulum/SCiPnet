@@ -7718,14 +7718,11 @@ html:not(.cur-lock) .cur-ring i {
 }
 .brain-scan.done .brain-region.sel {
   opacity: 1;
-  stroke: var(--hi);
-  stroke-width: 2;
-  vector-effect: non-scaling-stroke;
   animation: regionpulse-sel 1.4s ease-in-out infinite;
 }
 @keyframes regionpulse-sel {
   0%, 100% { filter: brightness(1.15) saturate(1.2); }
-  50% { filter: brightness(1.6) saturate(1.35) drop-shadow(0 0 8px currentColor); }
+  50% { filter: brightness(1.6) saturate(1.35); }
 }
 @media (prefers-reduced-motion: reduce) {
   .brain-scan.done .brain-region.sel { animation: none; }
@@ -8479,4 +8476,57 @@ html:not(.cur-lock) .cur-ring i {
   text-transform: uppercase;
   text-align: right;
   opacity: 0.45;
+}
+
+/* brain scan: lit line art as region outline, and the pick hint */
+.brain-art-lit {
+  fill: var(--hi);
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px var(--accent));
+}
+.brain-art-lit.hover {
+  fill: color-mix(in srgb, var(--hi) 70%, var(--accent));
+  filter: none;
+  opacity: 0.8;
+}
+.brain-scan.done .brain-region.hint {
+  animation: regionhint 5s ease-in-out infinite;
+  animation-delay: calc(var(--pulse-delay, 0s) * 2.8 + 0.8s);
+}
+@keyframes regionhint {
+  0%, 14%, 100% { opacity: 0.45; }
+  7% { opacity: 0.85; }
+}
+.brain-stage { position: relative; }
+.brain-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 0.2rem;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.6s;
+  animation: tlin 0.6s ease-out 0.4s backwards;
+}
+.brain-hint.gone { opacity: 0; }
+.brain-hint-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: hintping 1.6s ease-out infinite;
+}
+@keyframes hintping {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent); }
+  100% { box-shadow: 0 0 0 7px transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brain-scan.done .brain-region.hint, .brain-hint-dot { animation: none; }
 }

@@ -38,6 +38,9 @@ export function BrainScan({ p }: { p: Person }) {
   const [phase, setPhase] = useState<'idle' | 'scan' | 'done'>('idle');
   const [pct, setPct] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
+  const [hover, setHover] = useState<number | null>(null);
+  // until the first click the regions take turns lighting up, as a hint that they can be picked
+  const [touched, setTouched] = useState(false);
 
   useEffect(() => {
     if (phase !== 'scan') return;
@@ -66,6 +69,7 @@ export function BrainScan({ p }: { p: Person }) {
   const pick = (i: number) => {
     play('click', 0.5);
     setSel(i);
+    setTouched(true);
   };
 
   const avg = metrics.length ? Math.round(metrics.reduce((n, m) => n + m.value, 0) / metrics.length) : 0;
@@ -135,17 +139,33 @@ export function BrainScan({ p }: { p: Person }) {
                     refs.current[i] = el;
                   }}
                   d={r.d}
-                  className={`brain-region${sel === i ? ' sel' : ''}`}
+                  className={`brain-region${sel === i ? ' sel' : ''}${!touched && sel !== i ? ' hint' : ''}`}
                   style={
                     revealed
                       ? ({ fill: heat(v), fillOpacity: 0.25 + (v / 100) * 0.45, '--pulse-delay': `${i * 0.35}s` } as React.CSSProperties)
                       : undefined
                   }
                   onClick={() => phase === 'done' && pick(i)}
+                  onMouseEnter={() => setHover(i)}
+                  onMouseLeave={() => setHover((h) => (h === i ? null : h))}
                 />
               );
             })}
             <path d={ART} className="brain-art" />
+            {/* the outline of the selected (and hovered) region is the line art itself, lit up inside
+                that region, so the roughly cut region shapes never show their own edges */}
+            {phase === 'done' &&
+              [sel, hover !== sel ? hover : null].map(
+                (i, k) =>
+                  i !== null && (
+                    <g key={k}>
+                      <clipPath id={`brain-clip-${k}`}>
+                        <path d={REGIONS[i].d} />
+                      </clipPath>
+                      <path d={ART} className={`brain-art-lit${k ? ' hover' : ''}`} clipPath={`url(#brain-clip-${k})`} />
+                    </g>
+                  ),
+              )}
             {/* sweep and hotspots above the line art */}
             {phase === 'scan' && (
               <>
@@ -161,6 +181,11 @@ export function BrainScan({ p }: { p: Person }) {
             )}
             {/* after the scan the regions themselves pulse (styles.css), no marker dots */}
           </svg>
+          {phase === 'done' && (
+            <span className={`brain-hint${touched ? ' gone' : ''}`} aria-hidden>
+              <span className="brain-hint-dot" /> Regionen anwählbar
+            </span>
+          )}
         </div>
 
         <div className="brain-side">
