@@ -181,14 +181,13 @@ function MtfBar({ m }: { m: Mtf }) {
   return (
     <section className={`acs mtf-acs st-${stKey(m)}`}>
       <div className="acs-head mtf-acs-head">
-        {/* the insignia, large, faint and slowly turning, behind the empty middle of the head */}
-        <span className="mtf-hero-bg" style={{ '--img': `url(${m.insignia})` } as React.CSSProperties} aria-hidden />
+        {/* the insignia turning slowly at the left; the status lives in the panel below */}
+        <span className="mtf-head-seal" style={{ '--img': `url(${m.insignia})` } as React.CSSProperties} aria-hidden />
         <div className="acs-id">
           <span className="label">Einheit #</span>
           <strong>MTF {m.code}</strong>
-          <span className="acs-name">„{m.nickname}“</span>
+          <span className="acs-name mtf-motto">{m.motto}</span>
         </div>
-        <span className={`state-pill mtf-pill st-${stKey(m)}`}>{m.status}</span>
       </div>
       <div className="acs-grid">
         <div className="acs-contain">

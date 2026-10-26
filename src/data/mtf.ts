@@ -14,6 +14,7 @@ export type Mtf = {
   id: string; // route id, e.g. 'epsilon-11'
   code: string; // 'Epsilon-11'
   nickname: string; // the unit's name, kept in English as on file
+  motto: string; // the unit's guiding principle, one short line
   insignia: string;
   status: MtfStatus;
   base: string;
@@ -30,6 +31,7 @@ export const MTFS: Mtf[] = [
     id: 'alpha-1',
     code: 'Alpha-1',
     nickname: 'Red Right Hand',
+    motto: 'Wir handeln, damit der Rat es nicht muss.',
     insignia: alpha1,
     status: 'Klassifiziert',
     base: '[DATEN GELÖSCHT]',
@@ -48,6 +50,7 @@ export const MTFS: Mtf[] = [
     id: 'epsilon-11',
     code: 'Epsilon-11',
     nickname: 'Nine-Tailed Fox',
+    motto: 'Wenn alles fällt, halten wir.',
     insignia: epsilon11,
     status: 'Bereitschaft',
     base: 'Site-80, Bereitschaftsraum Sektor 1',
@@ -65,6 +68,7 @@ export const MTFS: Mtf[] = [
     id: 'eta-10',
     code: 'Eta-10',
     nickname: 'See No Evil',
+    motto: 'Wir sehen nicht hin und sehen trotzdem.',
     insignia: eta10,
     status: 'Einsatzbereit',
     base: 'Site-80, Sektor 14',
@@ -82,6 +86,7 @@ export const MTFS: Mtf[] = [
     id: 'gamma-6',
     code: 'Gamma-6',
     nickname: 'Deep Feeders',
+    motto: 'Was die Tiefe nimmt, holen wir zurück.',
     insignia: gamma6,
     status: 'Im Einsatz',
     base: 'Research Site-45, Außenstelle Bodensee',
@@ -99,6 +104,7 @@ export const MTFS: Mtf[] = [
     id: 'gamma-5',
     code: 'Gamma-5',
     nickname: 'Red Herrings',
+    motto: 'Die Wahrheit ist, was die Welt glaubt.',
     insignia: gamma5,
     status: 'Im Einsatz',
     base: 'Mobil',
@@ -116,6 +122,7 @@ export const MTFS: Mtf[] = [
     id: 'beta-43',
     code: 'Beta-43',
     nickname: 'Con-Trollers',
+    motto: 'Ein Gedanke ist auch nur eine Tür.',
     insignia: beta43,
     status: 'Bereitschaft',
     base: 'Site-43, Verbindungsbüro Site-80',
@@ -130,6 +137,7 @@ export const MTFS: Mtf[] = [
     id: 'omega-1',
     code: 'Omega-1',
     nickname: "Law's Left Hand",
+    motto: 'Niemand steht über dem Protokoll.',
     insignia: omega1,
     status: 'Klassifiziert',
     base: '[DATEN GELÖSCHT]',

@@ -9929,3 +9929,21 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .rep-author-text > span:last-child { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .rep-author .label { margin: 0; font-size: 8px; }
 .rep-meta { margin-top: -0.3rem; }
+/* MTF head: solid like every banner, the turning insignia at the left */
+.mtf-acs-head {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--s) 14%, var(--acs-bg)), var(--acs-bg) 60%) !important;
+}
+.mtf-head-seal {
+  flex: none;
+  width: 58px;
+  height: 58px;
+  background: var(--s);
+  -webkit-mask: var(--img) center / contain no-repeat;
+  mask: var(--img) center / contain no-repeat;
+  animation: mtf-drift 30s linear infinite;
+}
+.mtf-motto { font-style: italic; }
+@media (prefers-reduced-motion: reduce) { .mtf-head-seal { animation: none; } }
