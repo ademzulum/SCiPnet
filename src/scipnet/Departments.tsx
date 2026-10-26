@@ -1,4 +1,5 @@
 import { MTFS, mtfById, type Mtf } from '../data/mtf';
+import { masked } from './cardAccess';
 import { cardAccess } from './cardAccess';
 import { EditButton } from './Editor';
 import { GOIS, goiById, type Goi } from '../data/gois';
@@ -315,7 +316,7 @@ export function MtfView({ id, go }: { id: string; go: Go }) {
               {objects.map((s) => (
                 <button key={s.id} className="linked-card" onClick={() => go({ view: 'scp', id: s.id })}>
                   <span className="dim small">{s.id}</span>
-                  <strong>{s.locked && !solved ? '[GESPERRT]' : (s.locked?.realName ?? s.name)}</strong>
+                  <strong>{s.locked && !solved ? '[GESPERRT]' : masked('scp', s, s.locked?.realName ?? s.name)}</strong>
                   <ClassBadge c={s.objectClass} />
                   <span className="linked-arrow">→</span>
                 </button>

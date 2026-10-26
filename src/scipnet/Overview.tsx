@@ -1,4 +1,5 @@
 import { PERSONNEL, personById } from '../data/personnel';
+import { masked } from './cardAccess';
 import { REPORTS } from '../data/reports';
 import { SCP } from '../data/scp';
 import { useAccount } from './session';
@@ -168,7 +169,7 @@ export default function Overview({ go }: { go: Go }) {
                   <span className="notice-level">{r.classification}</span>
                   <span className={`status status-${r.status}`}>{r.status}</span>
                 </span>
-                <strong>{r.title}</strong>
+                <strong>{masked('report', r, r.title)}</strong>
                 <span className="dim ov-summary">{r.summary}</span>
                 <span className="ov-foot">
                   <span className="avatar sm">{initials(personById(r.author)?.name ?? '?')}</span>
@@ -228,7 +229,7 @@ export default function Overview({ go }: { go: Go }) {
                 <button key={p.id} className={`notice ov-card ov-person ps-${p.status}`} onClick={() => go({ view: 'person', id: p.id })}>
                   <span className="avatar sm">{initials(p.name)}</span>
                   <span className="ov-person-info">
-                    <strong>{p.name}</strong>
+                    <strong>{masked('personnel', p, p.name)}</strong>
                     <span className="dim small">
                       {p.id} · {p.role}
                     </span>
@@ -256,7 +257,7 @@ export default function Overview({ go }: { go: Go }) {
                   <span className="notice-level">{o.objectClass}</span>
                   <span className="dim small">{o.id}</span>
                 </span>
-                <strong>{o.locked ? '[GESPERRT]' : o.name}</strong>
+                <strong>{o.locked ? '[GESPERRT]' : masked('scp', o, o.name)}</strong>
               </button>
             ))}
           </div>

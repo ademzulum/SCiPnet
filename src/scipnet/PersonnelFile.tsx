@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { masked } from './cardAccess';
 import { LockHex } from './AccessDenied';
 import { READER_LABEL, READER_LEVEL, levelOf } from '../data/access';
 import Pips from './Pips';
@@ -464,7 +465,7 @@ function ReportsTab({ p, go }: { p: Person; go: Go }) {
                   </span>
                   <span className={`status status-${r.status}`}>{r.status}</span>
                 </span>
-                <strong>{r.title}</strong>
+                <strong>{masked('report', r, r.title)}</strong>
                 <span className="dim ov-summary">{r.summary}</span>
                 <span className="ov-foot">
                   <span className="avatar sm">{initials(author?.name ?? '?')}</span>

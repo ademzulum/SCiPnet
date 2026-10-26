@@ -1,4 +1,5 @@
 import { personById } from '../data/personnel';
+import { masked } from './cardAccess';
 import { Broken } from './Admin';
 import { EditButton } from './Editor';
 import { reportById } from '../data/reports';
@@ -81,7 +82,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                         </span>
                       ) : (
                         <button key={p.id} className="link small" onClick={() => go({ view: 'person', id: p.id })}>
-                          {p.name}
+                          {masked('personnel', p, p.name)}
                         </button>
                       ),
                     )}
@@ -95,7 +96,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                 <span>
                   <span className="label">Verknüpftes Objekt</span>
                   <strong>{scp.id}</strong>
-                  <span className="dim small">{scp.name}</span>
+                  <span className="dim small">{masked('scp', scp, scp.name)}</span>
                 </span>
                 <ClassBadge c={scp.objectClass} />
               </button>
@@ -108,7 +109,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                 <div>
                   {author ? (
                     <button className="link sig-name" title={author.name} onClick={() => go({ view: 'person', id: author.id })}>
-                      {author.name}
+                      {masked('personnel', author, author.name)}
                     </button>
                   ) : (
                     <span className="broken-ref">

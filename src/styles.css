@@ -10139,9 +10139,6 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .restricted-tag { color: var(--accent); letter-spacing: 0.12em; font-weight: 600; }
 .crt[data-theme='scip'] .restricted { background-image: repeating-linear-gradient(-45deg, transparent 0 10px, color-mix(in srgb, var(--accent) 7%, transparent) 10px 20px), var(--surface); }
 .corrupted .corrupt { position: relative; display: inline-block; }
-.corrupted .corrupt::before, .corrupted .corrupt::after { content: attr(data-text); position: absolute; inset: 0; pointer-events: none; opacity: 0.7; }
-.corrupted .corrupt::before { color: #ff2a55; transform: translateX(-1px); clip-path: inset(0 0 50% 0); }
-.corrupted .corrupt::after { color: #00e1ff; transform: translateX(1px); clip-path: inset(50% 0 0 0); }
 
 /* editor slider (readiness, psych values) */
 .ed-slider { display: flex; align-items: center; gap: 0.8rem; min-height: 42px; }

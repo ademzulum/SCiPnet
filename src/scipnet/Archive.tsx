@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { masked } from './cardAccess';
 import { cardAccess } from './cardAccess';
 import AccessDenied from './AccessDenied';
 import { READER_LEVEL, levelOf } from '../data/access';
@@ -223,7 +224,7 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
                 ) : (
                 <button key={r.id} className="linked-card" onClick={() => go({ view: 'report', id: r.id })}>
                   <span className="dim small">{r.id}</span>
-                  <strong>{r.title}</strong>
+                  <strong>{masked('report', r, r.title)}</strong>
                   <span className="linked-arrow">→</span>
                 </button>
                 ),

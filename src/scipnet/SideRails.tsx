@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { masked } from './cardAccess';
 import { PERSONNEL, personById } from '../data/personnel';
 import { REPORTS } from '../data/reports';
 import { SCP } from '../data/scp';
@@ -147,7 +148,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
         tone: r.label === 'Aktiv' ? 'ok' : r.label === 'Vermisst' ? 'bad' : 'warn',
       }));
       const recent = PERSONNEL.filter((p) => p.status !== 'Aktiv').map((p) => ({
-        label: p.name,
+        label: masked('personnel', p, p.name),
         sub: `${p.id} · ${p.status}`,
         to: { view: 'person', id: p.id } as Route,
         tone: 'warn',
@@ -166,7 +167,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
         tone: r.label === 'Streng geheim' ? 'bad' : r.label === 'Geheim' ? 'warn' : 'info',
       }));
       const open = REPORTS.filter((r) => r.status === 'Offen').map((r) => ({
-        label: r.title,
+        label: masked('report', r, r.title),
         sub: `${r.id} · ${personById(r.author)?.name ?? '[DATEN BESCHÄDIGT]'}`,
         to: { view: 'report', id: r.id } as Route,
       }));
@@ -186,7 +187,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
       ];
       const out = MTFS.filter((m) => m.status === 'Im Einsatz').map((m) => ({
         label: `MTF ${m.code}`,
-        sub: m.nickname,
+        sub: masked('mtf', m, m.nickname),
         to: { view: 'mtf', id: m.id } as Route,
         tone: 'warn',
       }));
@@ -203,7 +204,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
         ...r,
         tone: r.label === 'Einsatzbereit' ? 'ok' : r.label === 'Klassifiziert' ? 'bad' : r.label === 'Im Einsatz' ? 'warn' : 'info',
       }));
-      const units = MTFS.map((m) => ({ label: `MTF ${m.code}`, sub: `„${m.nickname}“ · ${m.readiness}% bereit`, to: { view: 'mtf', id: m.id } as Route }));
+      const units = MTFS.map((m) => ({ label: `MTF ${m.code}`, sub: `„${masked('mtf', m, m.nickname)}“ · ${m.readiness}% bereit`, to: { view: 'mtf', id: m.id } as Route }));
       return (
         <>
           <Bars title="Einsatzstatus" rows={rows} go={go} />
@@ -236,7 +237,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
         .filter((r) => r.n)
         .map((r) => ({ ...r, tone: r.label === 'Keter' ? 'bad' : r.label === 'Euclid' ? 'warn' : 'ok' }));
       const keter = SCP.filter((o) => o.objectClass === 'Keter').map((o) => ({
-        label: o.locked ? '[GESPERRT]' : o.name,
+        label: o.locked ? '[GESPERRT]' : masked('scp', o, o.name),
         sub: o.id,
         to: { view: 'scp', id: o.id } as Route,
         tone: 'bad',
@@ -283,7 +284,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
     default: {
       // overview: who is on duty
       const duty = PERSONNEL.filter((p) => p.status === 'Aktiv').slice(0, 5).map((p) => ({
-        label: p.name,
+        label: masked('personnel', p, p.name),
         sub: p.role,
         to: { view: 'person', id: p.id } as Route,
       }));

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { masked } from './cardAccess';
 import { cardAccess } from './cardAccess';
 import { useAccount } from './session';
 import { Broken } from './Admin';
@@ -22,7 +23,7 @@ export function ReportRow({ report: r, go }: { report: Report; go: Go }) {
   return (
     <button className={`row report-row cl-${classKey(r.classification)}`} onClick={() => go({ view: 'report', id: r.id })}>
       <span className="dim small">{r.id}</span>
-      <strong>{r.title}</strong>
+      <strong>{masked('report', r, r.title)}</strong>
       <span className="row-meta">
         <span className="dim small">{fmt(r.date)}</span>
         <span className={`status status-${r.status}`}>{r.status}</span>
