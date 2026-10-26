@@ -34,8 +34,12 @@ export const useEntriesVersion = () =>
 // Loads every entry; returns an error text when the database can't be reached.
 export async function loadEntries(): Promise<string | null> {
   if (!supabase) return 'Die Datenbank ist nicht eingerichtet (VITE_SUPABASE_URL fehlt).';
-  const { data, error } = await supabase.from('entries').select('kind, data').order('position').order('id');
-  if (error) return 'Die Datenbank ist nicht erreichbar.';
+  // read without the login, so a broken or expired session never blocks the archive
+  const url = import.meta.env.VITE_SUPABASE_URL as string;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+  const res = await fetch(`${url}/rest/v1/entries?select=kind,data&order=position,id`, { headers: { apikey: key } }).catch(() => null);
+  if (!res?.ok) return 'Die Datenbank ist nicht erreichbar.';
+  const data = await res.json();
   for (const list of Object.values(LISTS)) list.length = 0;
   for (const row of data as { kind: Kind; data: never }[]) LISTS[row.kind]?.push(row.data);
   changed();

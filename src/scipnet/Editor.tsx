@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Dropdown, { optLabel, optValue, type Opt } from './Dropdown';
+import { askConfirm, setLeaveGuard } from './Confirm';
 import { CONTAINMENT, SECONDARY, ESOTERIC } from '../data/acsClasses';
 import { DISRUPTION, RISK, SCP } from '../data/scp';
 import { PERSONNEL } from '../data/personnel';
@@ -15,15 +17,22 @@ import type { Go, Route } from './routes';
 
 type Field =
   | { k: string; label: string; t: 'text' | 'area' | 'date' | 'number'; req?: boolean; hint?: string }
-  | { k: string; label: string; t: 'select'; options: () => string[]; empty?: string }
+  | { k: string; label: string; t: 'select'; options: () => Opt[]; empty?: string }
   | { k: string; label: string; t: 'paras' | 'tags' | 'check'; hint?: string }
-  | { k: string; label: string; t: 'multi'; options: () => string[] }
+  | { k: string; label: string; t: 'multi'; options: () => Opt[] }
   | { k: string; label: string; t: 'image'; folder: 'personnel' | 'reports' | 'mtf'; preview: (v?: string) => string | undefined }
   | { k: string; label: string; t: 'rows'; fields: Field[]; blank: Record<string, unknown> };
 
 const LEVELS = ['Stufe 1', 'Stufe 2', 'Stufe 3', 'Stufe 4', 'Stufe 5'];
-const TONES = ['ok', 'warn', 'bad'];
-const names = (l: { id: string }[]) => () => l.map((e) => e.id);
+const TONES: Opt[] = [
+  ['ok', 'Unauffällig'],
+  ['warn', 'Auffällig'],
+  ['bad', 'Kritisch'],
+];
+// pick lists show who or what an id stands for
+const people = () => PERSONNEL.map((p): Opt => [p.id, `${p.name} · ${p.id}`]);
+const units = () => MTFS.map((m): Opt => [m.id, `MTF ${m.code} „${m.nickname}“`]);
+const reports = () => REPORTS.map((r): Opt => [r.id, `${r.id} · ${r.title}`]);
 const secondary = () => [...SECONDARY, ...ESOTERIC].map((c) => c.name);
 
 const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kinds[K] } } = {
@@ -44,13 +53,13 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'id', label: 'Kennung', t: 'text', req: true, hint: 'z. B. SCP-8050' },
       { k: 'name', label: 'Name', t: 'text', req: true },
       { k: 'objectClass', label: 'Eindämmungsklasse', t: 'select', options: () => CONTAINMENT.map((c) => c.name) },
-      { k: 'acs.secondary', label: 'Sekundärklasse', t: 'select', options: secondary, empty: 'keine' },
+      { k: 'acs.secondary', label: 'Sekundärklasse', t: 'select', options: secondary, empty: 'Keine' },
       { k: 'acs.disruption', label: 'Störungsklasse', t: 'select', options: () => DISRUPTION },
       { k: 'acs.risk', label: 'Risikoklasse', t: 'select', options: () => RISK },
       { k: 'acs.status', label: 'Status', t: 'text' },
       { k: 'acs.subclass', label: 'Unterklasse', t: 'text' },
       { k: 'clearance', label: 'Freigabe', t: 'select', options: () => LEVELS },
-      { k: 'mtf', label: 'Zugewiesene Mobile Task Force', t: 'select', options: names(MTFS), empty: 'keine' },
+      { k: 'mtf', label: 'Zugewiesene Mobile Task Force', t: 'select', options: units, empty: 'Keine' },
       { k: 'antimemetic', label: 'Antimemetisch (Beschreibung verblasst)', t: 'check' },
       { k: 'warning', label: 'Warnhinweis', t: 'text' },
       { k: 'summary', label: 'Kurzbeschreibung', t: 'area', req: true },
@@ -62,13 +71,19 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
         t: 'rows',
         blank: { kind: 'note', title: '', body: [] },
         fields: [
-          { k: 'kind', label: 'Art', t: 'select', options: () => ['recovery', 'test', 'interview', 'incident', 'note'] },
+          { k: 'kind', label: 'Art', t: 'select', options: () => [
+              ['recovery', 'Bergung'],
+              ['test', 'Testprotokoll'],
+              ['interview', 'Befragung'],
+              ['incident', 'Vorfall'],
+              ['note', 'Vermerk'],
+            ] },
           { k: 'title', label: 'Titel', t: 'text' },
           { k: 'body', label: 'Text', t: 'paras', hint: 'Im Protokoll eine Zeile je Aussage: „Name: Text“, Regieanweisung in <…>.' },
           { k: 'sign', label: 'Unterzeichnet', t: 'text' },
         ],
       },
-      { k: 'reports', label: 'Feldberichte', t: 'multi', options: names(REPORTS) },
+      { k: 'reports', label: 'Feldberichte', t: 'multi', options: reports },
     ],
   },
   personnel: {
@@ -109,10 +124,10 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
           { k: 'text', label: 'Station', t: 'text' },
         ],
       },
-      { k: 'psych.access', label: 'Psychologisches Profil', t: 'select', options: () => ['granted', 'denied'] },
-      { k: 'psych.required', label: 'Erforderliche Freigabe (bei denied)', t: 'select', options: () => LEVELS, empty: 'keine' },
+      { k: 'psych.access', label: 'Psychologisches Profil', t: 'select', options: () => [['granted', 'Freigegeben'], ['denied', 'Gesperrt']] },
+      { k: 'psych.required', label: 'Erforderliche Freigabe (wenn gesperrt)', t: 'select', options: () => LEVELS, empty: 'Keine' },
       { k: 'psych.verdict.label', label: 'Gesamtbeurteilung', t: 'text' },
-      { k: 'psych.verdict.tone', label: 'Ton der Beurteilung', t: 'select', options: () => TONES },
+      { k: 'psych.verdict.tone', label: 'Einstufung der Beurteilung', t: 'select', options: () => TONES },
       { k: 'psych.date', label: 'Datum der Beurteilung', t: 'date' },
       {
         k: 'psych.metrics',
@@ -146,7 +161,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'id', label: 'Kennung', t: 'text', req: true, hint: 'z. B. FB-80-2026-040' },
       { k: 'title', label: 'Titel', t: 'text', req: true },
       { k: 'date', label: 'Datum', t: 'date' },
-      { k: 'author', label: 'Verfasst von', t: 'select', options: names(PERSONNEL) },
+      { k: 'author', label: 'Verfasst von', t: 'select', options: people },
       { k: 'location', label: 'Einsatzort', t: 'text' },
       { k: 'classification', label: 'Einstufung', t: 'select', options: () => ['Vertraulich', 'Geheim', 'Streng geheim'] },
       { k: 'status', label: 'Status', t: 'select', options: () => ['Offen', 'Abgeschlossen'] },
@@ -174,7 +189,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
           { k: 'caption', label: 'Bildunterschrift', t: 'text' },
         ],
       },
-      { k: 'involved', label: 'Beteiligtes Personal', t: 'multi', options: names(PERSONNEL) },
+      { k: 'involved', label: 'Beteiligtes Personal', t: 'multi', options: people },
     ],
   },
   mtf: {
@@ -195,9 +210,9 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       log: [],
     }),
     fields: [
-      { k: 'id', label: 'Kennung (Adresse)', t: 'text', req: true, hint: 'z. B. alpha-9' },
+      { k: 'id', label: 'Kennung (URL)', t: 'text', req: true, hint: 'z. B. alpha-9' },
       { k: 'code', label: 'Bezeichnung', t: 'text', req: true, hint: 'z. B. Alpha-9' },
-      { k: 'nickname', label: 'Name', t: 'text', req: true, hint: 'englisch, z. B. Last Hope' },
+      { k: 'nickname', label: 'Name', t: 'text', req: true, hint: 'Englisch, z. B. Last Hope' },
       { k: 'motto', label: 'Leitsatz', t: 'text' },
       { k: 'insignia', label: 'Abzeichen', t: 'image', folder: 'mtf', preview: insigniaUrl },
       { k: 'status', label: 'Status', t: 'select', options: () => ['Einsatzbereit', 'Im Einsatz', 'Bereitschaft', 'Klassifiziert'] },
@@ -205,7 +220,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'base', label: 'Stationierung', t: 'text' },
       { k: 'strength', label: 'Stärke', t: 'text' },
       { k: 'lead', label: 'Führung', t: 'text' },
-      { k: 'specialty', label: 'Spezialgebiete', t: 'tags', hint: 'durch Komma getrennt' },
+      { k: 'specialty', label: 'Spezialgebiete', t: 'tags', hint: 'Durch Komma getrennt' },
       { k: 'mission', label: 'Auftrag', t: 'paras' },
       {
         k: 'log',
@@ -215,7 +230,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
         fields: [
           { k: 'date', label: 'Datum', t: 'text' },
           { k: 'text', label: 'Eintrag', t: 'text' },
-          { k: 'tone', label: 'Ton', t: 'select', options: () => TONES },
+          { k: 'tone', label: 'Bewertung', t: 'select', options: () => TONES },
         ],
       },
     ],
@@ -287,28 +302,24 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
     case 'check':
       return <input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} />;
     case 'select':
-      return (
-        <select className="search" value={(value as string) ?? ''} onChange={(e) => onChange(e.target.value)}>
-          {f.empty && <option value="">{f.empty}</option>}
-          {f.options().map((o) => (
-            <option key={o}>{o}</option>
-          ))}
-        </select>
-      );
+      return <Dropdown value={(value as string) ?? ''} options={f.options()} empty={f.empty} onChange={onChange} />;
     case 'multi': {
       const picked = (value as string[]) ?? [];
       return (
         <div className="chips ed-multi">
-          {f.options().map((o) => (
-            <button
-              key={o}
-              type="button"
-              className={picked.includes(o) ? 'chip active' : 'chip'}
-              onClick={() => onChange(picked.includes(o) ? picked.filter((p) => p !== o) : [...picked, o])}
-            >
-              {o}
-            </button>
-          ))}
+          {f.options().map((opt) => {
+            const o = optValue(opt);
+            return (
+              <button
+                key={o}
+                type="button"
+                className={picked.includes(o) ? 'chip active' : 'chip'}
+                onClick={() => onChange(picked.includes(o) ? picked.filter((p) => p !== o) : [...picked, o])}
+              >
+                {optLabel(opt)}
+              </button>
+            );
+          })}
         </div>
       );
     }
@@ -337,7 +348,7 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
           </label>
           {!!value && (
             <button type="button" className="link" onClick={() => onChange('')}>
-              entfernen
+              Entfernen
             </button>
           )}
           {err && <span className="ed-error small">{err}</span>}
@@ -359,10 +370,10 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
               ))}
               <div className="ed-row-tools">
                 <button type="button" className="link" disabled={!i} onClick={() => onChange(rows.map((x, j) => (j === i - 1 ? r : j === i ? rows[i - 1] : x)))}>
-                  nach oben
+                  Nach oben
                 </button>
                 <button type="button" className="link" onClick={() => onChange(rows.filter((_, j) => j !== i))}>
-                  entfernen
+                  Entfernen
                 </button>
               </div>
             </div>
@@ -416,9 +427,21 @@ export default function Editor({ kind, id, go }: { kind: Kind; id?: string; go: 
   const editor = useAccount().editor;
   const existing = id ? LISTS[kind]?.find((e) => e.id === id) : undefined;
   const [entry, setEntry] = useState<Obj>(() => structuredClone((existing ?? spec?.blank()) as Obj));
+  const [start] = useState(() => JSON.stringify(entry));
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [confirm, setConfirm] = useState(false);
+  // unsaved changes: Shell asks before leaving, the browser before closing
+  const dirty = useRef(false);
+  dirty.current = JSON.stringify(entry) !== start;
+  useEffect(() => {
+    setLeaveGuard(() => dirty.current);
+    const unload = (e: BeforeUnloadEvent) => dirty.current && e.preventDefault();
+    window.addEventListener('beforeunload', unload);
+    return () => {
+      setLeaveGuard(null);
+      window.removeEventListener('beforeunload', unload);
+    };
+  }, []);
   if (!spec || !editor) return <p className="page">Kein Zugriff.</p>;
   if (id && !existing) return <p className="page">Eintrag nicht gefunden.</p>;
 
@@ -428,17 +451,33 @@ export default function Editor({ kind, id, go }: { kind: Kind; id?: string; go: 
     if (!/^[\w.-]{1,64}$/.test(clean.id)) return setError('Die Kennung darf nur Buchstaben, Ziffern, Punkt, Binde- und Unterstrich enthalten.');
     let out: Obj = clean;
     for (const k of REQUIRED_LISTS[kind] ?? []) if (get(out, k) === undefined) out = setPath(out, k, []);
+    const ok = await askConfirm({
+      title: id ? 'Änderungen speichern?' : 'Eintrag anlegen?',
+      text: id ? `Die Änderungen an ${id} werden in die Datenbank übernommen.` : `${clean.id} wird neu in die Datenbank aufgenommen.`,
+      yes: 'SPEICHERN',
+    });
+    if (!ok) return;
     setBusy(true);
     const err = await saveEntry(kind, out as never, id);
     setBusy(false);
     if (err) return setError(err);
+    dirty.current = false;
+    setLeaveGuard(null);
     go(VIEW[kind](clean.id));
   };
   const remove = async () => {
+    const ok = await askConfirm({
+      title: 'Eintrag löschen?',
+      text: `${id} wird endgültig aus der Datenbank gelöscht. Das lässt sich nicht rückgängig machen.`,
+      yes: 'ENDGÜLTIG LÖSCHEN',
+      danger: true,
+    });
+    if (!ok) return;
     setBusy(true);
     const err = await deleteEntry(kind, id!);
     setBusy(false);
     if (err) return setError(err);
+    setLeaveGuard(null);
     go(VIEW[kind]());
   };
 
@@ -472,22 +511,14 @@ export default function Editor({ kind, id, go }: { kind: Kind; id?: string; go: 
         </div>
         {error && <p className="ed-error">{error}</p>}
         <div className="editor-actions">
-          {id &&
-            (confirm ? (
-              <>
-                <span className="small">Eintrag {id} endgültig löschen?</span>
-                <button type="button" className="card action danger" disabled={busy} onClick={remove}>
-                  JA, LÖSCHEN
-                </button>
-                <button type="button" className="card action ghost" onClick={() => setConfirm(false)}>
-                  NEIN
-                </button>
-              </>
-            ) : (
-              <button type="button" className="card action ghost" onClick={() => setConfirm(true)}>
-                LÖSCHEN
-              </button>
-            ))}
+          {id && (
+            <button type="button" className="card action danger" disabled={busy} onClick={remove}>
+              LÖSCHEN
+            </button>
+          )}
+          <button type="button" className="card action ghost" onClick={() => go(VIEW[kind](id))}>
+            ABBRECHEN
+          </button>
           <span className="editor-spacer" />
           <button type="submit" className="card action" disabled={busy}>
             {busy ? 'SPEICHERT…' : 'SPEICHERN'}

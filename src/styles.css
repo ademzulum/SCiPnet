@@ -10037,3 +10037,18 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .editor-spacer { flex: 1; }
 .action.ghost { border-color: var(--line); }
 .action.danger { border-color: var(--accent); color: var(--accent); }
+
+/* ---- custom drop-down (editor) ---- */
+.dd { position: relative; min-width: 0; }
+.dd-btn { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; width: 100%; text-align: left; cursor: pointer; }
+.dd-btn > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dd-btn svg { flex: none; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; transition: transform 0.15s; }
+.dd.open .dd-btn { border-color: var(--accent); }
+.dd.open .dd-btn svg { transform: rotate(180deg); }
+.dd-panel { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; max-height: 260px; overflow-y: auto; display: grid; gap: 2px; padding: 4px; border: 1px solid var(--line); border-radius: var(--radius); background-color: var(--card-bg, var(--bg)); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); }
+.dd-search { margin-bottom: 4px; }
+.dd-opt { font: inherit; font-size: 13px; text-align: left; color: var(--fg); padding: 0.45rem 0.7rem; border: 0; border-radius: calc(var(--radius) - 2px); background: none; cursor: pointer; }
+.dd-opt.hi { background: color-mix(in srgb, var(--fg) 9%, transparent); color: var(--hi); }
+.dd-opt.on { color: var(--accent); }
+.dd-none { padding: 0.45rem 0.7rem; }
+.confirm p { margin: 0; line-height: 1.5; }

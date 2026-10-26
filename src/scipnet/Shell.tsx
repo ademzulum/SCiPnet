@@ -15,6 +15,7 @@ import { ScipaDestruct, SelfDestruct } from './Admin';
 import { ADMIN_PERSON, O5_PERSON } from '../data/personnel';
 import AdminLogin from './AdminLogin';
 import Editor from './Editor';
+import { ConfirmHost, confirmLeave } from './Confirm';
 import { useEntriesVersion } from '../data/store';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
@@ -180,8 +181,12 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
     new ResizeObserver(check).observe(el);
   };
 
+  // unsaved changes in the editor are confirmed before any page change
   const go = (r: Route) => {
     if (locked) return;
+    void confirmLeave().then((ok) => ok && goNow(r));
+  };
+  const goNow = (r: Route) => {
     if (r.view === 'admin' && !adminIn) return setLogin(true);
     setRoute(r);
     document.querySelector('.shell-main')?.scrollTo({ top: 0 });
@@ -278,7 +283,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
           <ThemeToggle />
           <Bell api={notes} go={go} disabled={locked} />
           <Sessions disabled={locked} onO5={() => go(o5Solved ? { view: 'o5' } : { view: 'hack' })} onAdmin={() => setLogin(true)} />
-          <button className="logout" onClick={onLogout} disabled={locked} title="Abmelden" aria-label="Abmelden">
+          <button className="logout" onClick={() => void confirmLeave().then((ok) => ok && onLogout())} disabled={locked} title="Abmelden" aria-label="Abmelden">
             <svg viewBox="0 0 24 24" aria-hidden>
               <path d="M14 4h5v16h-5 M10 8l-4 4 4 4 M6 12h10" />
             </svg>
@@ -408,6 +413,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
         )}
       </AnimatePresence>
 
+      <ConfirmHost />
       <GlitchLayer pulse={route} storm={false} />
       {destruct === 'scipa' && <ScipaDestruct onDone={() => setDestruct('collapse')} />}
       {destruct === 'countdown' && <SelfDestruct onDone={() => setDestruct('collapse')} />}
