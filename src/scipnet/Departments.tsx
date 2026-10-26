@@ -12,6 +12,9 @@ import valravnLogo from '../../images/archive/group_of_interest/valravn_logo.svg
 import valravnMark from '../../images/archive/group_of_interest/valravn_logomark.svg';
 import Pips from './Pips';
 import { useAdminUnlocked } from './session';
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { FILTER_CARD } from './filterAnim';
 
 // The archive hub and what hangs off it: SCP objects, Foundation departments
 // (for now the Mobile Task Forces) and Groups of Interest, so the dock keeps one
@@ -79,14 +82,18 @@ const back = (go: Go, to: Parameters<Go>[0], label: string) => (
 
 const stKey = (m: Mtf) => m.status.replace(' ', '-');
 
-// the three fact tiles under the MTF header: label, line icon, value
-const FACTS: [string, string, (m: Mtf) => string][] = [
-  ['Stationierung', 'M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z M12 7.5a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4z', (m) => m.base],
-  ['Stärke', 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6 M16 4.5a3.5 3.5 0 0 1 0 6.5 M18 14.5c1.8.8 3 2.6 3 5', (m) => m.strength],
-  ['Führung', 'M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8-4.3-4.1 5.9-.9z', (m) => m.lead],
-];
+const STATUS_FILTERS = ['Alle', 'Einsatzbereit', 'Im Einsatz', 'Bereitschaft', 'Klassifiziert'] as const;
 
+// The Mobile Task Force list, built like the SCP list: one card per unit with
+// its insignia, status pill and readiness, a mission line and a footer with
+// its specialties. Filterable by status.
 export function Departments({ go }: { go: Go }) {
+  const [filter, setFilter] = useState<(typeof STATUS_FILTERS)[number]>('Alle');
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
+  const items = MTFS.filter(
+    (m) => (filter === 'Alle' || m.status === filter) && (!q || [m.code, m.nickname, ...m.specialty].some((s) => s.toLowerCase().includes(q))),
+  );
   // further departments come later; shown so the structure is clear
   const later = ['O5-Rat', 'RAISA', 'Ethikkomitee', 'Abteilung Memetik'];
   return (
@@ -94,66 +101,125 @@ export function Departments({ go }: { go: Go }) {
       {back(go, { view: 'archive' }, 'Archiv')}
       <div className="box archive-hero">
         <div>
-          <div className="label">Foundation intern</div>
-          <h2>Abteilungen</h2>
-          <p className="dim">Mobile Task Forces (MTF) mit Zuständigkeit für Site-80.</p>
+          <div className="label">Foundation intern · Site-80</div>
+          <h2>Mobile Task Forces</h2>
+          <p className="dim">
+            {MTFS.length} Einheiten · {MTFS.filter((m) => m.status === 'Im Einsatz').length} im Einsatz
+          </p>
+        </div>
+        <MtfInsignia m={MTFS[1]} size={60} />
+      </div>
+
+      <div className="archive-tools">
+        <input className="search" placeholder="Einheit oder Name…" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <div className="chips">
+          {STATUS_FILTERS.map((f) => (
+            <button key={f} className={filter === f ? 'chip active' : 'chip'} onClick={() => setFilter(f)}>
+              {f}
+            </button>
+          ))}
         </div>
       </div>
-      <h3 className="hub-section">Mobile Task Forces</h3>
-      <div className="mtf-grid">
-        {MTFS.map((m, i) => (
-          <button key={m.id} style={rise(i)} className={`box mtf-card rise st-${stKey(m)}`} onClick={() => go({ view: 'mtf', id: m.id })}>
-            <MtfInsignia m={m} size={64} />
-            <span className="mtf-card-text">
-              <span className="dim small">MTF {m.code}</span>
-              <strong>„{m.nickname}“</strong>
-              <span className="mtf-status small">{m.status}</span>
-            </span>
-          </button>
-        ))}
+
+      <div className="report-grid filter-grid">
+        <AnimatePresence mode="popLayout" initial={false}>
+          {items.map((m) => (
+            <motion.button
+              key={m.id}
+              {...FILTER_CARD}
+              className={`report-card scp-card2 mtf-card2 st-${stKey(m)}`}
+              onClick={() => go({ view: 'mtf', id: m.id })}
+            >
+              <span className="scp-card2-top">
+                <span className="mtf-card2-seal">
+                  <MtfInsignia m={m} size={34} />
+                </span>
+                <span className="scp-card2-id">
+                  <strong>MTF {m.code}</strong>
+                  <span className={`state-pill mtf-pill st-${stKey(m)}`}>{m.status}</span>
+                </span>
+                <span className="mtf-ready" title="Bereitschaft" style={{ '--lvl': 'var(--s)' } as React.CSSProperties}>
+                  <Pips n={Math.round(m.readiness / 20)} of={5} />
+                  {m.readiness}%
+                </span>
+              </span>
+              <strong className="report-card-title">„{m.nickname}“</strong>
+              <span className="dim report-card-summary">
+                <Redacted text={m.mission[0]} />
+              </span>
+              <span className="scp-card2-foot">
+                {m.specialty.slice(0, 2).map((t) => (
+                  <span key={t} className="card2-chip">
+                    {t}
+                  </span>
+                ))}
+              </span>
+            </motion.button>
+          ))}
+        </AnimatePresence>
       </div>
+      {!items.length && <p className="dim">Keine Einheit gefunden.</p>}
+
       <h3 className="hub-section">Weitere Abteilungen</h3>
-      <div className="mtf-grid">
-        {later.map((l, i) => (
-          <div key={l} style={rise(i + MTFS.length)} className="box mtf-card rise locked">
-            <span className="mtf-lock">⬢</span>
-            <span className="mtf-card-text">
-              <strong>{l}</strong>
-              <span className="dim small">Kein Eintrag freigegeben</span>
-            </span>
-          </div>
+      <div className="mtf-later">
+        {later.map((l) => (
+          <span key={l} className="card2-chip">
+            {l} · kein Eintrag freigegeben
+          </span>
         ))}
       </div>
     </div>
   );
 }
 
-export function MtfView({ id, go }: { id: string; go: Go }) {
-  const m = mtfById(id);
-  const solved = useAdminUnlocked();
-  if (!m) return <p className="page">Eintrag nicht gefunden.</p>;
+// A unit's classification bar, built on the SCP file's ACS bar: header with
+// the designation and status, a status panel with the insignia, rows for
+// assigned objects and strength, the readiness gauge where the octagon sits, and
+// the station and command below.
+function MtfBar({ m }: { m: Mtf }) {
   const objects = SCP.filter((s) => s.mtf === m.id);
   return (
-    <div className="page">
-      {back(go, { view: 'departments' }, 'Abteilungen')}
-      <article className={`mtf-file st-${stKey(m)}`}>
-        <header className="box mtf-hero">
-          {/* the insignia again, huge and faint, behind the header */}
-          <span className="mtf-hero-bg" style={{ '--img': `url(${m.insignia})` } as React.CSSProperties} aria-hidden />
-          <div className="mtf-seal">
-            <span className="mtf-seal-ring" aria-hidden />
-            <span className="mtf-seal-ring r2" aria-hidden />
-            <MtfInsignia m={m} size={120} />
+    <section className={`acs mtf-acs st-${stKey(m)}`}>
+      <div className="acs-head">
+        <div className="acs-id">
+          <span className="label">Einheit #</span>
+          <strong>MTF {m.code}</strong>
+        </div>
+        <span className={`state-pill mtf-pill st-${stKey(m)}`}>{m.status}</span>
+      </div>
+      <div className="acs-grid">
+        <div className="acs-contain">
+          <div className="acs-texts">
+            <span className="label">Bezeichnung:</span>
+            <strong>„{m.nickname}“</strong>
+            <small>{m.specialty.join(' · ')}</small>
+            <span className="label">Status:</span>
+            <strong>{m.status}</strong>
+            <small>{STATUS_INFO[m.status]}</small>
           </div>
-          <div className="mtf-hero-text">
-            <div className="label">Mobile Task Force · Akte Site-80</div>
-            <h2>
-              MTF <span>{m.code}</span>
-            </h2>
-            <p className="mtf-nick">„{m.nickname}“</p>
-            <span className="mtf-status big">
-              <i /> {m.status}
-            </span>
+          <span className="acs-pill mtf-acs-pill">
+            <MtfInsignia m={m} size={56} />
+          </span>
+        </div>
+
+        <div className="acs-right">
+          <div className="acs-rows">
+            <div className="acs-row">
+              <div className="acs-texts">
+                <span className="label">Zugewiesene Objekte:</span>
+                <strong>{objects.length ? objects.map((s) => s.id).join(', ') : 'Keine'}</strong>
+                <small>{objects.length ? 'an Site-80 in Verwahrung' : 'derzeit ohne Zuweisung an Site-80'}</small>
+              </div>
+            </div>
+            <div className="acs-row">
+              <div className="acs-texts">
+                <span className="label">Stärke:</span>
+                <strong>
+                  <Redacted text={m.strength} />
+                </strong>
+                <small>{m.log.length} Einträge im Einsatzprotokoll</small>
+              </div>
+            </div>
           </div>
           <div className="mtf-gauge" style={{ '--v': m.readiness } as React.CSSProperties}>
             <svg viewBox="0 0 100 100" aria-hidden>
@@ -165,62 +231,87 @@ export function MtfView({ id, go }: { id: string; go: Go }) {
               <small>Bereitschaft</small>
             </span>
           </div>
+        </div>
+
+        <div className="acs-foot">
+          <span className="label">Stationierung:</span>
+          <strong>
+            <Redacted text={m.base} />
+          </strong>
+        </div>
+        <div className="acs-foot">
+          <span className="label">Führung:</span>
+          <strong>
+            <Redacted text={m.lead} />
+          </strong>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const STATUS_INFO: Record<Mtf['status'], string> = {
+  Einsatzbereit: 'Vollständig verfügbar, kann sofort verlegt werden.',
+  'Im Einsatz': 'Derzeit in einem laufenden Einsatz gebunden.',
+  Bereitschaft: 'In Reserve, verlegbar binnen Stunden.',
+  Klassifiziert: 'Status nur mit Freigabe Stufe 5 einsehbar.',
+};
+
+// A unit's file, laid out like an SCP file: title header, classification bar,
+// then the document sections.
+export function MtfView({ id, go }: { id: string; go: Go }) {
+  const m = mtfById(id);
+  const solved = useAdminUnlocked();
+  if (!m) return <p className="page">Eintrag nicht gefunden.</p>;
+  const objects = SCP.filter((s) => s.mtf === m.id);
+  return (
+    <div className="page">
+      {back(go, { view: 'departments' }, 'Mobile Task Forces')}
+      <article className={`scp-doc mtf-doc st-${stKey(m)}`}>
+        <header className="scp-doc-head box mtf-doc-head">
+          {/* the insignia again, huge and faint, behind the header */}
+          <span className="mtf-hero-bg" style={{ '--img': `url(${m.insignia})` } as React.CSSProperties} aria-hidden />
+          <MtfInsignia m={m} size={54} />
+          <div className="scp-doc-title">
+            <div className="label">Mobile Task Force · Akte Site-80</div>
+            <h2>MTF {m.code}</h2>
+            <p>„{m.nickname}“</p>
+          </div>
         </header>
 
-        <div className="mtf-facts">
-          {FACTS.map(([k, icon, get], i) => (
-            <div key={k} className="box mtf-fact rise" style={rise(i)}>
-              <span className="mtf-fact-icon" aria-hidden>
-                <svg viewBox="0 0 24 24">
-                  <path d={icon} />
-                </svg>
-              </span>
-              <span className="mtf-fact-text">
-                <span className="label">{k}</span>
-                <strong>
-                  <Redacted text={get(m)} />
-                </strong>
-              </span>
-              <span className="mtf-fact-idx" aria-hidden>
-                0{i + 1}
-              </span>
-            </div>
+        <MtfBar m={m} />
+
+        <section className="box doc-section">
+          <h3>Auftrag</h3>
+          {m.mission.map((p, i) => (
+            <p key={i}>
+              <Redacted text={p} />
+            </p>
           ))}
-        </div>
-
-        <div className="mtf-cols">
-          <section className="box doc-section rise" style={rise(3)}>
-            <h3>Auftrag</h3>
-            {m.mission.map((p, i) => (
-              <p key={i}>
-                <Redacted text={p} />
-              </p>
+          <div className="mtf-tags">
+            {m.specialty.map((t) => (
+              <span key={t} className="card2-chip">
+                {t}
+              </span>
             ))}
-            <div className="mtf-tags">
-              {m.specialty.map((t) => (
-                <span key={t} className="mtf-tag">
-                  {t}
+          </div>
+        </section>
+
+        <section className="box doc-section">
+          <h3>Einsatzprotokoll</h3>
+          <ol className="mtf-log">
+            {m.log.map((l, i) => (
+              <li key={i} className={l.tone ? `t-${l.tone}` : ''}>
+                <time>{l.date}</time>
+                <span>
+                  <Redacted text={l.text} />
                 </span>
-              ))}
-            </div>
-          </section>
+              </li>
+            ))}
+          </ol>
+        </section>
 
-          <section className="box doc-section rise" style={rise(4)}>
-            <h3>Einsatzprotokoll</h3>
-            <ol className="mtf-log">
-              {m.log.map((l, i) => (
-                <li key={i} className={l.tone ? `t-${l.tone}` : ''}>
-                  <time>{l.date}</time>
-                  <span>
-                    <Redacted text={l.text} />
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </section>
-        </div>
-
-        <section className="box doc-section rise" style={rise(5)}>
+        <section className="box doc-section">
           <h3>Zugewiesene Objekte</h3>
           {objects.length ? (
             <div className="linked">

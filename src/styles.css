@@ -9845,3 +9845,64 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .folder-name { font-size: 17px; }
 .folder-foot { border-top: 1px dashed var(--line); padding-top: 0.6rem; }
 .folder-foot .level-pill { margin-left: 0; }
+
+/* the cursor frame's squaring wins over every rounded component, including
+   ones that force their radius with !important further up */
+[data-cur-target],
+[data-cur-target] > .nav-indicator,
+[data-cur-target] > .tab-pill {
+  border-radius: 0 !important;
+}
+
+/* ---- Mobile Task Forces on the SCP list and file structure ----
+   The status colour (--s) takes the place of the class colour (--c). */
+.mtf-card2, .mtf-acs, .mtf-doc { --c: var(--s); }
+.mtf-pill.st-Einsatzbereit, .mtf-pill.st-Im-Einsatz, .mtf-pill.st-Bereitschaft, .mtf-pill.st-Klassifiziert { --sc: var(--s); }
+.mtf-card2-seal {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--s) 70%, transparent);
+  background: color-mix(in srgb, var(--s) 14%, var(--acs-bg));
+}
+.mtf-card2 .mtf-insignia { background: var(--hi); }
+.mtf-card2 .state-pill { align-self: flex-start; }
+.mtf-ready {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--s) 55%, transparent);
+  background: color-mix(in srgb, var(--s) 12%, transparent);
+  color: var(--s);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  --st: var(--s);
+}
+.mtf-ready .pips { margin-left: 0; }
+.mtf-later { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.mtf-later .card2-chip { opacity: 0.6; }
+
+/* file: the ACS bar's frame with the unit's data */
+.mtf-acs .acs-head { border-top-color: var(--s); }
+.mtf-acs .acs-head .state-pill { align-self: center; }
+.mtf-acs-pill { width: 96px !important; height: 96px; padding: 0 !important; display: grid; place-items: center; border-radius: 50%; }
+.mtf-acs-pill .mtf-insignia { background: #0d0f12; }
+.mtf-acs .acs-row { --c: var(--s); }
+.mtf-row-pips { --st: var(--s); }
+.mtf-row-pips .pips { margin-left: 0; }
+.mtf-row-pips .pip { width: 11px; height: 11px; }
+.mtf-acs .mtf-gauge { width: 128px; height: 128px; align-self: center; }
+.mtf-acs .acs-foot strong { text-transform: none; }
+.mtf-doc-head { position: relative; overflow: hidden; }
+.mtf-doc-head .mtf-hero-bg { opacity: 0.06; }
+.mtf-doc-head > .mtf-insignia { background: var(--s); }
+.mtf-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+.mtf-card2 .mtf-ready { align-self: flex-start; }
+.mtf-card2 { --cl: var(--s); border-top-color: var(--s); }
