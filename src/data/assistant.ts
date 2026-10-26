@@ -10,6 +10,7 @@
 // as whole words or phrases. More matching keywords = stronger match.
 
 import type { Route } from '../scipnet/routes';
+import { ESOTERIC, SECONDARY } from './acsClasses';
 
 // legend: one row per class under the text: ACS icon (images/archive/acs), name, meaning.
 // An icon starting with '#' is a text badge instead ('#3' takes clearance level 3's colour).
@@ -87,7 +88,7 @@ export const INTENTS: Intent[] = [
   },
   {
     id: 'acs-containment',
-    keywords: ['eindammungsklasse', 'eindammungsklassen', 'safe', 'euclid', 'keter', 'neutralisiert', 'objektklasse'],
+    keywords: ['eindammungsklasse', 'eindammungsklassen', 'safe', 'euclid', 'keter', 'neutralisiert', 'objektklasse', 'pending', 'explained'],
     answers: [
       {
         text: 'Eindämmungsklassen sagen, wie schwer ein Objekt einzudämmen ist.',
@@ -96,6 +97,8 @@ export const INTENTS: Intent[] = [
           ['euclid', 'Euclid', 'nicht vollständig vorhersagbar'],
           ['keter', 'Keter', 'nur unter großem Aufwand einzudämmen'],
           ['neutralized', 'Neutralisiert', 'nicht mehr anomal'],
+          ['pending', 'Pending', 'noch keine Klasse vergeben, die Erforschung läuft'],
+          ['explained', 'Explained', 'kein Anomalon mehr: erklärt oder als Täuschung entlarvt'],
           ['esoteric', 'Esoteric', 'keine Klasse passt; die Sekundärklasse sagt mehr'],
         ],
       },
@@ -103,14 +106,21 @@ export const INTENTS: Intent[] = [
   },
   {
     id: 'acs-secondary',
-    keywords: ['sekundarklasse', 'sekundarklassen', 'thaumiel', 'esoteric', 'esoterisch', 'nachrichtlich'],
+    keywords: ['sekundarklasse', 'sekundarklassen', 'thaumiel', 'nachrichtlich', 'apollyon', 'archon', 'cernunnos', 'decommissioned', 'hiemal', 'tiamat', 'ticonderoga', 'uncontained'],
     answers: [
       {
-        text: 'Sekundärklassen ergänzen die Eindämmungsklasse bei Sonderfällen. Ohne Sekundärklasse bleibt das Feld leer.',
-        legend: [
-          ['thaumiel', 'Thaumiel', 'die Foundation setzt das Objekt selbst zur Eindämmung anderer Anomalien ein'],
-          ['nachrichtlich', 'Nachrichtlich', 'die Wirkung läuft über übertragene Information, etwa ein Funksignal'],
-        ],
+        text: 'Sekundärklassen ergänzen die Eindämmungsklasse bei Sonderfällen; die Eindämmungsklasse lautet dann meist Esoteric. Thaumiel ist im ACS eine Sekundärklasse, keine Eindämmungsklasse. Ohne Sekundärklasse bleibt das Feld leer. Nach den esoterischen Klassen können Sie gesondert fragen.',
+        legend: SECONDARY.map((c) => [c.icon, c.name, c.info]),
+      },
+    ],
+  },
+  {
+    id: 'acs-esoteric',
+    keywords: ['esoterische klassen', 'esoterische', 'esoterisch', 'esoteric', 'weitere sekundarklassen', 'weitere klassen', 'seltene klassen'],
+    answers: [
+      {
+        text: 'Esoterische Klassen sind seltene Sekundärklassen für Einzelfälle. Die Symbole stammen von Autoren des SCP-Wikis.',
+        legend: ESOTERIC.map((c) => [c.icon, c.name, c.info]),
       },
     ],
   },

@@ -20,6 +20,10 @@ import { REPORTS } from '../data/reports';
 import { play } from '../lib/sound';
 import type { Go, Route } from './routes';
 import { AcsIcon } from './Acs';
+import { ALL_CLASSES } from '../data/acsClasses';
+
+// class colour by icon name, for containment and secondary classes
+const ICON_COLOR = Object.fromEntries(ALL_CLASSES.map((c) => [c.icon, c.color]));
 
 // colour class per ACS icon in S.C.I.P.A.'s class chips
 const ICON_CLASS: Record<string, string> = {
@@ -397,7 +401,11 @@ export default function Assistant({ go, onSelfDestruct, notes, ask: question }: 
                 {m.legend && (
                   <ul className="scipa-legend">
                     {m.legend.map(([icon, name, meaning]) => (
-                      <li key={name} className={icon[0] === '#' ? `acs scipa-text lvl-${icon.slice(1)}` : `acs ${ICON_CLASS[icon] ?? ''}`}>
+                      <li
+                        key={name}
+                        className={icon[0] === '#' ? `acs scipa-text lvl-${icon.slice(1)}` : `acs ${ICON_CLASS[icon] ?? ''}`}
+                        style={!ICON_CLASS[icon] && ICON_COLOR[icon] ? ({ '--c': ICON_COLOR[icon] } as React.CSSProperties) : undefined}
+                      >
                         {icon[0] === '#' ? <span className="scipa-badge">{icon.slice(1)}</span> : <AcsIcon name={icon} />}
                         <strong>{name}</strong>
                         <span>{meaning}</span>

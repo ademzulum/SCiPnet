@@ -1,0 +1,20 @@
+Community ACS secondary class icons from the SCP Wiki, all licensed under
+CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/). File names
+were shortened to lowercase ASCII. In Calibold's icons the white background
+layer was removed so the icon sits on the class colour; the drawings are
+otherwise unchanged.
+
+By ZackVMK-13, https://scp-wiki.wikidot.com/zackvmk-s-acs-icon-page
+  ain-soph-aur, aisna, alterius, argus, azathorth, bakkhos, dagdagiel, echelon,
+  eparch, gevurah, hod, in-doubt, israfil, khonsu, malkuth, nagi, non-anomalous,
+  pantokrator, paradox-apollyon, see-below, spiritual, tenebrarius,
+  uncontainable, unknown, unnecessary, yggdrasil, zeno
+  Contributions on that page:
+  atlas, mendax, ragnarok (The No Face / ZackVMK-13), nehemoth (Dr B2 / ZackVMK-13)
+
+By Calibold, https://scp-wiki.wikidot.com/calibri-s-mega-cool-art-page-it-s-mostly-just-icons-but-what
+  anomalous, declassified, drygioni, godel, ignosi, kronecker, kusum, maksur,
+  netzach, terminal, yesod
+
+By ShineShadowD, https://scp-wiki.wikidot.com/more-acs-icons
+  chhokmah, embla, necropsar, roll

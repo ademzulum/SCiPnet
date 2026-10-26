@@ -9952,3 +9952,9 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .report-card.card2 .rep-place + .card2-foot { margin-top: 0; }
 /* the turning insignia sits in the back at the right of the MTF head, clipped by it */
 .mtf-acs-head .mtf-hero-bg { left: auto; right: -50px; width: 300px; height: 300px; translate: 0 -50%; opacity: 0.1; }
+.class-edge-Esoteric { --edge: #b58cff; }
+.class-edge-Pending { --edge: #8fa3b8; }
+.class-edge-Explained { --edge: #b8b0a0; }
+/* eight guide rows still fit the SCP list's rail at 900 px */
+.rail-guide button { padding: 0.12rem 0.4rem; }
+.rail-guide .acs-ico { width: 21px; height: 21px; }

@@ -4,6 +4,7 @@ import Redacted from './Redacted';
 import { mtfById } from '../data/mtf';
 import { MtfInsignia } from './Departments';
 import Pips from './Pips';
+import { ALL_CLASSES, classByName } from '../data/acsClasses';
 import type { Go } from './routes';
 
 // The file header after the wiki's Anomaly Classification System bar: containment
@@ -11,21 +12,36 @@ import type { Go } from './routes';
 // the right with the octagon emblem of all four, subclass and status underneath.
 // Icons: images/archive/acs (SCP Wiki, CC BY-SA 3.0, see LICENSE.txt there).
 
+// Community icons (secondary/) come from several authors and tools: their
+// prolog and fixed size go, and their black (explicit or default) takes the ink.
+const clean = (svg: string) =>
+  svg
+    .slice(svg.indexOf('<svg'))
+    .replace(/<svg([^>]*)>/, (_, a: string) => `<svg${a.replace(/\s(width|height)="[^"]*"/g, '')} fill="var(--acs-ink)">`)
+    .replace(/#010101|#000000\b|#000\b/gi, 'var(--acs-ink)');
 const ICONS: Record<string, string> = Object.fromEntries(
-  Object.entries(import.meta.glob('../../images/archive/acs/*.svg', { query: '?raw', import: 'default', eager: true }) as Record<string, string>).map(
-    ([path, svg]) => [
-      path.match(/([a-z]+)\.svg$/)![1],
-      // drop the Illustrator header; the black parts take the page's ink colour
-      svg.slice(svg.indexOf('<svg')).replace(/#010101/gi, 'var(--acs-ink)'),
-    ],
-  ),
+  Object.entries(
+    import.meta.glob(['../../images/archive/acs/*.svg', '../../images/archive/acs/secondary/*.svg'], { query: '?raw', import: 'default', eager: true }) as Record<string, string>,
+  ).map(([path, svg]) => [path.match(/([a-z-]+)\.svg$/)![1], clean(svg)]),
 );
 const ICON_FOR: Record<string, string> = { neutralisiert: 'neutralized' };
 
 export function AcsIcon({ name, className = '' }: { name: string; className?: string }) {
-  const key = ICON_FOR[name.toLowerCase()] ?? name.toLowerCase();
+  const known = classByName(name);
+  const key = known?.icon ?? ICON_FOR[name.toLowerCase()] ?? name.toLowerCase();
   const svg = ICONS[key] ?? ICONS.esoteric;
   return <span className={`acs-ico ${className}`} aria-hidden dangerouslySetInnerHTML={{ __html: svg }} />;
+}
+
+// Class colours for every containment and secondary class (--c on .class-X and
+// .sec-X), written once from the class list so a new class needs no CSS.
+if (typeof document !== 'undefined' && !document.getElementById('acs-class-colors')) {
+  const css = ALL_CLASSES.map((c) => {
+    const k = CSS.escape(c.name);
+    return `.class-${k},.sec-${k}{--c:${c.color}}`;
+  }).join('');
+  const el = Object.assign(document.createElement('style'), { id: 'acs-class-colors', textContent: css });
+  document.head.prepend(el);
 }
 
 // Warning sign for notes and banners, drawn inside its box so the stroke is never clipped.
@@ -50,13 +66,7 @@ const CLEARANCE = [
   { name: 'Streng geheim', info: 'Gesperrt ohne ausdrückliche Genehmigung des O5-Rats.' },
 ];
 const INFO: Record<string, string> = {
-  Safe: 'Statische Klasse. Zuverlässig und vollständig eindämmbar.',
-  Euclid: 'Statische Klasse. Verhalten nicht vollständig vorhersagbar.',
-  Keter: 'Statische Klasse. Eindämmung aufwendig und störanfällig.',
-  Neutralisiert: 'Statische Klasse. Nicht mehr anomal.',
-  Esoteric: 'Sonderfall. Eindämmung über die statischen Klassen hinaus, siehe Sekundärklasse.',
-  Thaumiel: 'Wird von der Foundation zur Eindämmung anderer Anomalien eingesetzt.',
-  Nachrichtlich: 'Wirkt über übertragene Information.',
+  ...Object.fromEntries(ALL_CLASSES.map((c) => [c.name, c.info])),
   Dark: 'Kaum Potenzial, die Allgemeinheit zu stören.',
   Vlam: 'Geringes Potenzial, Störung meist örtlich begrenzt.',
   Keneq: 'Mittleres Potenzial, Störung auf Region oder Stadt begrenzt.',

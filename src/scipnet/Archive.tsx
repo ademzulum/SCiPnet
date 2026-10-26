@@ -14,7 +14,7 @@ import { MtfInsignia } from './Departments';
 import { LevelPill } from './Pips';
 import { mtfById } from '../data/mtf';
 
-const CLASSES: ObjectClass[] = ['Safe', 'Euclid', 'Keter', 'Thaumiel'];
+const CLASSES: ObjectClass[] = ['Safe', 'Euclid', 'Keter', 'Esoteric'];
 
 export function ClassBadge({ c }: { c: ObjectClass }) {
   return <span className={`class-badge class-${c}`}>{c}</span>;

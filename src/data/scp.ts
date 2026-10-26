@@ -1,6 +1,7 @@
 // SCP archive entries for Site-80. Text may contain [[...]] for redacted passages.
 
-export type ObjectClass = 'Safe' | 'Euclid' | 'Keter' | 'Thaumiel' | 'Neutralisiert';
+// Containment classes (ACS): Thaumiel is a secondary class, see acs.secondary.
+export type ObjectClass = 'Safe' | 'Euclid' | 'Keter' | 'Esoteric' | 'Pending' | 'Explained' | 'Neutralisiert';
 
 export type Disruption = 'Dark' | 'Vlam' | 'Keneq' | 'Ekhi' | 'Amida';
 export type Risk = 'Notice' | 'Caution' | 'Warning' | 'Danger' | 'Critical';
@@ -202,7 +203,7 @@ export const SCP: ScpObject[] = [
   {
     id: 'SCP-8000',
     name: '[DATEN GELÖSCHT]',
-    objectClass: 'Thaumiel',
+    objectClass: 'Esoteric',
     clearance: 'Stufe 5',
     locked: { required: 'Stufe 5', corrupt: true, realName: 'Raum Null' },
     acs: { containment: 'Esoteric', secondary: 'Thaumiel', disruption: 'Amida', risk: 'Danger', status: 'Fundament', subclass: 'Strukturell' },

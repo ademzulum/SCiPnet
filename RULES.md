@@ -9,8 +9,10 @@ These are rules the project owner has given over time. Follow them for every cha
   - **Mobile Task Force:** "Mobile Task Force", "Mobile Task Forces" and "MTF". Never write "Einsatzkraft" or "Einsatzkräfte" for them.
   - **Unit nicknames:** "Nine-Tailed Fox", "See No Evil" and so on.
   - **Class names:**
-    - Containment: Safe, Euclid, Keter, Esoteric.
-    - Secondary: Thaumiel.
+    - Containment: Safe, Euclid, Keter, Neutralisiert, Pending, Explained, Esoteric.
+    - Secondary: Thaumiel, Apollyon, Archon, Cernunnos, Decommissioned, Hiemal, Tiamat, Ticonderoga, Uncontained, Nachrichtlich, plus the esoteric classes.
+    - Thaumiel is a secondary class under ACS, never a containment or object class. An object with a secondary class has Esoteric as its containment class.
+    - All classes, their icons, colours and explanations live in `src/data/acsClasses.ts`; S.C.I.P.A. and the file header read them from there.
     - Disruption: Dark, Vlam, Keneq, Ekhi, Amida.
     - Risk: Notice, Caution, Warning, Danger, Critical.
   - **Group of Interest names.**

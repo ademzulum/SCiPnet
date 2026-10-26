@@ -110,6 +110,7 @@ const GUIDE = [
   { label: 'Klassensystem', icon: 'esoteric', q: 'Erkläre die Klassen' },
   { label: 'Eindämmungsklassen', icon: 'keter', q: 'Was bedeuten die Eindämmungsklassen?' },
   { label: 'Sekundärklassen', icon: 'thaumiel', q: 'Was sind Sekundärklassen?' },
+  { label: 'Esoterische Klassen', icon: 'hiemal', q: 'Was sind esoterische Klassen?' },
   { label: 'Störungsklassen', icon: 'keneq', q: 'Was bedeuten die Störungsklassen?' },
   { label: 'Risikoklassen', icon: 'danger', q: 'Was bedeuten die Risikoklassen?' },
   { label: 'Freigabestufen', icon: 'notice', q: 'Was bedeuten die Freigabestufen?' },
@@ -231,7 +232,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
     }
     case 'scps':
     case 'scp': {
-      const cls = count(SCP, (o) => o.objectClass, ['Safe', 'Euclid', 'Keter', 'Thaumiel', 'Neutralisiert'])
+      const cls = count(SCP, (o) => o.objectClass, ['Safe', 'Euclid', 'Keter', 'Esoteric', 'Neutralisiert'])
         .filter((r) => r.n)
         .map((r) => ({ ...r, tone: r.label === 'Keter' ? 'bad' : r.label === 'Euclid' ? 'warn' : 'ok' }));
       const keter = SCP.filter((o) => o.objectClass === 'Keter').map((o) => ({
