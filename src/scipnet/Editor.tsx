@@ -7,7 +7,7 @@ import { PERSONNEL } from '../data/personnel';
 import { REPORTS } from '../data/reports';
 import { MTFS } from '../data/mtf';
 import { insigniaUrl, photoUrl, reportImageUrl } from '../data/photos';
-import { deleteEntry, saveEntry, uploadImage, type Kind, type Kinds } from '../data/store';
+import { deleteEntry, references, saveEntry, uploadImage, type Kind, type Kinds } from '../data/store';
 import { useAccount } from './session';
 import type { Go, Route } from './routes';
 
@@ -466,9 +466,12 @@ export default function Editor({ kind, id, go }: { kind: Kind; id?: string; go: 
     go(VIEW[kind](clean.id));
   };
   const remove = async () => {
+    const refs = references(kind, id!);
     const ok = await askConfirm({
       title: 'Eintrag löschen?',
-      text: `${id} wird endgültig aus der Datenbank gelöscht. Das lässt sich nicht rückgängig machen.`,
+      text:
+        `${id} wird endgültig aus der Datenbank gelöscht. Das lässt sich nicht rückgängig machen.` +
+        (refs.length ? ` Noch verknüpft mit: ${refs.join(', ')}. Diese Verweise zeigen danach [DATEN BESCHÄDIGT].` : ''),
       yes: 'ENDGÜLTIG LÖSCHEN',
       danger: true,
     });

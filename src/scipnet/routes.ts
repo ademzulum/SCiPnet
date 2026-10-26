@@ -19,6 +19,7 @@ export type Route =
   | { view: 'assistant'; ask?: string } // ask: a question sent on arrival (side rail)
   | { view: 'comms' }
   | { view: 'thread'; id: string }
+  | { view: 'admin-chat' } // the Administrator's one-way channel to Dr. Maynard
   | { view: 'edit'; kind: Kind; id?: string }; // the Administrator's editor; no id: new entry
 
 export type Go = (r: Route) => void;

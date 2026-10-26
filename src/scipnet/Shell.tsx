@@ -15,6 +15,7 @@ import { ScipaDestruct, SelfDestruct } from './Admin';
 import { ADMIN_PERSON, O5_PERSON } from '../data/personnel';
 import AdminLogin from './AdminLogin';
 import Editor from './Editor';
+import AdminChannel from './AdminChannel';
 import { ConfirmHost, confirmLeave } from './Confirm';
 import { useEntriesVersion } from '../data/store';
 import CommsGate from './CommsGate';
@@ -82,7 +83,7 @@ const NAV: NavItem[] = [
     match: ['archive', 'scps', 'scp', 'departments', 'mtf', 'gois', 'goi'],
     sound: 'tabArchive',
   },
-  { label: 'Nachrichten', icon: 'M4 5h16v11H9l-5 4z M8 9h8 M8 12h5', route: { view: 'comms' }, match: ['comms', 'thread'], sound: 'tabComms' },
+  { label: 'Nachrichten', icon: 'M4 5h16v11H9l-5 4z M8 9h8 M8 12h5', route: { view: 'comms' }, match: ['comms', 'thread', 'admin-chat'], sound: 'tabComms' },
   { label: 'S.C.I.P.A.', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M12 11v2', route: { view: 'assistant' }, match: ['assistant'] },
 ];
 
@@ -194,7 +195,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   };
 
   const page = (() => {
-    if ((route.view === 'comms' || route.view === 'thread') && !commsOk)
+    if ((route.view === 'comms' || route.view === 'thread' || route.view === 'admin-chat') && !commsOk)
       return (
         <CommsGate
           onDone={() => {
@@ -241,6 +242,8 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
         return <Comms go={go} />;
       case 'thread':
         return <ThreadView id={route.id} go={go} />;
+      case 'admin-chat':
+        return <AdminChannel go={go} />;
       case 'edit':
         return <Editor key={`${route.kind}-${route.id}`} kind={route.kind} id={route.id} go={go} />;
     }

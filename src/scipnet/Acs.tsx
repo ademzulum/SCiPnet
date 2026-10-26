@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { DISRUPTION, RISK, type Addendum, type ScpObject } from '../data/scp';
 import Redacted from './Redacted';
 import { mtfById } from '../data/mtf';
+import { Broken } from './Admin';
 import { MtfInsignia } from './Departments';
 import Pips from './Pips';
 import { ALL_CLASSES, classByName } from '../data/acsClasses';
@@ -201,6 +202,16 @@ export function AcsBar({ s, go, name }: { s: ScpObject; go: Go; name?: string })
           <strong>{s.acs.status}</strong>
         </div>
 
+        {s.mtf && !mtf && (
+          <div className="acs-mtf broken-ref">
+            <span className="acs-texts">
+              <span className="label">Zugewiesene Mobile Task Force:</span>
+              <strong>
+                <Broken />
+              </strong>
+            </span>
+          </div>
+        )}
         {mtf && (
           <button className="acs-mtf" onClick={() => go({ view: 'mtf', id: mtf.id })}>
             <MtfInsignia m={mtf} size={46} />

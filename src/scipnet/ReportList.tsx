@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Broken } from './Admin';
 import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
 import { FILTER_CARD } from './filterAnim';
@@ -89,11 +90,11 @@ export default function ReportList({ go }: { go: Go }) {
                     <span className="dim small">{fmt(r.date)}</span>
                   </span>
                   {/* who signed the report, top right like the insignia on SCP cards */}
-                  <span className="rep-author" title={`Gezeichnet: ${author?.name ?? 'Unbekannt'}`}>
+                  <span className={`rep-author${author ? '' : ' broken-ref'}`} title={`Gezeichnet: ${author?.name ?? '[DATEN BESCHÄDIGT]'}`}>
                     <span className="avatar sm">{initials(author?.name ?? '?')}</span>
                     <span className="rep-author-text">
                       <span className="label">Gezeichnet</span>
-                      <span>{author?.name ?? 'Unbekannt'}</span>
+                      <span>{author?.name ?? <Broken />}</span>
                     </span>
                   </span>
                 </span>

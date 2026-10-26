@@ -9,15 +9,58 @@ import Redacted from './Redacted';
 import Globe, { useGeo } from './Globe';
 import HumeMeter from './HumeMeter';
 
-type Notice = { time: string; level: 'info' | 'warn' | 'alert'; title: string; text: string };
-
-const NOTICES: Notice[] = [
-  { time: 'Heute 02:00', level: 'info', title: 'Wartung', text: 'SCiPnet-Wartung von 02:00 bis 03:00 Uhr.' },
-  { time: 'Gestern', level: 'warn', title: 'Sicherheit', text: 'Anmeldungen nur von zugelassenen Endpunkten.' },
-  { time: '14.09.', level: 'alert', title: 'Sperrung', text: 'Archiv 7 bis auf Weiteres gesperrt.' },
-];
+import { useEffect, useRef, useState } from 'react';
+import { NOTICES, type Notice } from '../data/messages';
+import { deleteEntry, saveEntry } from '../data/store';
+import { askConfirm, setLeaveGuard } from './Confirm';
+import Dropdown from './Dropdown';
 
 const LEVEL_LABEL = { info: 'Info', warn: 'Hinweis', alert: 'Dringend' };
+
+// The Administrator writes and deletes notices here; newest first.
+function NoticeForm({ onClose }: { onClose: () => void }) {
+  const [level, setLevel] = useState<Notice['level']>('info');
+  const [title, setTitle] = useState('');
+  const [text, setText] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const filled = useRef(false);
+  filled.current = !!(title.trim() || text.trim());
+  useEffect(() => {
+    setLeaveGuard(() => filled.current);
+    return () => setLeaveGuard(null);
+  }, []);
+  const cancel = async () => {
+    if (filled.current && !(await askConfirm({ title: 'Mitteilung verwerfen?', text: 'Der Entwurf geht verloren.', yes: 'VERWERFEN', danger: true }))) return;
+    onClose();
+  };
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!(await askConfirm({ title: 'Mitteilung veröffentlichen?', text: 'Die Mitteilung erscheint für alle Konten in der Übersicht.', yes: 'VERÖFFENTLICHEN' }))) return;
+    const time = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+    const err = await saveEntry('notice', { id: `N-${Date.now()}`, time, level, title: title.trim(), text: text.trim() });
+    if (err) return setError(err);
+    filled.current = false;
+    onClose();
+  };
+  return (
+    <form className="notice notice-form" onSubmit={submit}>
+      <Dropdown
+        value={level}
+        options={Object.entries(LEVEL_LABEL) as [string, string][]}
+        onChange={(v) => setLevel(v as Notice['level'])}
+      />
+      <input className="search" placeholder="Titel" required maxLength={40} value={title} onChange={(e) => setTitle(e.target.value)} />
+      <textarea className="search" placeholder="Text" required rows={2} maxLength={200} value={text} onChange={(e) => setText(e.target.value)} />
+      {error && <span className="ed-error small">{error}</span>}
+      <div className="admin-login-actions">
+        <button type="button" className="card action ghost" onClick={cancel}>
+          ABBRECHEN
+        </button>
+        <button className="card action">VERÖFFENTLICHEN</button>
+      </div>
+    </form>
+  );
+}
 
 const fmt = (d: string) => new Date(d).toLocaleDateString('de-DE');
 const daysAgo = (d: string) => Math.max(0, Math.round((Date.now() - new Date(d).getTime()) / 864e5));
@@ -25,6 +68,11 @@ const daysAgo = (d: string) => Math.max(0, Math.round((Date.now() - new Date(d).
 export default function Overview({ go }: { go: Go }) {
   const me = useAccount();
   const geo = useGeo();
+  const [writing, setWriting] = useState(false);
+  const removeNotice = async (n: Notice) => {
+    if (await askConfirm({ title: 'Mitteilung löschen?', text: `„${n.title}“ wird für alle Konten entfernt.`, yes: 'LÖSCHEN', danger: true }))
+      await deleteEntry('notice', n.id);
+  };
   const open = REPORTS.filter((r) => r.status === 'Offen');
   const active = PERSONNEL.filter((p) => p.status === 'Aktiv').length;
   const flagged = PERSONNEL.filter((p) => p.status !== 'Aktiv');
@@ -123,13 +171,26 @@ export default function Overview({ go }: { go: Go }) {
         <section className="box">
           <div className="box-head">
             <h3>Mitteilungen</h3>
+            {me.editor && !writing && (
+              <button className="link" onClick={() => setWriting(true)}>
+                + Neue Mitteilung
+              </button>
+            )}
           </div>
           <div className="notice-list">
-            {NOTICES.map((n) => (
-              <div key={n.title} className={`notice notice-${n.level}`}>
+            {writing && <NoticeForm onClose={() => setWriting(false)} />}
+            {[...NOTICES].reverse().map((n) => (
+              <div key={n.id} className={`notice notice-${n.level}`}>
                 <div className="notice-top">
                   <span className="notice-level">{LEVEL_LABEL[n.level]}</span>
-                  <span className="dim small">{n.time}</span>
+                  <span className="dim small">
+                    {n.time}
+                    {me.editor && (
+                      <button className="link notice-del" onClick={() => removeNotice(n)}>
+                        Löschen
+                      </button>
+                    )}
+                  </span>
                 </div>
                 <strong>{n.title}</strong>
                 <span className="dim">{n.text}</span>

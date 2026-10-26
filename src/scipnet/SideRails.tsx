@@ -167,7 +167,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
       }));
       const open = REPORTS.filter((r) => r.status === 'Offen').map((r) => ({
         label: r.title,
-        sub: `${r.id} · ${personById(r.author)?.name ?? r.author}`,
+        sub: `${r.id} · ${personById(r.author)?.name ?? '[DATEN BESCHÄDIGT]'}`,
         to: { view: 'report', id: r.id } as Route,
       }));
       return (

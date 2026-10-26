@@ -1,7 +1,9 @@
 import { personById } from '../data/personnel';
 import { THREADS } from '../data/threads';
 import type { Go } from './routes';
-import { threadState } from './session';
+import { threadState, useAccount } from './session';
+import { MESSAGES } from '../data/messages';
+import { Corrupt } from './Admin';
 
 export function initials(name: string) {
   return name
@@ -18,6 +20,9 @@ const WAVE = Array.from({ length: 28 }, (_, i) => 20 + Math.abs(Math.sin(i * 1.7
 
 export default function Comms({ go }: { go: Go }) {
   const unread = THREADS.filter((t) => threadState.isNew(t.id)).length;
+  // the Administrator's channel shows once there is a message, or for the Administrator himself
+  const showAdmin = MESSAGES.length > 0 || useAccount().editor;
+  const lastAdmin = MESSAGES[MESSAGES.length - 1];
 
   return (
     <div className="page">
@@ -41,6 +46,24 @@ export default function Comms({ go }: { go: Go }) {
             <span className="dim small">{unread} ungelesen</span>
           </div>
           <div className="thread-list">
+            {showAdmin && (
+              <button className="thread-card admin-thread" onClick={() => go({ view: 'admin-chat' })}>
+                <span className="avatar ghost">
+                  <Corrupt text="??" amount={0.6} every={180} />
+                </span>
+                <span className="thread-text">
+                  <span className="thread-top">
+                    <strong>
+                      <Corrupt text="Der Administrator" amount={0.1} every={220} />
+                    </strong>
+                  </span>
+                  <span className="small thread-subject">
+                    <Corrupt text="Kanal einseitig · Antimemetisch" amount={0.08} every={300} />
+                  </span>
+                  <span className="dim small preview">{lastAdmin ? '▒▒▒ ▒▒▒▒▒ ▒▒▒▒' : 'Keine Nachrichten.'}</span>
+                </span>
+              </button>
+            )}
             {THREADS.map((t) => {
               const contact = personById(t.contact);
               const log = threadState.get(t).log;

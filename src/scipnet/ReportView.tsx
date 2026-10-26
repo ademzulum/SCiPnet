@@ -1,4 +1,5 @@
 import { personById } from '../data/personnel';
+import { Broken } from './Admin';
 import { EditButton } from './Editor';
 import { reportById } from '../data/reports';
 import { scpForReport } from '../data/scp';
@@ -19,7 +20,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
   const admin = useAccount().elevated;
 
   const sections = 2 + Number(!!r.timeline?.length) + Number(!!r.images?.length) + Number(!!r.measures?.length);
-  const involved = (r.involved ?? []).map((id) => personById(id)).filter((x) => x !== undefined);
+  const involved = (r.involved ?? []).map((pid) => personById(pid) ?? pid);
 
   return (
     <div className="page page-wide page-top">
@@ -73,11 +74,17 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                 <div>
                   <dt>Beteiligte</dt>
                   <dd className="rv-people">
-                    {involved.map((p) => (
-                      <button key={p.id} className="link small" onClick={() => go({ view: 'person', id: p.id })}>
-                        {p.name}
-                      </button>
-                    ))}
+                    {involved.map((p) =>
+                      typeof p === 'string' ? (
+                        <span key={p} className="small broken-ref">
+                          <Broken />
+                        </span>
+                      ) : (
+                        <button key={p.id} className="link small" onClick={() => go({ view: 'person', id: p.id })}>
+                          {p.name}
+                        </button>
+                      ),
+                    )}
                   </dd>
                 </div>
               )}
@@ -104,7 +111,9 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                       {author.name}
                     </button>
                   ) : (
-                    r.author
+                    <span className="broken-ref">
+                      <Broken />
+                    </span>
                   )}
                   <div className="dim small">{author?.role}</div>
                 </div>

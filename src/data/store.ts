@@ -10,10 +10,11 @@ import { PERSONNEL, type Person } from './personnel';
 import { REPORTS, type Report } from './reports';
 import { MTFS, type Mtf } from './mtf';
 import { GOIS, type Goi } from './gois';
+import { MESSAGES, NOTICES, type AdminMessage, type Notice } from './messages';
 
-export type Kinds = { scp: ScpObject; personnel: Person; report: Report; mtf: Mtf; goi: Goi };
+export type Kinds = { scp: ScpObject; personnel: Person; report: Report; mtf: Mtf; goi: Goi; notice: Notice; message: AdminMessage };
 export type Kind = keyof Kinds;
-const LISTS: { [K in Kind]: Kinds[K][] } = { scp: SCP, personnel: PERSONNEL, report: REPORTS, mtf: MTFS, goi: GOIS };
+const LISTS: { [K in Kind]: Kinds[K][] } = { scp: SCP, personnel: PERSONNEL, report: REPORTS, mtf: MTFS, goi: GOIS, notice: NOTICES, message: MESSAGES };
 
 let version = 0;
 const listeners = new Set<() => void>();
@@ -55,12 +56,26 @@ export async function saveEntry<K extends Kind>(kind: K, entry: Kinds[K], oldId?
   if (oldId !== entry.id && list.some((e) => e.id === entry.id)) return `Die Kennung ${entry.id} ist schon vergeben.`;
   const position = at >= 0 ? at : list.length;
   const { error } = await supabase.from('entries').upsert({ kind, id: entry.id, position, data: entry });
-  if (error) return error.code === '42501' ? 'Keine Berechtigung.' : `Speichern fehlgeschlagen: ${error.message}`;
+  if (error)
+    return error.code === '42501'
+      ? 'Keine Berechtigung.'
+      : error.code === '23514'
+        ? 'Die Datenbank kennt diese Art Eintrag noch nicht. Bitte supabase/002_messages.sql ausführen.'
+        : `Speichern fehlgeschlagen: ${error.message}`;
   if (oldId && oldId !== entry.id) await supabase.from('entries').delete().match({ kind, id: oldId });
   if (at >= 0) list[at] = entry;
   else list.push(entry);
   changed();
   return null;
+}
+
+// Entries that point at this one and break when it is deleted.
+export function references(kind: Kind, id: string): string[] {
+  if (kind === 'personnel')
+    return REPORTS.filter((r) => r.author === id || r.involved?.includes(id)).map((r) => `${r.id} (${r.author === id ? 'Verfasser' : 'Beteiligte'})`);
+  if (kind === 'report') return SCP.filter((s) => s.reports?.includes(id)).map((s) => `${s.id} (Feldberichte)`);
+  if (kind === 'mtf') return SCP.filter((s) => s.mtf === id).map((s) => `${s.id} (Mobile Task Force)`);
+  return [];
 }
 
 export async function deleteEntry(kind: Kind, id: string): Promise<string | null> {

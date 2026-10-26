@@ -22,6 +22,9 @@ export function Corrupt({ text, amount = 0.15, every = 90 }: { text: string; amo
   );
 }
 
+// A link to an entry that was deleted.
+export const Broken = () => <Corrupt text="[DATEN BESCHÄDIGT]" amount={0.12} every={160} />;
+
 // The kill agent itself: nested, counter-rotating geometry around an eye.
 // Slow motion only (no strobing).
 function MemeticGlyph() {

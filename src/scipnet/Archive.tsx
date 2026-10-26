@@ -14,6 +14,7 @@ import { AcsBar, AcsIcon, AddendumBox, WarnIcon } from './Acs';
 import { MtfInsignia } from './Departments';
 import { LevelPill } from './Pips';
 import { mtfById } from '../data/mtf';
+import { Broken } from './Admin';
 
 const CLASSES: ObjectClass[] = ['Safe', 'Euclid', 'Keter', 'Esoteric'];
 
@@ -149,7 +150,7 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
       </div>
     );
 
-  const reports = REPORTS.filter((r) => s.reports?.includes(r.id));
+  const reports = (s.reports ?? []).map((rid) => REPORTS.find((r) => r.id === rid) ?? rid);
 
   return (
     <div className="page">
@@ -204,13 +205,22 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
           <section className="box doc-section">
             <h3>Verknüpfte Feldberichte</h3>
             <div className="linked">
-              {reports.map((r) => (
+              {reports.map((r) =>
+                typeof r === 'string' ? (
+                  <div key={r} className="linked-card broken-ref">
+                    <span className="dim small">{r}</span>
+                    <strong>
+                      <Broken />
+                    </strong>
+                  </div>
+                ) : (
                 <button key={r.id} className="linked-card" onClick={() => go({ view: 'report', id: r.id })}>
                   <span className="dim small">{r.id}</span>
                   <strong>{r.title}</strong>
                   <span className="linked-arrow">→</span>
                 </button>
-              ))}
+                ),
+              )}
             </div>
           </section>
         )}
