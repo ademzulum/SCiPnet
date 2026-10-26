@@ -7,7 +7,7 @@ import type { Go } from './routes';
 import Redacted from './Redacted';
 import { classKey } from './ReportList';
 import { initials } from './Comms';
-import { adminAccess, biometric, psychAccess, useAccount } from './session';
+import { cleared, biometric, psychAccess, useAccount } from './session';
 import { ClearancePips } from './PersonnelList';
 import BiometricGate from './BiometricGate';
 import Portrait from './Portrait';
@@ -28,11 +28,11 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
   const [tab, setTab] = useState<Tab>('Akte');
   const [, setPsychTick] = useState(0); // re-render the section cards once the profile opens
   const account = useAccount();
-  const admin = account.id === 'admin';
+  const admin = account.elevated;
   const [opened] = useState(() => new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }));
   const [verified, setVerified] = useState(() => biometric.has(id));
   if (!p) return <p className="page">Akte nicht gefunden.</p>;
-  // the Administrator's clearance overrides the biometric check
+  // O5-13's and the Administrator's clearance overrides the biometric check
   if (!verified && !admin)
     return (
       <BiometricGate
@@ -111,7 +111,7 @@ export default function PersonnelFile({ id, go }: { id: string; go: Go }) {
                 </div>
               ))}
             </dl>
-            {admin && <p className="declass-hint small">◉ Freigabe Stufe 6 · Geschwärzte Passagen anklicken, um sie aufzuheben.</p>}
+            {admin && <p className="declass-hint small">◉ Freigabe {account.clearance} · Geschwärzte Passagen anklicken, um sie aufzuheben.</p>}
             <div className="actions">
               <button
                 className="card action"
@@ -272,7 +272,7 @@ function PsychTab({ p, onGranted }: { p: Person; onGranted: () => void }) {
     setPhase('asking');
     await wait(1500);
     // the solved signal puzzle opens every profile
-    const access = adminAccess.has() ? 'granted' : p.psych.access;
+    const access = cleared() ? 'granted' : p.psych.access;
     if (access === 'granted') {
       // the lock springs open and turns green before the profile shows
       psychAccess.grant(p.id);

@@ -13,7 +13,7 @@ import {
   type Answer,
   type Intent,
 } from '../data/assistant';
-import { adminAccess, currentAccount } from './session';
+import { cleared, currentAccount } from './session';
 import { SCP } from '../data/scp';
 import { PERSONNEL } from '../data/personnel';
 import { REPORTS } from '../data/reports';
@@ -64,7 +64,7 @@ function fromData(q: string): Reply | null {
   const lead = pick(RETRIEVING);
   for (const s of SCP) {
     if (q.includes(norm(s.id))) {
-      if (s.locked && !adminAccess.has()) return { ...REFUSE, text: `${REFUSE.text} ${s.id} erfordert Freigabe ${s.locked.required}.` };
+      if (s.locked && !cleared()) return { ...REFUSE, text: `${REFUSE.text} ${s.id} erfordert Freigabe ${s.locked.required}.` };
       return {
         audio: lead.audio,
         text: `${lead.text} ${s.id}, "${s.locked?.realName ?? s.name}", Objektklasse ${s.objectClass}. ${s.summary}`,
@@ -118,17 +118,17 @@ export function respond(input: string): Reply {
       bestScore = score;
     }
   }
-  // With Administrator access she answers instead of defending herself.
-  if (best?.destruct && adminAccess.has())
+  // With O5-13 or Administrator access she answers instead of defending herself.
+  if (best?.destruct && cleared())
     return {
       text: `${RETRIEVING[0].text} Der Administrator, Gründer der Foundation, Freigabe Stufe 6. Ihre Freigabe wurde bestätigt.`,
       audio: RETRIEVING[0].audio,
       action: { label: 'Akte öffnen', route: { view: 'admin' } },
     };
-  // The Administrator needs no biometric scan.
-  if (best?.id === 'personnel' && currentAccount() === 'admin')
+  // O5-13 and the Administrator need no biometric scan.
+  if (best?.id === 'personnel' && currentAccount() !== 'maynard')
     return {
-      text: `${RETRIEVING[0].text} ${PERSONNEL.length + 1} Personalakten, Administrator. Die biometrische Prüfung entfällt für Ihre Freigabe, sämtliche Schwärzungen lassen sich aufheben.`,
+      text: `${RETRIEVING[0].text} ${PERSONNEL.length + 2} Personalakten, ${currentAccount() === 'admin' ? 'Administrator' : 'O5-13'}. Die biometrische Prüfung entfällt für Ihre Freigabe, sämtliche Schwärzungen lassen sich aufheben.`,
       audio: RETRIEVING[0].audio,
       action: best.action,
     };
@@ -156,7 +156,7 @@ async function ask(message: string, history: Msg[], notes: Notices): Promise<str
       body: JSON.stringify({
         message,
         history: history.slice(-8).map(({ from, text }) => ({ from, text })),
-        unlocked: adminAccess.has(),
+        unlocked: cleared(),
         account: currentAccount(),
         notices: notes.items.slice(0, 10).map(({ id, level, title, text, time, read }) => ({ id, level, title, text, time, read })),
       }),

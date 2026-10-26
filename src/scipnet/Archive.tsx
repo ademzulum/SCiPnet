@@ -7,7 +7,7 @@ import { play } from '../lib/sound';
 import type { Go } from './routes';
 import Redacted from './Redacted';
 import { Corrupt } from './Admin';
-import { useAdminUnlocked } from './session';
+import { useCleared } from './session';
 import ScpLogo from '../components/ScpLogo';
 import { AcsBar, AcsIcon, AddendumBox, WarnIcon } from './Acs';
 import { MtfInsignia } from './Departments';
@@ -21,7 +21,7 @@ export function ClassBadge({ c }: { c: ObjectClass }) {
 }
 
 export default function Archive({ go }: { go: Go }) {
-  const solved = useAdminUnlocked();
+  const solved = useCleared();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<ObjectClass | 'Alle'>('Alle');
   const q = query.trim().toLowerCase();
@@ -112,7 +112,7 @@ export default function Archive({ go }: { go: Go }) {
 
 export function ScpView({ id, go }: { id: string; go: Go }) {
   const s = scpById(id);
-  const solved = useAdminUnlocked();
+  const solved = useCleared();
   const sealed = !!s?.locked && !solved;
   const [open, setOpen] = useState<number | null>(0);
 

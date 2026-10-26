@@ -15,7 +15,7 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
   if (!r) return <p className="page">Bericht nicht gefunden.</p>;
   const author = personById(r.author);
   const scp = scpForReport(r.id);
-  const admin = useAccount().id === 'admin';
+  const admin = useAccount().elevated;
 
   const sections = 2 + Number(!!r.timeline?.length) + Number(!!r.images?.length) + Number(!!r.measures?.length);
   const involved = (r.involved ?? []).map((id) => personById(id)).filter((x) => x !== undefined);

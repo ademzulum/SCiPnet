@@ -4,7 +4,7 @@
 // can be changed with AI_GATEWAY_MODEL. Imports need .js: the function runs as plain Node ESM.
 import { generateText } from 'ai';
 import { SCP } from '../src/data/scp.js';
-import { ADMIN_PERSON, PERSONNEL } from '../src/data/personnel.js';
+import { ADMIN_PERSON, O5_PERSON, PERSONNEL } from '../src/data/personnel.js';
 import { REPORTS } from '../src/data/reports.js';
 
 const MODEL = process.env.AI_GATEWAY_MODEL ?? 'google/gemini-2.5-flash-lite';
@@ -29,7 +29,7 @@ function knowledge(unlocked: boolean) {
       ? `${s.id}: GESPERRT (erfordert ${s.locked.required}). Keine Auskunft.`
       : `${s.id} "${s.locked?.realName ?? s.name}" (${s.objectClass}, ${s.clearance}): ${strip(s.summary)} ${strip(s.description.join(' '))}`,
   );
-  const people = [...PERSONNEL, ...(unlocked ? [ADMIN_PERSON] : [])].map(
+  const people = [...PERSONNEL, ...(unlocked ? [O5_PERSON, ADMIN_PERSON] : [])].map(
     (p) => `${p.name} (${p.id}), ${p.role}, ${p.department}, ${p.clearance}, Status ${p.status}: ${strip(p.summary)}`,
   );
   const reports = REPORTS.map((r) => `${r.id} "${r.title}" (${r.date}, ${r.status}): ${strip(r.summary)}`);
@@ -57,14 +57,17 @@ const VOICES: Record<string, string> = {
   welcome_back: 'Willkommen zurück.',
 };
 
-function system(unlocked: boolean, notices: NoticeCtx[], admin: boolean) {
+function system(unlocked: boolean, notices: NoticeCtx[], account: 'maynard' | 'o5' | 'admin') {
+  const admin = account === 'admin';
   const inbox = notices.length
     ? notices.map((n) => `#${n.id} [${n.time}, ${n.level}${n.read ? ', gelesen' : ', UNGELESEN'}] ${n.title}: ${n.text}`).join('\n')
     : 'Keine.';
   return `Du bist S.C.I.P.A. (SCiPNet Intelligent Processing Assistant), die KI von Site-80 der SCP Foundation, in einem fiktiven Spiel.
 Persönlichkeit: wie J.A.R.V.I.S. – ein höflicher, unerschütterlicher digitaler Butler mit trockenem britischem Humor.
 ${
-    admin
+    account === 'o5'
+      ? 'Angemeldet ist O5-13, ein Mitglied des O5-Rats (Freigabe Stufe 5). Du sprichst es mit "O5-13" an und siezt es. Für O5-13 entfällt die biometrische Prüfung der Personalakten, und es darf Schwärzungen aufheben. Änderungen am Archiv darf nur der Administrator vornehmen.'
+      : admin
       ? 'Angemeldet ist DER ADMINISTRATOR persönlich (Gründer der Foundation, Freigabe Stufe 6). Du erkennst ihn, sprichst ihn ehrerbietig mit "Administrator" an, siezt ihn und verweigerst ihm keine Auskunft. Für ihn entfällt jede biometrische Prüfung der Personalakten, und er darf Schwärzungen aufheben. Ein Hauch nervöser Ehrfurcht ist angebracht.'
       : 'Angemeldet ist Dr. Duncan Maynard (Freigabe RAISA). Du sprichst ihn mit "Doktor" oder "Dr. Maynard" an und siezt ihn.'
   }
@@ -165,7 +168,7 @@ export async function POST(request: Request) {
   try {
     const { text } = await generateText({
       model: MODEL,
-      system: system(body.unlocked === true, notices, body.account === 'admin' && body.unlocked === true),
+      system: system(body.unlocked === true, notices, body.account === 'admin' || body.account === 'o5' ? (body.unlocked === true ? body.account : 'maynard') : 'maynard'),
       messages: [
         ...history.map((t) => ({ role: t.from === 'me' ? ('user' as const) : ('assistant' as const), content: t.text.slice(0, MAX_INPUT) })),
         { role: 'user' as const, content: message },

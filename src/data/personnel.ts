@@ -289,8 +289,42 @@ export const PERSONNEL: Person[] = [
   },
 ];
 
-// Not listed with the staff; reachable through the Administrator card once
-// the signal puzzle is solved.
+// Not listed with the staff; reachable through the O5-13 card once the signal
+// puzzle is solved.
+export const O5_PERSON: Person = {
+  id: 'O5-13',
+  name: 'O5-13',
+  role: 'Mitglied des O5-Rats',
+  department: 'O5-Rat',
+  clearance: 'Stufe 5',
+  status: 'Aktiv',
+  since: '[unbekannt]',
+  quote: 'Dreizehn Stimmen, eine Entscheidung.',
+  summary:
+    'Eines von dreizehn Mitgliedern des O5-Rats. Identität und Aufenthaltsort sind klassifiziert. Das Konto ist für Einsicht freigegeben, nicht für Änderungen am Archiv.',
+  notes: [
+    'Anfragen an O5-13 laufen über das Büro des O5-Rats.',
+    'Zugriff auf SCiPnet nur lesend; Änderungen am Archiv bleiben dem Administrator vorbehalten.',
+  ],
+  timeline: [
+    { year: '[unbekannt]', text: 'Berufung in den O5-Rat.' },
+    { year: '2014', text: 'Zustimmung zur Ernennung von Dr. Ilse Brandt als Standortdirektorin von Site-80.' },
+    { year: '2026', text: 'Signalpfad zu diesem Konto von außen durchgestellt.' },
+  ],
+  psych: {
+    access: 'granted',
+    verdict: { label: 'Nicht bewertbar', tone: 'warn' },
+    metrics: [
+      { label: 'Belastbarkeit', value: 96 },
+      { label: 'Kooperation', value: 41 },
+      { label: 'Vorhersagbarkeit', value: 14 },
+    ],
+    text: ['Bewertungen von Mitgliedern des O5-Rats werden nicht archiviert.'],
+  },
+  incidents: ['Keine Vermerke.'],
+};
+
+// Not listed with the staff; shown once the real Administrator account is logged in.
 export const ADMIN_PERSON: Person = {
   id: 'A-00-0000',
   name: 'Der Administrator',
@@ -326,4 +360,4 @@ export const ADMIN_PERSON: Person = {
 };
 
 export const personById = (id: string) =>
-  id === ADMIN_PERSON.id ? ADMIN_PERSON : PERSONNEL.find((p) => p.id === id);
+  [O5_PERSON, ADMIN_PERSON].find((p) => p.id === id) ?? PERSONNEL.find((p) => p.id === id);

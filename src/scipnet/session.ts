@@ -4,6 +4,8 @@ import type { Msg, Thread } from '../data/threads';
 import { useSyncExternalStore } from 'react';
 import { savedSession } from '../lib/persist';
 import { ACCOUNTS, type Account } from '../lib/creds';
+import { supabase } from '../lib/supabase';
+import type { Session } from '@supabase/supabase-js';
 
 export type ThreadState = { log: Msg[]; queue: Msg[]; node: string };
 
@@ -12,7 +14,7 @@ type Stored = {
   unlocked: string[];
   verified: string[];
   comms: boolean;
-  admin?: boolean; // brute-force game won
+  admin?: boolean; // brute-force game won (O5-13)
   account?: Account;
 };
 const stored = savedSession.state() as Stored | undefined;
@@ -21,8 +23,12 @@ const threads = new Map<string, ThreadState>(stored?.threads ?? []);
 const unlocked = new Set<string>(stored?.unlocked ?? []);
 const verified = new Set<string>(stored?.verified ?? []);
 let commsAuthed = stored?.comms ?? false;
-let adminUnlocked = stored?.admin ?? false;
+let o5Unlocked = stored?.admin ?? false;
 let account: Account = stored?.account ?? 'maynard';
+// The Administrator is a real Supabase session with the admin role; it is
+// checked on every load and never taken from storage.
+let adminSession = false;
+if (account === 'admin') account = 'maynard';
 
 // React subscribers for the admin/account state.
 const listeners = new Set<() => void>();
@@ -38,7 +44,7 @@ function save() {
     unlocked: [...unlocked],
     verified: [...verified],
     comms: commsAuthed,
-    admin: adminUnlocked,
+    admin: o5Unlocked,
     account,
   } satisfies Stored);
 }
@@ -49,8 +55,9 @@ export function resetSessionState() {
   unlocked.clear();
   verified.clear();
   commsAuthed = false;
-  adminUnlocked = false;
+  o5Unlocked = false;
   account = 'maynard';
+  if (adminSession) void supabase?.auth.signOut();
   emit();
 }
 
@@ -93,30 +100,62 @@ export const commsAuth = {
   },
 };
 
-// Administrator access (after winning the minigame) and the active account.
-export const adminAccess = {
-  has: () => adminUnlocked,
+// O5-13 access (after winning the minigame) and the active account.
+export const o5Access = {
+  has: () => o5Unlocked,
   grant: () => {
-    adminUnlocked = true;
+    o5Unlocked = true;
     save();
     emit();
   },
 };
 
+const isAdmin = (s: Session | null) => s?.user.app_metadata.role === 'admin';
+supabase?.auth.getSession().then(({ data }) => setAdmin(isAdmin(data.session)));
+supabase?.auth.onAuthStateChange((_e, s) => setAdmin(isAdmin(s)));
+function setAdmin(on: boolean) {
+  const was = adminSession;
+  adminSession = on;
+  if (!on && account === 'admin') account = 'maynard';
+  if (on && !was) account = 'admin'; // a fresh login switches to the account
+  save();
+  emit();
+}
+
+// Real login with the Supabase account. Returns an error text or null.
+export async function adminLogin(email: string, password: string): Promise<string | null> {
+  if (!supabase) return 'Keine Verbindung zur Datenbank.';
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return 'Kennung oder Passwort falsch.';
+  if (!isAdmin(data.session)) {
+    await supabase.auth.signOut();
+    return 'Dieses Konto hat keine Administratorrechte.';
+  }
+  return null;
+}
+
+export const adminLogout = () => supabase?.auth.signOut();
+
+// Restricted content (locked SCPs, psych profiles) is open to O5-13 and the Administrator.
+export const cleared = () => o5Unlocked || adminSession;
+
 export const currentAccount = () => account;
 
 export function switchAccount(a: Account) {
-  if (a === 'admin' && !adminUnlocked) return;
+  if (a === 'o5' && !o5Unlocked) return;
+  if (a === 'admin' && !adminSession) return;
   account = a;
   save();
   emit();
 }
 
-export function useAdminUnlocked() {
-  return useSyncExternalStore(subscribe, () => adminUnlocked);
-}
+export const useO5Unlocked = () => useSyncExternalStore(subscribe, () => o5Unlocked);
+export const useAdminSession = () => useSyncExternalStore(subscribe, () => adminSession);
+export const useCleared = () => useSyncExternalStore(subscribe, cleared);
 
+// elevated: lifts redactions and censoring (O5-13 and Administrator);
+// editor: may create, edit and delete entries (Administrator only).
 export function useAccount() {
   const a = useSyncExternalStore(subscribe, () => account);
-  return { id: a, ...ACCOUNTS[a] };
+  return { id: a, ...ACCOUNTS[a], elevated: a !== 'maynard', editor: a === 'admin' };
 }

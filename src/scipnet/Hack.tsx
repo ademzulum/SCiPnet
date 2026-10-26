@@ -5,7 +5,7 @@ import { Corrupt } from './Admin';
 import UiuLogo from '../components/UiuLogo';
 
 // "Signalpfad": a snake-style minigame that covers the whole shell until it is
-// finished. The player steers a signal through the Administrator's firewall
+// finished. The player steers a signal through O5-13's firewall
 // and collects the letters of the passphrase in order. Wrong letters, walls,
 // the signal's own tail and patrolling ICE sentinels each cost a life. Every
 // collected letter makes the signal faster and raises a new firewall block.
@@ -447,9 +447,9 @@ export default function Hack({
     >
       <header className="hack-head">
         <div>
-          <div className="label">Signalpfad · Firewall der Administrator-Ebene</div>
+          <div className="label">Signalpfad · Firewall der O5-Ebene</div>
           <h2>
-            <Corrupt text="DER ADMINISTRATOR" amount={0.08} every={220} />
+            <Corrupt text="O5-13" amount={0.08} every={220} />
           </h2>
         </div>
         <div className="hack-word" aria-label={`${got} von ${WORD.length} Zeichen`}>
@@ -497,9 +497,9 @@ export default function Hack({
           {phase === 'won' && (
             <motion.div className="hack-intro hack-won" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}>
               <UiuLogo className="hack-won-seal" />
-              <div className="label">Administrator-Ebene</div>
+              <div className="label">O5-Ebene</div>
               <h2>ZUGRIFF GEWÄHRT</h2>
-              <p className="dim">Signal durchgestellt. Sie sind jetzt als Der Administrator angemeldet.</p>
+              <p className="dim">Signal durchgestellt. Sie sind jetzt als O5-13 angemeldet.</p>
               <p className="small hack-soon">[ GESPERRTE AKTEN SIND JETZT LESBAR ]</p>
               <button className="card action" onClick={onOpen}>
                 AKTE ÖFFNEN

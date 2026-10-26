@@ -10,7 +10,7 @@ const CLOSE = /^[.,;:!?…)\]»“”"'’%-]+/;
 const OPEN = /[(\[„«"'‚]+$/;
 
 // Renders text, turning [[...]] into a redaction bar of similar length.
-// Logged in as the Administrator, a click declassifies the passage.
+// Logged in as O5-13 or the Administrator, a click declassifies the passage.
 // Each bar is glued to the punctuation around it ("[[x]]." or "([[x]])"), so
 // a line never breaks between the bar and a full stop or bracket.
 // Names of entries with their own page (Groups of Interest) become links.
@@ -42,7 +42,7 @@ export default function Redacted({ text }: { text: string }) {
 }
 
 function Bar({ secret }: { secret: string }) {
-  const admin = useAccount().id === 'admin';
+  const admin = useAccount().elevated;
   const [shown, setShown] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval>>(undefined);
@@ -74,7 +74,7 @@ function Bar({ secret }: { secret: string }) {
 
   if (shown !== null)
     return (
-      <span className="declassified" title="Freigegeben durch den Administrator">
+      <span className="declassified" title="Freigegeben">
         {shown}
       </span>
     );

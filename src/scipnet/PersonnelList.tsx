@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { FILTER_CARD } from './filterAnim';
-import { ADMIN_PERSON, PERSONNEL } from '../data/personnel';
-import { biometric, useAccount, useAdminUnlocked } from './session';
+import { ADMIN_PERSON, O5_PERSON, PERSONNEL } from '../data/personnel';
+import { biometric, useAccount, useAdminSession, useO5Unlocked } from './session';
 import type { Go } from './routes';
 import { Corrupt } from './Admin';
 import { initials } from './Comms';
@@ -30,8 +30,10 @@ export function ClearancePips({ c }: { c: string }) {
 }
 
 export default function PersonnelList({ go }: { go: Go }) {
-  const solved = useAdminUnlocked();
-  const admin = useAccount().id === 'admin';
+  const solved = useO5Unlocked();
+  const adminIn = useAdminSession();
+  const me = useAccount();
+  const admin = me.elevated;
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<(typeof STATUSES)[number]>('Alle');
   const q = query.trim().toLowerCase();
@@ -48,8 +50,8 @@ export default function PersonnelList({ go }: { go: Go }) {
           <div className="label">Personalverwaltung · Site-80</div>
           <h2>Personalakten</h2>
           <p className="dim">
-            {PERSONNEL.length + 1} Einträge ·{' '}
-            {admin ? 'Biometrie überbrückt durch Freigabe Stufe 6' : 'Zugriff nur nach biometrischer Prüfung'}
+            {PERSONNEL.length + 2} Einträge ·{' '}
+            {admin ? `Biometrie überbrückt durch Freigabe ${me.clearance}` : 'Zugriff nur nach biometrischer Prüfung'}
           </p>
         </div>
         <span className={admin ? 'bio-chip ok' : 'bio-chip'}>
@@ -127,46 +129,53 @@ export default function PersonnelList({ go }: { go: Go }) {
             </motion.button>
           ))}
 
-        {solved ? (
-          <motion.button key="admin" {...FILTER_CARD} className="folder admin-folder" onClick={() => go({ view: 'admin' })}>
-            <span className="folder-tab">{ADMIN_PERSON.id}</span>
-            <span className="folder-body">
-              <span className="folder-photo" aria-hidden>
-                ∅
+        {/* O5-13 opens with the minigame, the Administrator with the real login;
+            both cards stay distorted until then */}
+        {[
+          { p: O5_PERSON, open: solved, view: 'o5' as const, lvl: 5 },
+          { p: ADMIN_PERSON, open: adminIn, view: 'admin' as const, lvl: 6 },
+        ].map(({ p, open, view, lvl }) =>
+          open ? (
+            <motion.button key={view} {...FILTER_CARD} className="folder admin-folder" onClick={() => go({ view })}>
+              <span className="folder-tab">{p.id}</span>
+              <span className="folder-body">
+                <span className="folder-photo" aria-hidden>
+                  ∅
+                </span>
+                <span className="folder-info">
+                  <strong>{p.name}</strong>
+                  <span className="small">{p.role}</span>
+                  <span className="dim small">{p.department}</span>
+                </span>
               </span>
-              <span className="folder-info">
-                <strong>{ADMIN_PERSON.name}</strong>
-                <span className="small">{ADMIN_PERSON.role}</span>
-                <span className="dim small">{ADMIN_PERSON.department}</span>
+              <span className="folder-foot">
+                <LevelPill n={lvl} of={6} label={p.clearance} />
+                <span className="card2-chip seal open">Offen</span>
               </span>
-            </span>
-            <span className="folder-foot">
-              <LevelPill n={6} of={6} label={ADMIN_PERSON.clearance} />
-              <span className="card2-chip seal open">Offen</span>
-            </span>
-          </motion.button>
-        ) : (
-          <motion.button key="admin-locked" {...FILTER_CARD} className="folder admin-card" onClick={() => go({ view: 'admin' })}>
-            <span className="folder-tab">
-              <Corrupt text="A-00-0000" amount={0.2} every={400} />
-            </span>
-            <span className="folder-body">
-              <span className="folder-photo" aria-hidden>
-                ?
+            </motion.button>
+          ) : (
+            <motion.button key={`${view}-locked`} {...FILTER_CARD} className="folder admin-card" onClick={() => go({ view })}>
+              <span className="folder-tab">
+                <Corrupt text={p.id} amount={0.2} every={400} />
               </span>
-              <span className="folder-info">
-                <strong>
-                  <Corrupt text="Der Administrator" amount={0.06} every={250} />
-                </strong>
-                <span className="small">[DATEN BESCHÄDIGT]</span>
+              <span className="folder-body">
+                <span className="folder-photo" aria-hidden>
+                  ?
+                </span>
+                <span className="folder-info">
+                  <strong>
+                    <Corrupt text={p.name} amount={0.06} every={250} />
+                  </strong>
+                  <span className="small">[DATEN BESCHÄDIGT]</span>
+                </span>
               </span>
-            </span>
-            <span className="folder-foot">
-              <span className="small">
-                <Corrupt text="??????" amount={0.5} every={300} />
+              <span className="folder-foot">
+                <span className="small">
+                  <Corrupt text="??????" amount={0.5} every={300} />
+                </span>
               </span>
-            </span>
-          </motion.button>
+            </motion.button>
+          ),
         )}
         </AnimatePresence>
       </div>

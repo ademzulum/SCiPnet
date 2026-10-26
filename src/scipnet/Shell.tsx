@@ -12,7 +12,8 @@ import Comms from './Comms';
 import ThreadView from './ThreadView';
 import GlitchLayer from './GlitchLayer';
 import { ScipaDestruct, SelfDestruct } from './Admin';
-import { ADMIN_PERSON } from '../data/personnel';
+import { ADMIN_PERSON, O5_PERSON } from '../data/personnel';
+import AdminLogin from './AdminLogin';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
 import { ArchiveHub, Departments, GoiList, GoiView, MtfView } from './Departments';
@@ -21,7 +22,7 @@ import Hack from './Hack';
 import Sessions from './Sessions';
 import SideRails from './SideRails';
 import { Nav } from './EntityLinks';
-import { adminAccess, commsAuth, switchAccount, useAdminUnlocked } from './session';
+import { o5Access, commsAuth, switchAccount, useAdminSession, useO5Unlocked } from './session';
 import { Bell, Toast, useNotifications } from './Notifications';
 import { play, type SoundName } from '../lib/sound';
 import { savedSession, SESSION_MS } from '../lib/persist';
@@ -61,7 +62,7 @@ const NAV: NavItem[] = [
     label: 'Personal',
     icon: 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6 M16 4.5a3.5 3.5 0 0 1 0 6.5 M18 14.5c1.8.8 3 2.6 3 5',
     route: { view: 'personnel' },
-    match: ['personnel', 'person', 'admin'],
+    match: ['personnel', 'person', 'o5', 'admin'],
     sound: 'tabPersonnel',
   },
   {
@@ -112,8 +113,11 @@ function Clock() {
 export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh: boolean }) {
   const [route, setRoute] = useState<Route>(() => (savedSession.route() as Route | undefined) ?? { view: 'overview' });
 
-  // Remember the page for reloads; never the Administrator file.
-  useEffect(() => savedSession.setRoute(route.view === 'admin' || route.view === 'hack' ? { view: 'personnel' } : route), [route]);
+  // Remember the page for reloads; never the O5-13 or Administrator file.
+  useEffect(
+    () => savedSession.setRoute(['o5', 'admin', 'hack'].includes(route.view) ? { view: 'personnel' } : route),
+    [route],
+  );
 
   // Overview sound once, right after a real login (not after a reload).
   const greeted = useRef(false);
@@ -142,15 +146,22 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   onLogoutRef.current = onLogout;
   const [destruct, setDestruct] = useState<'none' | 'countdown' | 'scipa' | 'collapse'>('none');
   const [commsOk, setCommsOk] = useState(commsAuth.has);
-  // Once the Administrator file is opened there is no way out.
+  // Once the O5-13 file is opened there is no way out.
   const [hacking, setHacking] = useState(false);
-  const adminSolved = useAdminUnlocked();
-  // Before the puzzle is solved, opening the Administrator file goes straight
-  // into the self-destruct countdown.
-  const meltdown = (route.view === 'admin' && !adminSolved) || destruct !== 'none';
+  const o5Solved = useO5Unlocked();
+  const adminIn = useAdminSession();
+  // the Administrator's login form; opening that file without a session shows it
+  const [login, setLogin] = useState(false);
+  // Before the puzzle is solved, opening the O5-13 file goes straight into the
+  // self-destruct countdown.
+  const meltdown = (route.view === 'o5' && !o5Solved) || destruct !== 'none';
   useEffect(() => {
-    if (route.view === 'admin' && !adminSolved && destruct === 'none') setDestruct('countdown');
-  }, [route.view, adminSolved, destruct]);
+    if (route.view === 'o5' && !o5Solved && destruct === 'none') setDestruct('countdown');
+  }, [route.view, o5Solved, destruct]);
+  // logged out elsewhere (or the session ran out): leave the Administrator file
+  useEffect(() => {
+    if (route.view === 'admin' && !adminIn) setRoute({ view: 'personnel' });
+  }, [route.view, adminIn]);
   const locked = meltdown || hacking;
   const notes = useNotifications(locked);
   // Rails beside a page that fits without scrolling sit centred on it; beside
@@ -168,6 +179,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
 
   const go = (r: Route) => {
     if (locked) return;
+    if (r.view === 'admin' && !adminIn) return setLogin(true);
     setRoute(r);
     document.querySelector('.shell-main')?.scrollTo({ top: 0 });
     window.scrollTo({ top: 0 }); // phones scroll the page itself
@@ -193,8 +205,10 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       case 'hack':
         // the minigame itself is a full-screen overlay, see below
         return <PersonnelList go={go} />;
+      case 'o5':
+        return o5Solved ? <PersonnelFile id={O5_PERSON.id} go={go} /> : null;
       case 'admin':
-        return adminSolved ? <PersonnelFile id={ADMIN_PERSON.id} go={go} /> : null;
+        return adminIn ? <PersonnelFile id={ADMIN_PERSON.id} go={go} /> : null;
       case 'reports':
         return <ReportList go={go} />;
       case 'report':
@@ -258,7 +272,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
           <span className="hdr-sep" />
           <ThemeToggle />
           <Bell api={notes} go={go} disabled={locked} />
-          <Sessions disabled={locked} onAdmin={() => go(adminSolved ? { view: 'admin' } : { view: 'hack' })} />
+          <Sessions disabled={locked} onO5={() => go(o5Solved ? { view: 'o5' } : { view: 'hack' })} onAdmin={() => setLogin(true)} />
           <button className="logout" onClick={onLogout} disabled={locked} title="Abmelden" aria-label="Abmelden">
             <svg viewBox="0 0 24 24" aria-hidden>
               <path d="M14 4h5v16h-5 M10 8l-4 4 4 4 M6 12h10" />
@@ -318,7 +332,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
             >
               {/* wide screens: system log and tab context beside the page, top-aligned
                   with it and scrolling with it; the comms login brings its own panels */}
-              {!locked && !((route.view === 'comms' || route.view === 'thread') && !commsOk) && route.view !== 'admin' ? (
+              {!locked && !((route.view === 'comms' || route.view === 'thread') && !commsOk) && route.view !== 'o5' && route.view !== 'admin' ? (
                 <div className="rail-layout" ref={fitRails}>
                   <SideRails side="left" route={route} go={go} />
                   {page}
@@ -361,15 +375,28 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
             key="hack"
             onActive={setHacking}
             onWin={() => {
-              adminAccess.grant();
-              switchAccount('admin'); // a win logs straight into the Administrator account
+              o5Access.grant();
+              switchAccount('o5'); // a win logs straight into the O5-13 account
             }}
             onOpen={() => {
               setHacking(false);
-              setRoute({ view: 'admin' });
+              setRoute({ view: 'o5' });
             }}
             onLose={() => {
               setHacking(false);
+              setRoute({ view: 'o5' });
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {login && (
+          <AdminLogin
+            key="login"
+            onClose={() => setLogin(false)}
+            onDone={() => {
+              setLogin(false);
               setRoute({ view: 'admin' });
             }}
           />

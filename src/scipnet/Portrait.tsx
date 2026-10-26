@@ -6,7 +6,7 @@ import { useAccount } from './session';
 
 // ID photo: uses person.photo when set, otherwise a generated silhouette.
 export default function Portrait({ person }: { person: Person }) {
-  const admin = useAccount().id === 'admin';
+  const admin = useAccount().elevated;
   return (
     <figure className="portrait">
       <div className="portrait-frame">

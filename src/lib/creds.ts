@@ -10,7 +10,18 @@ export const STOLEN = {
 
 export const AGENT = 'Special Agent Corvus Finch';
 
-// Second account, available after the brute-force minigame is won.
+// Second account, available after the brute-force minigame is won. It lifts
+// redactions but can't change any entry.
+export const O5 = {
+  user: 'o5-13',
+  name: 'O5-13',
+  clearance: 'Stufe 5',
+  site: 'Site-80',
+  personnelId: 'O5-13',
+};
+
+// The real account: a Supabase login with email and password. Only this one
+// may create, edit and delete entries (enforced by the database, see supabase/).
 export const ADMIN = {
   user: 'administrator',
   name: 'Der Administrator',
@@ -19,5 +30,5 @@ export const ADMIN = {
   personnelId: 'A-00-0000',
 };
 
-export type Account = 'maynard' | 'admin';
-export const ACCOUNTS = { maynard: STOLEN, admin: ADMIN } as const;
+export type Account = 'maynard' | 'o5' | 'admin';
+export const ACCOUNTS = { maynard: STOLEN, o5: O5, admin: ADMIN } as const;

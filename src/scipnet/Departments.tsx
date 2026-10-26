@@ -11,7 +11,7 @@ import mcdMark from '../../images/archive/group_of_interest/mcd_logomark.svg';
 import valravnLogo from '../../images/archive/group_of_interest/valravn_logo.svg';
 import valravnMark from '../../images/archive/group_of_interest/valravn_logomark.svg';
 import Pips from './Pips';
-import { useAdminUnlocked } from './session';
+import { useCleared } from './session';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { FILTER_CARD } from './filterAnim';
@@ -263,7 +263,7 @@ const STATUS_INFO: Record<Mtf['status'], string> = {
 // then the document sections.
 export function MtfView({ id, go }: { id: string; go: Go }) {
   const m = mtfById(id);
-  const solved = useAdminUnlocked();
+  const solved = useCleared();
   if (!m) return <p className="page">Eintrag nicht gefunden.</p>;
   const objects = SCP.filter((s) => s.mtf === m.id);
   return (

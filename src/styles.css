@@ -9958,3 +9958,28 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 /* eight guide rows still fit the SCP list's rail at 900 px */
 .rail-guide button { padding: 0.12rem 0.4rem; }
 .rail-guide .acs-ico { width: 21px; height: 21px; }
+
+/* ---- Administrator login (Supabase account) ---------------------------- */
+.admin-login-back {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(4px);
+}
+.admin-login {
+  width: min(380px, 100%);
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.4rem;
+  background-color: var(--card-bg, var(--bg));
+}
+.admin-login h2 { margin: 0; }
+.admin-login label { display: grid; gap: 0.35rem; }
+.admin-login .search { min-width: 0; }
+.admin-login-error { margin: 0; color: var(--accent); }
+.admin-login-actions { display: flex; justify-content: flex-end; gap: 0.6rem; }
+.admin-login-actions .ghost { border-color: var(--line); }

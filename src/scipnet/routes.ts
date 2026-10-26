@@ -2,7 +2,8 @@ export type Route =
   | { view: 'overview' }
   | { view: 'personnel' }
   | { view: 'person'; id: string }
-  | { view: 'admin' }
+  | { view: 'o5' } // O5-13's file, after the minigame
+  | { view: 'admin' } // the Administrator's file, after the real login
   | { view: 'hack' }
   | { view: 'reports' }
   | { view: 'report'; id: string }
