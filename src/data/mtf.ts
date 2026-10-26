@@ -21,6 +21,8 @@ export type Mtf = {
   lead: string;
   mission: string[];
   specialty: string[];
+  readiness: number; // percent, shown as a gauge
+  log: { date: string; text: string; tone?: 'ok' | 'warn' | 'bad' }[]; // recent deployments
 };
 
 export const MTFS: Mtf[] = [
@@ -39,6 +41,8 @@ export const MTFS: Mtf[] = [
       'Weitere Informationen über MTF Alpha-1 sind als Stufe 5 eingestuft.',
     ],
     specialty: ['Sonderoperationen', 'O5-Schutz', 'Geheimhaltung'],
+    readiness: 100,
+    log: [{ date: '[GESCHWÄRZT]', text: 'Einsatz unter O5-Befehl. Details Stufe 5.', tone: 'bad' }, { date: '[GESCHWÄRZT]', text: 'Verlegung nach Site-80. Grund nicht freigegeben.' }],
   },
   {
     id: 'epsilon-11',
@@ -54,6 +58,8 @@ export const MTFS: Mtf[] = [
       'Die meisten Einsätze sind klassifiziert.',
     ],
     specialty: ['Eindämmungsbruch', 'Standortsicherung', 'Rückeroberung'],
+    readiness: 92,
+    log: [{ date: '19.10.2026', text: 'Übung Eindämmungsbruch Sektor 3. Ziel nach 4 min gesichert.', tone: 'ok' }, { date: '02.09.2026', text: 'Verstärkung Zelle 14-B während Stromausfall.', tone: 'warn' }, { date: '11.07.2026', text: 'Standortsicherung nach Fehlalarm Tor B.' }],
   },
   {
     id: 'eta-10',
@@ -69,6 +75,8 @@ export const MTFS: Mtf[] = [
       'Arbeitet ausschließlich mit indirekter Beobachtung: Kameras, Spiegel, abgedunkelte Visiere.',
     ],
     specialty: ['Visuelle Kognitogefahren', 'Indirekte Beobachtung'],
+    readiness: 88,
+    log: [{ date: '03.10.2026', text: 'Kameraaudit Zelle 14-B. Abweichung in Kamera 3.', tone: 'warn' }, { date: '02.09.2026', text: 'Beobachtung SCP-8019 während Stromausfall. Objekt stand auf.', tone: 'bad' }, { date: '20.06.2026', text: 'Ersteindämmung SCP-8019. Keine Verluste.', tone: 'ok' }],
   },
   {
     id: 'gamma-6',
@@ -84,6 +92,8 @@ export const MTFS: Mtf[] = [
       'Für Site-80 zuständig für Bergungen aus Binnenseen im süddeutschen Raum.',
     ],
     specialty: ['Tauchbergung', 'Gewässeranomalien'],
+    readiness: 74,
+    log: [{ date: '24.10.2026', text: 'Sonar-Kartierung Bodensee, Abschnitt Nord.' }, { date: '14.07.2026', text: 'Messsonde bei Test 80-041-T3 verloren.', tone: 'bad' }, { date: '03.06.2026', text: 'Bergung SCP-8041 aus Waldsee, Schwarzwald.', tone: 'ok' }],
   },
   {
     id: 'gamma-5',
@@ -99,6 +109,8 @@ export const MTFS: Mtf[] = [
       'Entwickelt und setzt experimentelle Amnestika sowie Erinnerungsfälschungen ein.',
     ],
     specialty: ['Desinformation', 'Amnestika', 'Medienkontrolle'],
+    readiness: 81,
+    log: [{ date: '21.10.2026', text: 'Sperrung 66,6 MHz im Umkreis Funkstation 80-Nord bestätigt.', tone: 'ok' }, { date: '30.08.2026', text: 'Lokalzeitung: Bericht über Sendemast zurückgezogen.' }, { date: '12.05.2026', text: 'Amnestika Klasse B an 14 Anwohner ausgegeben.', tone: 'warn' }],
   },
   {
     id: 'beta-43',
@@ -111,6 +123,8 @@ export const MTFS: Mtf[] = [
     lead: 'Abteilung Memetik',
     mission: ['Spezialisiert auf memetische Abwehr.', 'Unterstützt Site-80 bei Objekten mit antimemetischer Wirkung.'],
     specialty: ['Memetische Abwehr', 'Antimemetik'],
+    readiness: 67,
+    log: [{ date: '15.10.2026', text: 'Antimemetischer Filter Archiv 7 erneuert.', tone: 'ok' }, { date: '28.08.2026', text: 'Zwei Mitglieder ohne Erinnerung an Einsatz zurückgekehrt.', tone: 'bad' }],
   },
   {
     id: 'omega-1',
@@ -126,6 +140,8 @@ export const MTFS: Mtf[] = [
       'Gegenstück zur "Red Right Hand" des O5-Rats.',
     ],
     specialty: ['Interne Ermittlungen', 'Ethikvollzug'],
+    readiness: 100,
+    log: [{ date: '[GESCHWÄRZT]', text: 'Einsatz im Auftrag des Ethikkomitees.', tone: 'bad' }],
   },
 ];
 

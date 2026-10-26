@@ -3,6 +3,8 @@ import { PERSONNEL, personById } from '../data/personnel';
 import { REPORTS } from '../data/reports';
 import { SCP } from '../data/scp';
 import { THREADS } from '../data/threads';
+import { MTFS } from '../data/mtf';
+import { GOIS } from '../data/gois';
 import type { Go, Route } from './routes';
 
 // Panels in the empty space left and right of the page on wide screens
@@ -142,13 +144,61 @@ function Context({ route, go }: { route: Route; go: Go }) {
         </>
       );
     }
-    case 'archive':
-    case 'scps':
-    case 'scp':
+    case 'archive': {
+      // the hub: what each part of the archive holds, and which units are out
+      const parts = [
+        { label: 'SCP-Objekte', n: SCP.length, tone: 'info', to: { view: 'scps' } as Route },
+        { label: 'Mobile Einsatzkräfte', n: MTFS.length, tone: 'ok', to: { view: 'departments' } as Route },
+        { label: 'Interessengruppen', n: GOIS.length, tone: 'warn', to: { view: 'gois' } as Route },
+      ];
+      const out = MTFS.filter((m) => m.status === 'Im Einsatz').map((m) => ({
+        label: `MTF ${m.code}`,
+        sub: m.nickname,
+        to: { view: 'mtf', id: m.id } as Route,
+        tone: 'warn',
+      }));
+      return (
+        <>
+          <Bars title="Bestand" rows={parts} go={go} />
+          <Links title="Derzeit im Einsatz" items={out} go={go} />
+        </>
+      );
+    }
     case 'departments':
-    case 'mtf':
+    case 'mtf': {
+      const rows = count(MTFS, (m) => m.status, ['Einsatzbereit', 'Im Einsatz', 'Bereitschaft', 'Klassifiziert']).map((r) => ({
+        ...r,
+        tone: r.label === 'Einsatzbereit' ? 'ok' : r.label === 'Klassifiziert' ? 'bad' : r.label === 'Im Einsatz' ? 'warn' : 'info',
+      }));
+      const units = MTFS.map((m) => ({ label: `MTF ${m.code}`, sub: `„${m.nickname}“ · ${m.readiness}% bereit`, to: { view: 'mtf', id: m.id } as Route }));
+      return (
+        <>
+          <Bars title="Einsatzstatus" rows={rows} go={go} />
+          <Links title="Einheiten" items={units} go={go} />
+        </>
+      );
+    }
     case 'gois':
     case 'goi': {
+      const rows = count(GOIS, (g) => g.threat, ['Niedrig', 'Mittel', 'Hoch']).map((r) => ({
+        ...r,
+        tone: r.label === 'Hoch' ? 'bad' : r.label === 'Mittel' ? 'warn' : 'ok',
+      }));
+      const groups = GOIS.map((g) => ({
+        label: g.name,
+        sub: `Bedrohung ${g.threat}`,
+        to: { view: 'goi', id: g.id } as Route,
+        tone: g.threat === 'Hoch' ? 'bad' : '',
+      }));
+      return (
+        <>
+          <Bars title="Bedrohungslage" rows={rows} go={go} />
+          <Links title="Akten" items={groups} go={go} />
+        </>
+      );
+    }
+    case 'scps':
+    case 'scp': {
       const cls = count(SCP, (o) => o.objectClass, ['Safe', 'Euclid', 'Keter', 'Thaumiel', 'Neutralisiert'])
         .filter((r) => r.n)
         .map((r) => ({ ...r, tone: r.label === 'Keter' ? 'bad' : r.label === 'Euclid' ? 'warn' : 'ok' }));

@@ -1,6 +1,5 @@
-import { motion } from 'motion/react';
 import { MTFS, mtfById, type Mtf } from '../data/mtf';
-import { GOIS, goiById } from '../data/gois';
+import { GOIS, goiById, type Goi } from '../data/gois';
 import { SCP } from '../data/scp';
 import type { Go } from './routes';
 import Redacted from './Redacted';
@@ -12,11 +11,9 @@ import { useAdminUnlocked } from './session';
 // (for now the Mobile Task Forces) and Groups of Interest, so the dock keeps one
 // "Archiv" entry for all of them.
 
-const rise = (i: number) => ({
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.35, delay: i * 0.07 },
-});
+// Cards come in with a CSS animation on `translate` (styles.css .rise), so the
+// hover lift on `transform` never fights it.
+const rise = (i: number) => ({ '--i': i }) as React.CSSProperties;
 
 // The insignia is black line art, so it is drawn as a mask in the page's colours.
 export function MtfInsignia({ m, size = 48 }: { m: Mtf; size?: number }) {
@@ -30,37 +27,18 @@ export function MtfInsignia({ m, size = 48 }: { m: Mtf; size?: number }) {
   );
 }
 
+const GLOBE = (
+  <svg viewBox="0 0 24 24" className="hub-goi-icon" aria-hidden>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M2 12h20 M12 2c3.4 3.5 3.4 16.5 0 20 M12 2c-3.4 3.5-3.4 16.5 0 20" />
+  </svg>
+);
+
 export function ArchiveHub({ go }: { go: Go }) {
   const parts = [
-    {
-      key: 'scps',
-      label: 'SCP-Objekte',
-      sub: 'Anomaliendatenbank mit Eindämmungsakten.',
-      n: SCP.length,
-      to: { view: 'scps' } as const,
-      icon: <ScpLogo size={44} />,
-    },
-    {
-      key: 'departments',
-      label: 'Abteilungen',
-      sub: 'Interne Stellen der Foundation. Mobile Einsatzkräfte.',
-      n: MTFS.length,
-      to: { view: 'departments' } as const,
-      icon: <MtfInsignia m={MTFS[1]} size={44} />,
-    },
-    {
-      key: 'gois',
-      label: 'Interessengruppen',
-      sub: 'Organisationen außerhalb der Foundation mit Bezug zum Anomalen.',
-      n: GOIS.length,
-      to: { view: 'gois' } as const,
-      icon: (
-        <svg viewBox="0 0 24 24" width="44" height="44" className="hub-goi-icon" aria-hidden>
-          <circle cx="12" cy="12" r="9" />
-          <path d="M3 12h18 M12 3c3 3.2 3 14.8 0 18 M12 3c-3 3.2-3 14.8 0 18" />
-        </svg>
-      ),
-    },
+    { key: 'scps', label: 'SCP-Objekte', sub: 'Anomaliendatenbank mit Eindämmungsakten.', n: SCP.length, to: { view: 'scps' } as const, icon: <ScpLogo size={52} /> },
+    { key: 'departments', label: 'Abteilungen', sub: 'Interne Stellen der Foundation. Mobile Einsatzkräfte.', n: MTFS.length, to: { view: 'departments' } as const, icon: <MtfInsignia m={MTFS[1]} size={52} /> },
+    { key: 'gois', label: 'Interessengruppen', sub: 'Organisationen außerhalb der Foundation mit Bezug zum Anomalen.', n: GOIS.length, to: { view: 'gois' } as const, icon: GLOBE },
   ];
   return (
     <div className="page page-top">
@@ -74,13 +52,13 @@ export function ArchiveHub({ go }: { go: Go }) {
       </div>
       <div className="hub-grid">
         {parts.map((p, i) => (
-          <motion.button key={p.key} {...rise(i)} className={`box hub-card hub-${p.key}`} onClick={() => go(p.to)}>
+          <button key={p.key} style={rise(i)} className={`box hub-card rise hub-${p.key}`} onClick={() => go(p.to)}>
             <span className="hub-icon">{p.icon}</span>
             <span className="hub-n">{p.n}</span>
             <strong>{p.label}</strong>
             <span className="dim small">{p.sub}</span>
             <span className="hub-go">Öffnen →</span>
-          </motion.button>
+          </button>
         ))}
       </div>
     </div>
@@ -92,6 +70,8 @@ const back = (go: Go, to: Parameters<Go>[0], label: string) => (
     ← {label}
   </button>
 );
+
+const stKey = (m: Mtf) => m.status.replace(' ', '-');
 
 export function Departments({ go }: { go: Go }) {
   // further departments come later; shown so the structure is clear
@@ -109,20 +89,20 @@ export function Departments({ go }: { go: Go }) {
       <h3 className="hub-section">Mobile Einsatzkräfte</h3>
       <div className="mtf-grid">
         {MTFS.map((m, i) => (
-          <motion.button key={m.id} {...rise(i)} className={`box mtf-card st-${m.status.replace(' ', '-')}`} onClick={() => go({ view: 'mtf', id: m.id })}>
+          <button key={m.id} style={rise(i)} className={`box mtf-card rise st-${stKey(m)}`} onClick={() => go({ view: 'mtf', id: m.id })}>
             <MtfInsignia m={m} size={64} />
             <span className="mtf-card-text">
               <span className="dim small">MTF {m.code}</span>
               <strong>„{m.nickname}“</strong>
               <span className="mtf-status small">{m.status}</span>
             </span>
-          </motion.button>
+          </button>
         ))}
       </div>
       <h3 className="hub-section">Weitere Abteilungen</h3>
       <div className="mtf-grid">
-        {later.map((l) => (
-          <div key={l} className="box mtf-card locked">
+        {later.map((l, i) => (
+          <div key={l} style={rise(i + MTFS.length)} className="box mtf-card rise locked">
             <span className="mtf-lock">⬢</span>
             <span className="mtf-card-text">
               <strong>{l}</strong>
@@ -143,48 +123,85 @@ export function MtfView({ id, go }: { id: string; go: Go }) {
   return (
     <div className="page">
       {back(go, { view: 'departments' }, 'Abteilungen')}
-      <article className="scp-doc">
-        <header className="box mtf-head">
-          <motion.span initial={{ opacity: 0, scale: 0.7, rotate: -20 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: 0.6 }}>
-            <MtfInsignia m={m} size={128} />
-          </motion.span>
-          <div>
-            <div className="label">Mobile Task Force</div>
-            <h2>{m.code}</h2>
+      <article className={`mtf-file st-${stKey(m)}`}>
+        <header className="box mtf-hero">
+          {/* the insignia again, huge and faint, behind the header */}
+          <span className="mtf-hero-bg" style={{ '--img': `url(${m.insignia})` } as React.CSSProperties} aria-hidden />
+          <div className="mtf-seal">
+            <span className="mtf-seal-ring" aria-hidden />
+            <span className="mtf-seal-ring r2" aria-hidden />
+            <MtfInsignia m={m} size={120} />
+          </div>
+          <div className="mtf-hero-text">
+            <div className="label">Mobile Task Force · Akte Site-80</div>
+            <h2>
+              MTF <span>{m.code}</span>
+            </h2>
             <p className="mtf-nick">„{m.nickname}“</p>
-            <span className={`mtf-status st-${m.status.replace(' ', '-')}`}>{m.status}</span>
+            <span className="mtf-status big">
+              <i /> {m.status}
+            </span>
+          </div>
+          <div className="mtf-gauge" style={{ '--v': m.readiness } as React.CSSProperties}>
+            <svg viewBox="0 0 100 100" aria-hidden>
+              <circle cx="50" cy="50" r="42" className="mtf-gauge-track" />
+              <circle cx="50" cy="50" r="42" className="mtf-gauge-fill" pathLength={100} />
+            </svg>
+            <span>
+              <strong>{m.readiness}%</strong>
+              <small>Bereitschaft</small>
+            </span>
           </div>
         </header>
-        <dl className="box mtf-facts">
-          <div>
-            <dt className="label">Stationierung</dt>
-            <dd>{m.base}</dd>
-          </div>
-          <div>
-            <dt className="label">Stärke</dt>
-            <dd>{m.strength}</dd>
-          </div>
-          <div>
-            <dt className="label">Führung</dt>
-            <dd>{m.lead}</dd>
-          </div>
-        </dl>
-        <section className="box doc-section">
-          <h3>Auftrag</h3>
-          {m.mission.map((p, i) => (
-            <p key={i}>
-              <Redacted text={p} />
-            </p>
+
+        <div className="mtf-facts">
+          {[
+            ['Stationierung', m.base],
+            ['Stärke', m.strength],
+            ['Führung', m.lead],
+          ].map(([k, v], i) => (
+            <div key={k} className="box rise" style={rise(i)}>
+              <span className="label">{k}</span>
+              <strong>
+                <Redacted text={v} />
+              </strong>
+            </div>
           ))}
-          <div className="mtf-tags">
-            {m.specialty.map((t) => (
-              <span key={t} className="chip">
-                {t}
-              </span>
+        </div>
+
+        <div className="mtf-cols">
+          <section className="box doc-section rise" style={rise(3)}>
+            <h3>Auftrag</h3>
+            {m.mission.map((p, i) => (
+              <p key={i}>
+                <Redacted text={p} />
+              </p>
             ))}
-          </div>
-        </section>
-        <section className="box doc-section">
+            <div className="mtf-tags">
+              {m.specialty.map((t) => (
+                <span key={t} className="mtf-tag">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          <section className="box doc-section rise" style={rise(4)}>
+            <h3>Einsatzprotokoll</h3>
+            <ol className="mtf-log">
+              {m.log.map((l, i) => (
+                <li key={i} className={l.tone ? `t-${l.tone}` : ''}>
+                  <time>{l.date}</time>
+                  <span>
+                    <Redacted text={l.text} />
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </div>
+
+        <section className="box doc-section rise" style={rise(5)}>
           <h3>Zugewiesene Objekte</h3>
           {objects.length ? (
             <div className="linked">
@@ -219,14 +236,14 @@ export function GoiList({ go }: { go: Go }) {
       </div>
       <div className="goi-grid">
         {GOIS.map((g, i) => (
-          <motion.button key={g.id} {...rise(i)} className={`goi-card goi-${g.theme}`} onClick={() => go({ view: 'goi', id: g.id })}>
+          <button key={g.id} style={rise(i)} className={`goi-card rise goi-${g.theme}`} onClick={() => go({ view: 'goi', id: g.id })}>
             <GoiMark theme={g.theme} />
             <span className="goi-card-text">
               <strong>{g.name}</strong>
               <span className="small">{g.short}</span>
-              <span className="goi-threat small">Bedrohung: {g.threat}</span>
+              <Threat g={g} />
             </span>
-          </motion.button>
+          </button>
         ))}
       </div>
     </div>
@@ -234,7 +251,7 @@ export function GoiList({ go }: { go: Go }) {
 }
 
 // Each group's own mark, drawn for this site.
-function GoiMark({ theme }: { theme: 'valravn' | 'mcd' }) {
+function GoiMark({ theme }: { theme: Goi['theme'] }) {
   return theme === 'valravn' ? (
     <svg className="goi-mark" viewBox="0 0 64 64" aria-hidden>
       {/* a raven's head in a shield */}
@@ -247,10 +264,25 @@ function GoiMark({ theme }: { theme: 'valravn' | 'mcd' }) {
       {/* monogram in a double ring */}
       <circle cx="32" cy="32" r="29" className="goi-mark-frame" />
       <circle cx="32" cy="32" r="24.5" className="goi-mark-frame thin" />
-      <text x="32" y="39" className="goi-mark-text">
+      <text x="32" y="38" className="goi-mark-text">
         MC&amp;D
       </text>
     </svg>
+  );
+}
+
+const LEVELS: Goi['threat'][] = ['Niedrig', 'Mittel', 'Hoch'];
+function Threat({ g }: { g: Goi }) {
+  const n = LEVELS.indexOf(g.threat) + 1;
+  return (
+    <span className={`goi-threat t-${g.threat}`}>
+      <span className="goi-threat-bars" aria-hidden>
+        {LEVELS.map((l, i) => (
+          <i key={l} className={i < n ? 'on' : ''} />
+        ))}
+      </span>
+      Bedrohung: {g.threat}
+    </span>
   );
 }
 
@@ -260,17 +292,23 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
   return (
     <div className={`page goi-page goi-${g.theme}`}>
       {back(go, { view: 'gois' }, 'Interessengruppen')}
-      <motion.header className="goi-hero" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <header className="goi-hero">
+        <span className="goi-hero-bg" aria-hidden>
+          <GoiMark theme={g.theme} />
+        </span>
         <GoiMark theme={g.theme} />
         <div>
           <div className="goi-kicker">Group of Interest · Akte Site-80</div>
           <h2>{g.name}</h2>
           <p className="goi-tagline">“{g.tagline}”</p>
         </div>
-      </motion.header>
+        <span className="goi-stamp" aria-hidden>
+          {g.theme === 'mcd' ? 'Abgefangen' : 'Beobachtet'}
+        </span>
+      </header>
 
       <div className="goi-body">
-        <aside className="goi-side">
+        <aside className="goi-side rise" style={rise(1)}>
           <dl>
             {g.facts.map(([k, v]) => (
               <div key={k}>
@@ -280,7 +318,9 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
             ))}
             <div>
               <dt>Bedrohung</dt>
-              <dd className={`goi-threat t-${g.threat}`}>{g.threat}</dd>
+              <dd>
+                <Threat g={g} />
+              </dd>
             </div>
           </dl>
           <div className="goi-stance">
@@ -291,18 +331,18 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
 
         <div className="goi-main">
           {g.sections.map((s, i) => (
-            <motion.section key={s.title} className="goi-section" {...rise(i + 1)}>
+            <section key={s.title} className="goi-section rise" style={rise(i + 2)}>
               <h3>{s.title}</h3>
               {s.body.map((p, j) => (
                 <p key={j}>
                   <Redacted text={p} />
                 </p>
               ))}
-            </motion.section>
+            </section>
           ))}
 
           {g.ops && (
-            <motion.section className="goi-section" {...rise(3)}>
+            <section className="goi-section rise" style={rise(4)}>
               <h3>Bekannte Einsätze</h3>
               <ol className="goi-ops">
                 {g.ops.map((o) => (
@@ -313,11 +353,11 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
                   </li>
                 ))}
               </ol>
-            </motion.section>
+            </section>
           )}
 
           {g.items && (
-            <motion.section className="goi-section" {...rise(3)}>
+            <section className="goi-section rise" style={rise(4)}>
               <h3>Abgefangener Katalog</h3>
               <ul className="goi-lots">
                 {g.items.map((it) => (
@@ -332,7 +372,7 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
                 ))}
               </ul>
               <p className="goi-disclaimer">Marshall, Carter and Dark Ltd. takes no responsibility for the misuse of this item.</p>
-            </motion.section>
+            </section>
           )}
         </div>
       </div>
