@@ -110,7 +110,7 @@ export const INTENTS: Intent[] = [
     id: 'archive',
     keywords: ['archiv', 'scp archiv', 'anomalien', 'objekte'],
     answers: [{ text: 'Im SCP-Archiv von Site-80 sind sechs Einträge verzeichnet, zwei davon sind für Ihre Freigabe gesperrt.' }],
-    action: { label: 'SCP-Archiv öffnen', route: { view: 'archive' } },
+    action: { label: 'SCP-Archiv öffnen', route: { view: 'scps' } },
   },
   {
     id: 'comms',

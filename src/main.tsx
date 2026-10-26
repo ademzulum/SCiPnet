@@ -6,6 +6,11 @@ import '@fontsource/ibm-plex-mono/600.css';
 import '@fontsource/barlow/500.css';
 import '@fontsource/barlow/600.css';
 import '@fontsource/barlow/700.css';
+// themed Group of Interest pages
+import '@fontsource/cormorant-garamond/500.css';
+import '@fontsource/cormorant-garamond/600.css';
+import '@fontsource/barlow-condensed/600.css';
+import '@fontsource/barlow-condensed/800.css';
 import './styles.css';
 import App from './App';
 import { blockInspect } from './lib/noInspect';

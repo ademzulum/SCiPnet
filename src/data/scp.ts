@@ -36,6 +36,7 @@ export type ScpObject = {
     subclass?: string;
   };
   warning?: string; // warning banner above the file
+  mtf?: string; // assigned Mobile Task Force (data/mtf.ts id)
   addenda: Addendum[];
   reports?: string[]; // field report ids
 };
@@ -48,6 +49,7 @@ export const SCP: ScpObject[] = [
     clearance: 'Stufe 2',
     acs: { disruption: 'Vlam', risk: 'Caution', status: 'Eingedämmt' },
     warning: 'Direkter Sichtkontakt mit dem Lichtpuls ist ohne Schutzbrille Klasse B untersagt.',
+    mtf: 'gamma-6',
     summary: 'Metallischer Körper, der in regelmäßigen Abständen blaues Licht aussendet.',
     containment: [
       'SCP-8041 wird in einem abgedunkelten Wasserbecken (4 × 4 × 3 m) in Sektor 9 von Site-80 gelagert.',
@@ -89,6 +91,7 @@ export const SCP: ScpObject[] = [
     antimemetic: true,
     acs: { disruption: 'Keneq', risk: 'Danger', status: 'Teilweise eingedämmt', subclass: 'Antimemetisch' },
     warning: 'Antimemetische Gefährdung. Dieses Dokument kann Ihre Erinnerung an sich selbst löschen. Notieren Sie, dass Sie es geöffnet haben.',
+    mtf: 'beta-43',
     summary: 'Ein Archivregal, an das sich niemand erinnern kann.',
     containment: [
       'Archiv 7 ist bis auf Weiteres gesperrt. Zutritt nur mit aktivem antimemetischem Filter.',
@@ -123,6 +126,7 @@ export const SCP: ScpObject[] = [
     objectClass: 'Euclid',
     clearance: 'Stufe 2',
     acs: { disruption: 'Vlam', risk: 'Warning', status: 'Eingedämmt', subclass: 'Visuell' },
+    mtf: 'eta-10',
     summary: 'Eine Gestalt, die nur auf Kameraaufnahmen von Zelle 14-B sichtbar ist.',
     containment: [
       'Zelle 14-B ist dauerhaft mit vier unabhängigen Kameras zu überwachen.',
@@ -175,6 +179,7 @@ export const SCP: ScpObject[] = [
     locked: { required: 'Stufe 4', realName: 'Der Totenfunk' },
     acs: { secondary: 'Nachrichtlich', disruption: 'Ekhi', risk: 'Critical', status: 'Nicht eindämmbar' },
     warning: 'Die in diesem Dokument genannte Zahlenfolge ist nicht auszuwerten. Zuwiderhandlung wird als Selbstgefährdung gewertet.',
+    mtf: 'gamma-5',
     summary: 'Ein Funkturm, der ein Signal sendet, das nur Verstorbene empfangen.',
     containment: [
       'Das Gelände um SCP-8066 ist als Sperrgebiet "Funkstation 80-Nord" ausgewiesen.',
@@ -202,6 +207,7 @@ export const SCP: ScpObject[] = [
     locked: { required: 'Stufe 5', corrupt: true, realName: 'Raum Null' },
     acs: { containment: 'Esoteric', secondary: 'Thaumiel', disruption: 'Amida', risk: 'Danger', status: 'Fundament', subclass: 'Strukturell' },
     warning: 'Freigabe Stufe 5 erforderlich. Jeder Abruf wird dem Administrator persönlich gemeldet.',
+    mtf: 'alpha-1',
     summary: 'Das Fundament von Site-80.',
     containment: [
       'SCP-8000 kann und soll nicht eingedämmt werden. Site-80 wurde um das Objekt herum gebaut.',

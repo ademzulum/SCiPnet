@@ -30,6 +30,9 @@ export default function Archive({ go }: { go: Go }) {
 
   return (
     <div className="page page-top">
+      <button className="link back" onClick={() => go({ view: 'archive' })}>
+        ← Archiv
+      </button>
       <div className="box archive-hero">
         <div>
           <div className="label">Anomaliendatenbank · Site-80</div>
@@ -105,7 +108,7 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
   if (!s) return <p className="page">Eintrag nicht gefunden.</p>;
 
   const back = (
-    <button className="link back" onClick={() => go({ view: 'archive' })}>
+    <button className="link back" onClick={() => go({ view: 'scps' })}>
       ← SCP-Archiv
     </button>
   );
@@ -141,7 +144,7 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
           </div>
         </header>
 
-        <AcsBar s={s} />
+        <AcsBar s={s} go={go} />
 
         {s.warning && (
           <div className="file-warning" role="note">

@@ -15,6 +15,7 @@ import { ScipaDestruct, SelfDestruct } from './Admin';
 import { ADMIN_PERSON } from '../data/personnel';
 import CommsGate from './CommsGate';
 import Archive, { ScpView } from './Archive';
+import { ArchiveHub, Departments, GoiList, GoiView, MtfView } from './Departments';
 import Assistant from './Assistant';
 import Hack from './Hack';
 import Sessions from './Sessions';
@@ -73,7 +74,7 @@ const NAV: NavItem[] = [
     label: 'Archiv',
     icon: 'M3 4h18v4H3z M5 8v12h14V8 M10 12h4',
     route: { view: 'archive' },
-    match: ['archive', 'scp'],
+    match: ['archive', 'scps', 'scp', 'departments', 'mtf', 'gois', 'goi'],
     sound: 'tabArchive',
   },
   { label: 'Nachrichten', icon: 'M4 5h16v11H9l-5 4z M8 9h8 M8 12h5', route: { view: 'comms' }, match: ['comms', 'thread'], sound: 'tabComms' },
@@ -198,7 +199,17 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       case 'report':
         return <ReportView id={route.id} go={go} />;
       case 'archive':
+        return <ArchiveHub go={go} />;
+      case 'scps':
         return <Archive go={go} />;
+      case 'departments':
+        return <Departments go={go} />;
+      case 'mtf':
+        return <MtfView id={route.id} go={go} />;
+      case 'gois':
+        return <GoiList go={go} />;
+      case 'goi':
+        return <GoiView id={route.id} go={go} />;
       case 'scp':
         return <ScpView id={route.id} go={go} />;
       case 'assistant':

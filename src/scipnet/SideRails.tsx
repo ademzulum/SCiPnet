@@ -143,7 +143,12 @@ function Context({ route, go }: { route: Route; go: Go }) {
       );
     }
     case 'archive':
-    case 'scp': {
+    case 'scps':
+    case 'scp':
+    case 'departments':
+    case 'mtf':
+    case 'gois':
+    case 'goi': {
       const cls = count(SCP, (o) => o.objectClass, ['Safe', 'Euclid', 'Keter', 'Thaumiel', 'Neutralisiert'])
         .filter((r) => r.n)
         .map((r) => ({ ...r, tone: r.label === 'Keter' ? 'bad' : r.label === 'Euclid' ? 'warn' : 'ok' }));

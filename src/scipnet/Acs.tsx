@@ -1,6 +1,9 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { DISRUPTION, RISK, type Addendum, type ScpObject } from '../data/scp';
 import Redacted from './Redacted';
+import { mtfById } from '../data/mtf';
+import { MtfInsignia } from './Departments';
+import type { Go } from './routes';
 
 // The file header after the wiki's Anomaly Classification System bar: containment
 // and secondary class with their icons on the left, disruption and risk class on
@@ -96,7 +99,8 @@ function Emblem({ cls, sec, dis, risk }: { cls: string; sec?: string; dis: strin
   );
 }
 
-export function AcsBar({ s }: { s: ScpObject }) {
+export function AcsBar({ s, go }: { s: ScpObject; go: Go }) {
+  const mtf = s.mtf ? mtfById(s.mtf) : undefined;
   const level = Math.min(5, Number(s.clearance.match(/\d/)?.[0] ?? 1));
   const cls = s.acs.containment ?? s.objectClass;
   const sec = s.acs.secondary;
@@ -183,6 +187,20 @@ export function AcsBar({ s }: { s: ScpObject }) {
           <span className="label">Status:</span>
           <strong>{s.acs.status}</strong>
         </div>
+
+        {mtf && (
+          <button className="acs-mtf" onClick={() => go({ view: 'mtf', id: mtf.id })}>
+            <MtfInsignia m={mtf} size={46} />
+            <span className="acs-texts">
+              <span className="label">Zugewiesene Einsatzkraft:</span>
+              <strong>
+                MTF {mtf.code} <span className="acs-mtf-nick">„{mtf.nickname}“</span>
+              </strong>
+            </span>
+            <span className="acs-mtf-status">{mtf.status}</span>
+            <span className="acs-mtf-go">Einheit öffnen →</span>
+          </button>
+        )}
       </div>
     </section>
   );

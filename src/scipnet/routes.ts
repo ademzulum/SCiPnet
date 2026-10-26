@@ -6,8 +6,13 @@ export type Route =
   | { view: 'hack' }
   | { view: 'reports' }
   | { view: 'report'; id: string }
-  | { view: 'archive' }
+  | { view: 'archive' } // hub: SCP objects, departments, groups of interest
+  | { view: 'scps' }
   | { view: 'scp'; id: string }
+  | { view: 'departments' }
+  | { view: 'mtf'; id: string }
+  | { view: 'gois' }
+  | { view: 'goi'; id: string }
   | { view: 'assistant' }
   | { view: 'comms' }
   | { view: 'thread'; id: string };

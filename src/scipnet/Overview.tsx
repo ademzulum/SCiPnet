@@ -47,7 +47,7 @@ export default function Overview({ go }: { go: Go }) {
       label: 'Erfasste Objekte',
       value: SCP.length,
       sub: `${keter} Keter`,
-      onClick: () => go({ view: 'archive' }),
+      onClick: () => go({ view: 'scps' }),
     },
     {
       label: 'Letzter Bericht',
@@ -170,7 +170,7 @@ export default function Overview({ go }: { go: Go }) {
         <section className="box">
           <div className="box-head">
             <h3>Eindämmung</h3>
-            <button className="link" onClick={() => go({ view: 'archive' })}>
+            <button className="link" onClick={() => go({ view: 'scps' })}>
               Zum Archiv
             </button>
           </div>
