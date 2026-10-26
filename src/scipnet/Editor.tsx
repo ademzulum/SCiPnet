@@ -4,7 +4,9 @@ import Dropdown, { optLabel, optValue, type Opt } from './Dropdown';
 import { askConfirm, setLeaveGuard } from './Confirm';
 import { CONTAINMENT, SECONDARY, ESOTERIC, type AcsClass } from '../data/acsClasses';
 import { AnimatePresence, motion } from 'motion/react';
-import { AcsIcon, classInfo } from './Acs';
+import { AcsIcon, CLEARANCE, classInfo } from './Acs';
+import { LevelPill } from './Pips';
+import { REPORT_LEVEL, levelOf } from '../data/access';
 import { DISRUPTION, RISK, SCP } from '../data/scp';
 import { PERSONNEL } from '../data/personnel';
 import { REPORTS, TEMPLATES, factHint, sectionHint, type ReportTemplate } from '../data/reports';
@@ -23,7 +25,7 @@ import type { Go, Route } from './routes';
 type Field = (
   | { k: string; label: string; t: 'text' | 'area' | 'date' | 'number'; req?: boolean; hint?: string; ph?: (row: Obj) => string | undefined }
   | { k: string; label: string; t: 'group'; hint?: string }
-  | { k: string; label: string; t: 'select'; options: () => Opt[]; empty?: string; apply?: (entry: Obj, v: string) => Obj; hint?: string }
+  | { k: string; label: string; t: 'select'; options: () => Opt[]; empty?: string; apply?: (entry: Obj, v: string) => Obj; hint?: string; level?: (v: string) => number }
   | { k: string; label: string; t: 'paras' | 'tags' | 'check'; hint?: string; ph?: (row: Obj) => string | undefined }
   | { k: string; label: string; t: 'classes'; set: ClassSet; hint?: string }
   | { k: string; label: string; t: 'multi'; options: () => Opt[]; hint?: string }
@@ -66,7 +68,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'acs.risk', label: 'Risikoklasse', t: 'classes', set: 'risk' },
       { k: 'acs.status', label: 'Status', t: 'text' },
       { k: 'acs.subclass', label: 'Unterklasse', t: 'text' },
-      { k: 'clearance', label: 'Freigabe', t: 'select', options: () => LEVELS },
+      { k: 'clearance', label: 'Freigabe', t: 'select', options: () => LEVELS, level: levelOf },
       { k: 'mtf', label: 'Zugewiesene Mobile Task Forces', t: 'pick', what: 'mtf' },
       { k: 'antimemetic', label: 'Antimemetisch', t: 'check', hint: 'Beschreibung verblasst' },
       { k: 'warning', label: 'Warnhinweis', t: 'text' },
@@ -128,7 +130,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'name', label: 'Name', t: 'text', req: true },
       { k: 'role', label: 'Funktion', t: 'text' },
       { k: 'department', label: 'Abteilung', t: 'text' },
-      { k: 'clearance', label: 'Freigabe', t: 'select', options: () => [...LEVELS, 'RAISA', 'Extern'] },
+      { k: 'clearance', label: 'Freigabe', t: 'select', options: () => [...LEVELS, 'RAISA', 'Extern'], level: levelOf },
       { k: 'status', label: 'Status', t: 'select', options: () => ['Aktiv', 'Beurlaubt', 'Beobachtung', 'Vermisst'] },
       { k: 'since', label: 'Im Dienst seit', t: 'text' },
       { k: 'photo', label: 'Foto', t: 'image', folder: 'personnel', preview: photoUrl },
@@ -146,7 +148,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
         ],
       },
       { k: 'psych.access', label: 'Psychologisches Profil', t: 'select', options: () => [['granted', 'Freigegeben'], ['denied', 'Gesperrt']] },
-      { k: 'psych.required', label: 'Erforderliche Freigabe (wenn gesperrt)', t: 'select', options: () => LEVELS, empty: 'Keine' },
+      { k: 'psych.required', label: 'Erforderliche Freigabe (wenn gesperrt)', t: 'select', options: () => LEVELS, empty: 'Keine', level: levelOf },
       { k: 'psych.verdict.label', label: 'Gesamtbeurteilung', t: 'text' },
       { k: 'psych.verdict.tone', label: 'Einstufung der Beurteilung', t: 'select', options: () => TONES },
       { k: 'psych.date', label: 'Datum der Beurteilung', t: 'date' },
@@ -190,13 +192,8 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
         k: 'classification',
         label: 'Freigabe',
         t: 'select',
-        options: () => [
-          ['Uneingeschränkt', 'Level 1 · Uneingeschränkt'],
-          ['Eingeschränkt', 'Level 2 · Eingeschränkt'],
-          ['Vertraulich', 'Level 3 · Vertraulich'],
-          ['Geheim', 'Level 4 · Geheim'],
-          ['Streng geheim', 'Level 5 · Streng geheim'],
-        ],
+        options: () => Object.keys(REPORT_LEVEL),
+        level: (v) => REPORT_LEVEL[v] ?? 0,
       },
       { k: 'status', label: 'Status', t: 'select', options: () => ['Offen', 'Abgeschlossen'], hint: 'Offen, solange noch ermittelt oder nachgetragen wird.' },
       { k: 'summary', label: 'Zusammenfassung', t: 'area', req: true, hint: 'Ein bis zwei Sätze, erscheinen auch auf der Karte.' },
@@ -322,7 +319,7 @@ function ACCESS(level: boolean): Field[] {
       ],
     },
     ...(level
-      ? [{ k: 'access.level', label: 'Zugriffsfreigabe', t: 'select', empty: 'Keine', options: () => [1, 2, 3, 4, 5].map((n): Opt => [String(n), `Level ${n}`]) } as Field]
+      ? [{ k: 'access.level', label: 'Zugriffsfreigabe', t: 'select', empty: 'Keine', options: () => [1, 2, 3, 4, 5].map((n): Opt => [String(n), CLEARANCE[n - 1].name]), level: Number } as Field]
       : []),
     { k: 'access.readers', label: 'Ausgewählte Konten', t: 'accounts', hint: 'Nur bei „Ausgewählte Konten“. Der Ersteller sieht die Akte immer.' },
   ];
@@ -496,7 +493,7 @@ function Input({ f, value, onChange, row }: { f: Field; value: unknown; onChange
     case 'pick':
       return <EntityPicker what={f.what} single={f.single} value={value as string[] | string} onChange={onChange} />;
     case 'select':
-      return <Dropdown value={(value as string) ?? ''} options={f.options()} empty={f.empty} onChange={onChange} />;
+      return <Dropdown value={(value as string) ?? ''} options={f.options()} empty={f.empty} onChange={onChange} show={f.level && levelShow(f.level)} />;
     case 'multi': {
       // a single id (older entries) counts as a list of one
       const picked = Array.isArray(value) ? (value as string[]) : value ? [value as string] : [];
@@ -643,6 +640,14 @@ function LinesInput({ value, onChange, transcript }: { value: string[]; onChange
     </div>
   );
 }
+
+// Clearance choices, the same in every editor: a level pill in the level's
+// colour with its pips and name (Stufe 2, Vertraulich, RAISA, ...), as in the
+// side rail. Without a level (Extern) the name stands alone.
+const levelShow = (level: (v: string) => number) => (o: Opt) => {
+  const n = level(optValue(o));
+  return <span className="dd-level">{n > 0 ? <LevelPill n={n} of={5} label={optLabel(o)} /> : optLabel(o)}</span>;
+};
 
 // A list of rows, reordered by dragging a row at its grip. Each row keeps a
 // key of its own, so inputs that hold their text (paragraphs) move with it.

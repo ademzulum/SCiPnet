@@ -10323,3 +10323,9 @@ div.rep-ref.broken-ref { cursor: default; border-style: dashed; }
 .ed-lines .ed-row > .t-area { flex: 1; }
 .ed-lines .ed-row-tools { margin: 0.35rem 0 0; }
 @media (max-width: 700px) { .ed-lines .ed-row { flex-wrap: wrap; } .ed-lines .ed-row > .t-area { flex-basis: 100%; } }
+
+/* clearance drop-downs: level pill in the level colour, then the name */
+.dd-level { display: inline-flex; align-items: center; gap: 0.6rem; }
+.dd-level .level-pill { margin: 0; }
+.dd-level .level-pill { flex: none; white-space: nowrap; }
+.dd-btn > span:has(> .dd-level) { overflow: visible; white-space: normal; min-width: 0; }

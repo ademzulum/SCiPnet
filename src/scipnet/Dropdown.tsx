@@ -8,7 +8,21 @@ export const optLabel = (o: Opt) => (typeof o === 'string' ? o : o[1]);
 
 // Drop-down in the site's look, replacing the browser's <select>. Arrow keys
 // move, Enter picks, Escape closes; long lists get a search field.
-export default function Dropdown({ value, options, onChange, empty }: { value: string; options: Opt[]; onChange: (v: string) => void; empty?: string }) {
+// `show` draws an option (in the list and on the button) instead of its label.
+export default function Dropdown({
+  value,
+  options,
+  onChange,
+  empty,
+  show,
+}: {
+  value: string;
+  options: Opt[];
+  onChange: (v: string) => void;
+  empty?: string;
+  show?: (o: Opt) => React.ReactNode;
+}) {
+  const draw = (o: Opt) => (show && optValue(o) ? show(o) : optLabel(o));
   const all: Opt[] = empty ? [['', empty], ...options] : options;
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
@@ -61,7 +75,7 @@ export default function Dropdown({ value, options, onChange, empty }: { value: s
   return (
     <div className={`dd${open ? ' open' : ''}`} ref={ref} onKeyDown={key}>
       <button type="button" className="search dd-btn" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <span className={current && optValue(current) ? '' : 'dim'}>{current ? optLabel(current) : value || '–'}</span>
+        <span className={current && optValue(current) ? '' : 'dim'}>{current ? draw(current) : value || '–'}</span>
         <svg viewBox="0 0 24 24" aria-hidden>
           <path d="M6 9l6 6 6-6" />
         </svg>
@@ -98,7 +112,7 @@ export default function Dropdown({ value, options, onChange, empty }: { value: s
                 onPointerEnter={() => setHi(i)}
                 onClick={() => pick(o)}
               >
-                {optLabel(o)}
+                {draw(o)}
               </button>
             ))}
             {!list.length && <span className="dim small dd-none">Keine Treffer</span>}
