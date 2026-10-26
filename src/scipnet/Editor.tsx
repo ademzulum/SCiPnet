@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import Dropdown, { optLabel, optValue, type Opt } from './Dropdown';
 import { askConfirm, setLeaveGuard } from './Confirm';
 import { CONTAINMENT, SECONDARY, ESOTERIC, type AcsClass } from '../data/acsClasses';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, Reorder, motion, useDragControls } from 'motion/react';
 import { AcsIcon, CLEARANCE, classInfo } from './Acs';
 import { LevelPill } from './Pips';
 import { REPORT_LEVEL, levelOf } from '../data/access';
@@ -35,6 +35,7 @@ type Field = (
   | { k: string; label: string; t: 'image'; folder: 'personnel' | 'reports' | 'mtf'; preview: (v?: string) => string | undefined }
   | { k: string; label: string; t: 'rows'; fields: Field[]; blank: Record<string, unknown>; hint?: string; compact?: boolean }
   | { k: string; label: string; t: 'lines'; hint?: string }
+  | { k: string; label: string; t: 'addenda'; hint?: string }
 ) & { when?: (row: Obj) => boolean };
 
 const LEVELS = ['Stufe 1', 'Stufe 2', 'Stufe 3', 'Stufe 4', 'Stufe 5'];
@@ -78,32 +79,8 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       {
         k: 'addenda',
         label: 'Addenda',
-        t: 'rows',
+        t: 'addenda',
         hint: 'Kopf „Addendum 8041/I · Art“, Beginn und Ende des Transkripts und „Ende Addendum …“ setzt die Akte selbst.',
-        blank: { kind: 'note', title: '', body: [] },
-        fields: [
-          {
-            k: 'kind',
-            label: 'Art',
-            t: 'select',
-            options: () => Object.entries(ADDENDUM_KINDS).map(([k, a]): Opt => [k, a.label]),
-            apply: addendumKind,
-          },
-          { k: 'title', label: 'Titel', t: 'text', ph: (r) => ADDENDUM_KINDS[r.kind as string]?.example },
-          {
-            k: 'meta',
-            label: 'Kopfzeilen',
-            t: 'rows',
-            compact: true,
-            blank: ['', ''] as never,
-            fields: [
-              { k: '0', label: 'Bezeichnung', t: 'text' },
-              { k: '1', label: 'Eintrag', t: 'text', ph: (r) => META_HINT[r[0] as string] },
-            ],
-          },
-          { k: 'body', label: 'Inhalt', t: 'lines' },
-          { k: 'sign', label: 'Unterzeichnet', t: 'text', when: (r) => r.kind === 'note', ph: () => 'z. B. Dr. I. Brandt, Standortdirektion' },
-        ],
       },
       { k: 'reports', label: 'Feldberichte', t: 'multi', options: reports },
       ...ACCESS(false),
@@ -550,6 +527,8 @@ function Input({ f, value, onChange, row }: { f: Field; value: unknown; onChange
         </div>
       );
     }
+    case 'addenda':
+      return <AddendaInput value={(value as Obj[]) ?? []} onChange={onChange} />;
     case 'lines':
       return <LinesInput value={(value as string[]) ?? []} onChange={onChange} transcript={row?.kind === 'interview'} />;
     case 'rows':
@@ -559,12 +538,12 @@ function Input({ f, value, onChange, row }: { f: Field; value: unknown; onChange
 
 // Addendum kinds, after the old fixed addenda: the header rows each kind
 // starts with (Vorwort as a row, as in the old files) and a typical title.
-const ADDENDUM_KINDS: Record<string, { label: string; example: string; meta: string[] }> = {
-  recovery: { label: 'Bergungsprotokoll', example: 'z. B. Bergung aus dem Hafenbecken Kiel', meta: ['Datum', 'Fundort', 'Bergungsteam', 'Vorwort'] },
-  test: { label: 'Testprotokoll', example: 'z. B. Test 8041-03: Schallquelle unter Wasser', meta: ['Datum', 'Testleitung', 'Proband', 'Vorwort'] },
-  interview: { label: 'Transkript (Befragung)', example: 'z. B. Interview mit Archivarin L. Hofstetter', meta: ['Befragte', 'Befragt durch', 'Datum', 'Vorwort'] },
-  incident: { label: 'Vorfallbericht', example: 'z. B. Vorfall 8041-1: Ausfall der Sonaranlage', meta: ['Datum', 'Ort', 'Vorwort'] },
-  note: { label: 'Notiz', example: 'z. B. Anmerkung der Standortdirektion', meta: [] },
+const ADDENDUM_KINDS: Record<string, { label: string; use: string; example: string; meta: string[] }> = {
+  recovery: { label: 'Bergungsprotokoll', use: 'Wie das Objekt gefunden und gesichert wurde.', example: 'z. B. Bergung aus dem Hafenbecken Kiel', meta: ['Datum', 'Fundort', 'Bergungsteam', 'Vorwort'] },
+  test: { label: 'Testprotokoll', use: 'Ein Versuch mit dem Objekt und sein Ergebnis.', example: 'z. B. Test 8041-03: Schallquelle unter Wasser', meta: ['Datum', 'Testleitung', 'Proband', 'Vorwort'] },
+  interview: { label: 'Transkript (Befragung)', use: 'Ein Gespräch, Zeile für Zeile mit Sprechern und Handlungen.', example: 'z. B. Interview mit Archivarin L. Hofstetter', meta: ['Befragte', 'Befragt durch', 'Datum', 'Vorwort'] },
+  incident: { label: 'Vorfallbericht', use: 'Ein Zwischenfall rund um das Objekt.', example: 'z. B. Vorfall 8041-1: Ausfall der Sonaranlage', meta: ['Datum', 'Ort', 'Vorwort'] },
+  note: { label: 'Notiz', use: 'Ein kurzer Vermerk, unterzeichnet.', example: 'z. B. Anmerkung der Standortdirektion', meta: [] },
 };
 const META_HINT: Record<string, string> = {
   Datum: 'z. B. 14.09.2026',
@@ -594,53 +573,6 @@ const toLine = (s: string): Line => {
   return say ? { type: 'say', who: say[1], text: say[2] } : { type: 'text', text: s };
 };
 const fromLine = (l: Line) => (l.type === 'stage' ? `<${l.text ?? ''}>` : l.type === 'say' ? `${l.who ?? ''}: ${l.text ?? ''}` : (l.text ?? ''));
-const LINE_ROWS: Extract<Field, { t: 'rows' }> = {
-  k: 'lines',
-  label: 'Zeilen',
-  t: 'rows',
-  blank: { type: 'text' },
-  fields: [
-    {
-      k: 'type',
-      label: 'Zeile',
-      t: 'select',
-      options: () => [
-        ['say', 'Aussage'],
-        ['stage', 'Handlung'],
-        ['text', 'Absatz'],
-      ],
-    },
-    { k: 'who', label: 'Sprecher', t: 'text', when: (r) => r.type === 'say', ph: () => 'z. B. Interviewer' },
-    {
-      k: 'text',
-      label: 'Text',
-      t: 'area',
-      ph: (r) => (r.type === 'say' ? 'Was gesagt wird' : r.type === 'stage' ? 'Was geschieht, z. B. Hofstetter schlägt das Notizbuch auf.' : 'Ein Absatz'),
-    },
-  ],
-};
-function LinesInput({ value, onChange, transcript }: { value: string[]; onChange: (v: string[]) => void; transcript: boolean }) {
-  // kept as rows while editing, so a line keeps its type while still empty
-  const [lines, setLines] = useState<Line[]>(() => value.map(toLine));
-  return (
-    <div className="ed-lines">
-      <span className="dim small ed-hint">
-        {transcript
-          ? 'Eine Zeile je Aussage oder Handlung. „Beginn Transkript“ und „Ende Transkript“ werden automatisch gesetzt.'
-          : 'Absätze, Aussagen oder Handlungen in der Reihenfolge, in der sie in der Akte stehen.'}
-      </span>
-      <RowsInput
-        f={LINE_ROWS}
-        rows={lines as Obj[]}
-        onChange={(rows) => {
-          setLines(rows as Line[]);
-          onChange((rows as Line[]).filter((l) => l.text?.trim()).map(fromLine));
-        }}
-      />
-    </div>
-  );
-}
-
 // Clearance choices, the same in every editor: a level pill in the level's
 // colour with its pips and name (Stufe 2, Vertraulich, RAISA, ...), as in the
 // side rail. Without a level (Extern) the name stands alone.
@@ -649,108 +581,387 @@ const levelShow = (level: (v: string) => number) => (o: Opt) => {
   return <span className="dd-level">{n > 0 ? <LevelPill n={n} of={5} label={optLabel(o)} /> : optLabel(o)}</span>;
 };
 
-// A list of rows, reordered by dragging a row at its grip. Each row keeps a
-// key of its own, so inputs that hold their text (paragraphs) move with it.
-function RowsInput({ f, rows, onChange }: { f: Extract<Field, { t: 'rows' }>; rows: Obj[]; onChange: (v: Obj[]) => void }) {
+// Stable keys for a list edited in place, so inputs that hold their text
+// (paragraphs) move with their row. Rows added or removed from outside (a
+// template) get or lose keys at the end.
+function useKeys(n: number) {
   const next = useRef(0);
-  const [keys, setKeys] = useState<number[]>(() => rows.map(() => next.current++));
-  // rows added or removed from outside (a template) get or lose keys at the end
-  const ks = keys.length === rows.length ? keys : [...keys.slice(0, rows.length), ...rows.slice(keys.length).map(() => next.current++)];
+  const [keys, setKeys] = useState<number[]>(() => Array.from({ length: n }, () => next.current++));
+  const ks = keys.length === n ? keys : [...keys.slice(0, n), ...Array.from({ length: Math.max(0, n - keys.length) }, () => next.current++)];
   if (ks !== keys) setKeys(ks);
-  const [armed, setArmed] = useState<number | null>(null);
-  const [drag, setDrag] = useState<number | null>(null);
-  const move = (from: number, to: number) => {
-    const r = [...rows];
-    const k = [...ks];
-    r.splice(to, 0, ...r.splice(from, 1));
-    k.splice(to, 0, ...k.splice(from, 1));
-    setKeys(k);
-    onChange(r);
-  };
+  return { ks, setKeys, fresh: () => next.current++ };
+}
+
+// A list sorted by dragging at a grip: the grip is a real button (the hover
+// frame takes it), a press on it lifts the row, the others make room as it
+// moves, and it settles where it is let go.
+function SortList<T>({
+  items,
+  keys,
+  onOrder,
+  className,
+  render,
+}: {
+  items: T[];
+  keys: number[];
+  onOrder: (items: T[], keys: number[]) => void;
+  className?: string;
+  render: (item: T, i: number, grip: React.ReactNode) => React.ReactNode;
+}) {
+  return (
+    <Reorder.Group
+      as="div"
+      axis="y"
+      className={className}
+      values={keys}
+      onReorder={(order: number[]) => onOrder(order.map((k) => items[keys.indexOf(k)]), order)}
+    >
+      {items.map((it, i) => (
+        <SortItem key={keys[i]} value={keys[i]}>
+          {(grip) => render(it, i, grip)}
+        </SortItem>
+      ))}
+    </Reorder.Group>
+  );
+}
+function SortItem({ value, children }: { value: number; children: (grip: React.ReactNode) => React.ReactNode }) {
+  const controls = useDragControls();
+  const grip = (
+    <button
+      type="button"
+      className="ed-grip"
+      title="Ziehen zum Verschieben"
+      aria-label="Ziehen zum Verschieben"
+      style={{ touchAction: 'none' }}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        controls.start(e);
+      }}
+    >
+      <svg viewBox="0 0 10 16" aria-hidden>
+        <circle cx="3" cy="3" r="1.3" />
+        <circle cx="7" cy="3" r="1.3" />
+        <circle cx="3" cy="8" r="1.3" />
+        <circle cx="7" cy="8" r="1.3" />
+        <circle cx="3" cy="13" r="1.3" />
+        <circle cx="7" cy="13" r="1.3" />
+      </svg>
+    </button>
+  );
+  return (
+    <Reorder.Item
+      as="div"
+      value={value}
+      dragListener={false}
+      dragControls={controls}
+      className="ed-sort"
+      whileDrag={{ scale: 1.01, zIndex: 5, boxShadow: '0 10px 30px rgba(0,0,0,0.35)' }}
+      transition={{ duration: 0.18 }}
+    >
+      {children(grip)}
+    </Reorder.Item>
+  );
+}
+
+// A list of rows, sorted by dragging at the grip.
+function RowsInput({ f, rows, onChange }: { f: Extract<Field, { t: 'rows' }>; rows: Obj[]; onChange: (v: Obj[]) => void }) {
+  const { ks, setKeys, fresh } = useKeys(rows.length);
   const put = (i: number, r: Obj) => onChange(rows.map((x, j) => (j === i ? r : x)));
   return (
     <div className={`ed-rows${f.compact ? ' compact' : ''}`}>
-      {rows.map((r, i) => (
-        <motion.div
-          key={ks[i]}
-          layout="position"
-          transition={{ duration: 0.18 }}
-          className={`ed-row${drag === i ? ' dragging' : ''}`}
-          draggable={armed === i}
-          onDragStartCapture={(e: React.DragEvent) => {
-            // only this row, not a row of a list inside it (addendum lines)
-            if (e.target !== e.currentTarget) return;
-            e.dataTransfer.effectAllowed = 'move';
-            setDrag(i);
-          }}
-          onDragOver={(e: React.DragEvent) => {
-            if (drag === null) return;
-            e.preventDefault();
-            e.stopPropagation();
-            if (drag !== i) {
-              move(drag, i);
-              setDrag(i);
-            }
-          }}
-          onDragEnd={() => {
-            setDrag(null);
-            setArmed(null);
-          }}
-        >
-          <span
-            className="ed-grip"
-            title="Ziehen zum Verschieben"
-            aria-hidden
-            onPointerDown={() => setArmed(i)}
-            onPointerUp={() => drag === null && setArmed(null)}
-          >
-            <svg viewBox="0 0 10 16">
-              <circle cx="3" cy="3" r="1.3" />
-              <circle cx="7" cy="3" r="1.3" />
-              <circle cx="3" cy="8" r="1.3" />
-              <circle cx="7" cy="8" r="1.3" />
-              <circle cx="3" cy="13" r="1.3" />
-              <circle cx="7" cy="13" r="1.3" />
-            </svg>
-          </span>
-          {f.fields
-            .filter((sub) => !sub.when || sub.when(r))
-            .map((sub) => (
-              <div key={sub.k} className={`ed-field t-${sub.t}`}>
-                <span className="label">{sub.label}</span>
-                <Input
-                  f={sub}
-                  value={get(r, sub.k)}
-                  row={r}
-                  onChange={(v) => put(i, 'apply' in sub && sub.apply ? sub.apply(set(r, sub.k, v), v as string) : set(r, sub.k, v))}
-                />
-                {'hint' in sub && sub.hint && sub.t !== 'check' && <span className="dim small ed-hint">{sub.hint}</span>}
-              </div>
-            ))}
-          <div className="ed-row-tools">
-            <button
-              type="button"
-              className="link"
-              onClick={() => {
-                setKeys(ks.filter((_, j) => j !== i));
-                onChange(rows.filter((_, j) => j !== i));
-              }}
-            >
-              Entfernen
-            </button>
+      <SortList
+        items={rows}
+        keys={ks}
+        className="ed-sort-list"
+        onOrder={(r, k) => {
+          setKeys(k);
+          onChange(r);
+        }}
+        render={(r, i, grip) => (
+          <div className="ed-row">
+            {grip}
+            {f.fields
+              .filter((sub) => !sub.when || sub.when(r))
+              .map((sub) => (
+                <div key={sub.k} className={`ed-field t-${sub.t}`}>
+                  <span className="label">{sub.label}</span>
+                  <Input
+                    f={sub}
+                    value={get(r, sub.k)}
+                    row={r}
+                    onChange={(v) => put(i, 'apply' in sub && sub.apply ? sub.apply(set(r, sub.k, v), v as string) : set(r, sub.k, v))}
+                  />
+                  {'hint' in sub && sub.hint && sub.t !== 'check' && <span className="dim small ed-hint">{sub.hint}</span>}
+                </div>
+              ))}
+            <div className="ed-row-tools">
+              <button
+                type="button"
+                className="link"
+                onClick={() => {
+                  setKeys(ks.filter((_, j) => j !== i));
+                  onChange(rows.filter((_, j) => j !== i));
+                }}
+              >
+                Entfernen
+              </button>
+            </div>
           </div>
-        </motion.div>
-      ))}
+        )}
+      />
       <button
         type="button"
         className="card action ghost"
         onClick={() => {
-          setKeys([...ks, next.current++]);
+          setKeys([...ks, fresh()]);
           onChange([...rows, structuredClone(f.blank)]);
         }}
       >
         + HINZUFÜGEN
       </button>
+    </div>
+  );
+}
+
+// Addendum content line by line. Each line is a speaker's line, an action or
+// a paragraph; a button per kind adds one, a small switch changes it.
+const LINE_KINDS: [Line['type'], string][] = [
+  ['say', 'Aussage'],
+  ['stage', 'Handlung'],
+  ['text', 'Absatz'],
+];
+const LINE_PH: Record<Line['type'], string> = {
+  say: 'Was gesagt wird',
+  stage: 'Was geschieht, z. B. Hofstetter schlägt das Notizbuch auf.',
+  text: 'Ein Absatz',
+};
+function LinesInput({ value, onChange, transcript }: { value: string[]; onChange: (v: string[]) => void; transcript: boolean }) {
+  // kept as rows while editing, so a line keeps its kind while still empty
+  const [lines, setLines] = useState<Line[]>(() => value.map(toLine));
+  const { ks, setKeys, fresh } = useKeys(lines.length);
+  const emit = (l: Line[]) => {
+    setLines(l);
+    onChange(l.filter((x) => x.text?.trim()).map(fromLine));
+  };
+  const put = (i: number, patch: Partial<Line>) => emit(lines.map((l, j) => (j === i ? { ...l, ...patch } : l)));
+  return (
+    <div className="ed-lines">
+      {lines.length > 0 && (
+        <SortList
+          items={lines}
+          keys={ks}
+          className="ed-sort-list"
+          onOrder={(l, k) => {
+            setKeys(k);
+            emit(l);
+          }}
+          render={(l, i, grip) => (
+            <div className={`ed-line line-${l.type}`}>
+              {grip}
+              <div className="ed-line-kind" role="radiogroup" aria-label="Art der Zeile">
+                {LINE_KINDS.map(([t, label]) => (
+                  <button key={t} type="button" role="radio" aria-checked={l.type === t} className={l.type === t ? 'on' : ''} onClick={() => put(i, { type: t })}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {l.type === 'say' && (
+                <AutoArea className="search ed-line-who" oneLine placeholder="Sprecher" value={l.who ?? ''} onChange={(v) => put(i, { who: v })} onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()} />
+              )}
+              <AutoArea className="search ed-line-text" rows={1} placeholder={LINE_PH[l.type]} value={l.text ?? ''} onChange={(v) => put(i, { text: v })} />
+              <button
+                type="button"
+                className="ed-line-del"
+                aria-label="Zeile entfernen"
+                title="Zeile entfernen"
+                onClick={() => {
+                  setKeys(ks.filter((_, j) => j !== i));
+                  emit(lines.filter((_, j) => j !== i));
+                }}
+              >
+                ×
+              </button>
+            </div>
+          )}
+        />
+      )}
+      {!lines.length && <p className="dim small">Noch keine Zeilen.</p>}
+      <div className="ed-line-add">
+        {LINE_KINDS.map(([t, label]) => (
+          <button
+            key={t}
+            type="button"
+            className="card action ghost"
+            onClick={() => {
+              setKeys([...ks, fresh()]);
+              // a new speaker's line takes the speaker two lines up: interviews alternate
+              const who = t === 'say' ? [...lines].reverse().filter((x) => x.type === 'say')[1]?.who : undefined;
+              emit([...lines, { type: t, who }]);
+            }}
+          >
+            + {label.toUpperCase()}
+          </button>
+        ))}
+      </div>
+      <span className="dim small ed-hint">
+        {transcript
+          ? '„Beginn Transkript“ und „Ende Transkript“ werden automatisch gesetzt.'
+          : 'Die Zeilen stehen in dieser Reihenfolge in der Akte.'}
+      </span>
+    </div>
+  );
+}
+
+// Addenda: one card per addendum, folded to its head (number, kind, title);
+// one opens at a time. A new addendum starts with the choice of its kind.
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+function AddendaInput({ value, onChange }: { value: Obj[]; onChange: (v: Obj[]) => void }) {
+  const { ks, setKeys, fresh } = useKeys(value.length);
+  const [open, setOpen] = useState<number | null>(null);
+  const [adding, setAdding] = useState(false);
+  const put = (i: number, a: Obj) => onChange(value.map((x, j) => (j === i ? a : x)));
+  const meta = (a: Obj) => (a.meta as [string, string][]) ?? [];
+  return (
+    <div className="ed-addenda">
+      <SortList
+        items={value}
+        keys={ks}
+        className="ed-sort-list"
+        onOrder={(v, k) => {
+          setKeys(k);
+          onChange(v);
+        }}
+        render={(a, i, grip) => {
+          const isOpen = open === ks[i];
+          const kind = ADDENDUM_KINDS[a.kind as string];
+          return (
+            <div className={`ed-add${isOpen ? ' open' : ''}`}>
+              <div className="ed-add-head">
+                {grip}
+                <button type="button" className="ed-add-toggle" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : ks[i])}>
+                  <span className="label">
+                    Addendum {ROMAN[i] ?? i + 1} · {kind?.label ?? 'Notiz'}
+                  </span>
+                  <strong>{(a.title as string) || <span className="dim">Ohne Titel</span>}</strong>
+                  <svg className="rep-chev" viewBox="0 0 12 12" aria-hidden>
+                    <path d="M2 4.5l4 4 4-4" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  className="link"
+                  onClick={async () => {
+                    if (!(await askConfirm({ title: 'Addendum entfernen?', text: `Addendum ${ROMAN[i] ?? i + 1} und sein Inhalt werden aus dem Formular entfernt.`, yes: 'ENTFERNEN', danger: true }))) return;
+                    setKeys(ks.filter((_, j) => j !== i));
+                    onChange(value.filter((_, j) => j !== i));
+                  }}
+                >
+                  Entfernen
+                </button>
+              </div>
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    className="ed-add-body"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.22 }}
+                  >
+                    <div className="ed-add-step">
+                      <span className="ed-add-num">1</span>
+                      <div className="ed-add-grid">
+                        <div className="ed-field">
+                          <span className="label">Art</span>
+                          <Dropdown
+                            value={(a.kind as string) ?? 'note'}
+                            options={Object.entries(ADDENDUM_KINDS).map(([k, x]): Opt => [k, x.label])}
+                            onChange={(v) => put(i, addendumKind({ ...a, kind: v }, v))}
+                          />
+                        </div>
+                        <div className="ed-field">
+                          <span className="label">Titel</span>
+                          <AutoArea className="search" oneLine placeholder={kind?.example} value={(a.title as string) ?? ''} onChange={(v) => put(i, { ...a, title: v })} onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="ed-add-step">
+                      <span className="ed-add-num">2</span>
+                      <div className="ed-field">
+                        <span className="label">Kopfzeilen</span>
+                        <span className="dim small ed-hint">Stehen über dem Inhalt, z. B. „Befragte: L. Hofstetter“. Leere Zeilen erscheinen nicht.</span>
+                        <div className="ed-meta">
+                          {meta(a).map(([k, v], m) => (
+                            <div key={m} className="ed-meta-row">
+                              <AutoArea className="search" oneLine placeholder="Bezeichnung" value={k} onChange={(x) => put(i, { ...a, meta: meta(a).map((p, j) => (j === m ? [x, p[1]] : p)) })} onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()} />
+                              <AutoArea className="search" rows={1} placeholder={META_HINT[k] ?? 'Eintrag'} value={v} onChange={(x) => put(i, { ...a, meta: meta(a).map((p, j) => (j === m ? [p[0], x] : p)) })} />
+                              <button type="button" className="ed-line-del" aria-label="Kopfzeile entfernen" title="Kopfzeile entfernen" onClick={() => put(i, { ...a, meta: meta(a).filter((_, j) => j !== m) })}>
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                          <button type="button" className="card action ghost" onClick={() => put(i, { ...a, meta: [...meta(a), ['', '']] })}>
+                            + KOPFZEILE
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="ed-add-step">
+                      <span className="ed-add-num">3</span>
+                      <div className="ed-field">
+                        <span className="label">Inhalt</span>
+                        <LinesInput value={(a.body as string[]) ?? []} onChange={(v) => put(i, { ...a, body: v })} transcript={a.kind === 'interview'} />
+                      </div>
+                    </div>
+                    {a.kind === 'note' && (
+                      <div className="ed-add-step">
+                        <span className="ed-add-num">4</span>
+                        <div className="ed-field">
+                          <span className="label">Unterzeichnet</span>
+                          <AutoArea className="search" oneLine placeholder="z. B. Dr. I. Brandt, Standortdirektion" value={(a.sign as string) ?? ''} onChange={(v) => put(i, set(a, 'sign', v))} onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()} />
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        }}
+      />
+      {adding ? (
+        <div className="ed-add-pick">
+          <div className="ed-add-pick-head">
+            <strong>Welche Art von Addendum?</strong>
+            <button type="button" className="link" onClick={() => setAdding(false)}>
+              Abbrechen
+            </button>
+          </div>
+          <div className="ed-add-kinds">
+            {Object.entries(ADDENDUM_KINDS).map(([k, x]) => (
+              <button
+                key={k}
+                type="button"
+                className="card tpl-card"
+                onClick={() => {
+                  const key = fresh();
+                  setKeys([...ks, key]);
+                  onChange([...value, addendumKind({ kind: k, title: '', body: [] }, k)]);
+                  setOpen(key);
+                  setAdding(false);
+                }}
+              >
+                <strong>{x.label}</strong>
+                <span className="dim small">{x.use}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <button type="button" className="card action ghost" onClick={() => setAdding(true)}>
+          + NEUES ADDENDUM
+        </button>
+      )}
     </div>
   );
 }
@@ -916,6 +1127,7 @@ function AutoArea({
   value,
   onChange,
   oneLine,
+  className,
   ...rest
 }: { value: string; onChange: (v: string) => void; oneLine?: boolean } & Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'onChange'>) {
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -944,7 +1156,7 @@ function AutoArea({
   return (
     <textarea
       ref={ref}
-      className={`search ed-auto${oneLine ? ' one-line' : ''}`}
+      className={`search ed-auto${oneLine ? ' one-line' : ''}${className ? ` ${className.replace(/search/, '').trim()}` : ''}`}
       rows={oneLine ? 1 : 3}
       value={value}
       onChange={(e) => onChange(oneLine ? e.target.value.replace(/\n/g, ' ') : e.target.value)}
