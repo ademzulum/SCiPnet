@@ -10,7 +10,7 @@ import { PERSONNEL } from '../data/personnel';
 import { REPORTS } from '../data/reports';
 import { MTFS } from '../data/mtf';
 import { insigniaUrl, photoUrl, reportImageUrl } from '../data/photos';
-import { deleteEntry, references, saveEntry, uploadImage, type Kind, type Kinds } from '../data/store';
+import { cachedAccounts, deleteEntry, listAccounts, references, saveEntry, uploadImage, type Kind, type Kinds } from '../data/store';
 import { useAccount } from './session';
 import type { Go, Route } from './routes';
 
@@ -23,6 +23,7 @@ type Field =
   | { k: string; label: string; t: 'select'; options: () => Opt[]; empty?: string }
   | { k: string; label: string; t: 'paras' | 'tags' | 'check' | 'classes'; hint?: string }
   | { k: string; label: string; t: 'multi'; options: () => Opt[] }
+  | { k: string; label: string; t: 'accounts'; hint?: string }
   | { k: string; label: string; t: 'image'; folder: 'personnel' | 'reports' | 'mtf'; preview: (v?: string) => string | undefined }
   | { k: string; label: string; t: 'rows'; fields: Field[]; blank: Record<string, unknown> };
 
@@ -86,6 +87,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
         ],
       },
       { k: 'reports', label: 'Feldberichte', t: 'multi', options: reports },
+      ...ACCESS(false),
     ],
   },
   personnel: {
@@ -143,6 +145,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       },
       { k: 'psych.text', label: 'Psychologische Einschätzung', t: 'paras' },
       { k: 'incidents', label: 'Vorfälle', t: 'paras', hint: '„Keine …“ zählt nicht als Vorfall.' },
+      ...ACCESS(true),
     ],
   },
   report: {
@@ -203,6 +206,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
         ],
       },
       { k: 'involved', label: 'Beteiligtes Personal', t: 'multi', options: people },
+      ...ACCESS(false),
     ],
   },
   mtf: {
@@ -246,9 +250,33 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
           { k: 'tone', label: 'Bewertung', t: 'select', options: () => TONES },
         ],
       },
+      ...ACCESS(true),
     ],
   },
 };
+
+// Access, the same for every kind: open (by clearance), corrupted, closed or
+// for chosen accounts. Personnel and task forces get their own access level;
+// SCPs and reports use their clearance and classification.
+function ACCESS(level: boolean): Field[] {
+  return [
+    {
+      k: 'access.mode',
+      label: 'Zugriff',
+      t: 'select',
+      empty: 'Offen (nach Freigabe)',
+      options: () => [
+        ['corrupt', 'Korrumpiert (wirft Leser hinaus)'],
+        ['closed', 'Verschlossen (nur Ersteller)'],
+        ['readers', 'Ausgewählte Konten'],
+      ],
+    },
+    ...(level
+      ? [{ k: 'access.level', label: 'Zugriffsfreigabe', t: 'select', empty: 'Keine', options: () => [1, 2, 3, 4, 5].map((n): Opt => [String(n), `Level ${n}`]) } as Field]
+      : []),
+    { k: 'access.readers', label: 'Ausgewählte Konten', t: 'accounts', hint: 'Nur bei „Ausgewählte Konten“. Der Ersteller sieht die Akte immer.' },
+  ];
+}
 
 export const EDITABLE: Kind[] = ['scp', 'personnel', 'report', 'mtf'];
 const LISTS: Partial<Record<Kind, { id: string }[]>> = { scp: SCP, personnel: PERSONNEL, report: REPORTS, mtf: MTFS };
@@ -312,6 +340,8 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
       return <ParasInput value={(value as string[]) ?? []} onChange={onChange} />;
     case 'tags':
       return <TagsInput value={(value as string[]) ?? []} onChange={onChange} />;
+    case 'accounts':
+      return <AccountsInput value={(value as string[]) ?? []} onChange={onChange} />;
     case 'classes':
       return <ClassPicker value={(value as string) ?? ''} onChange={onChange} />;
     case 'check':
@@ -486,6 +516,29 @@ function ClassPicker({ value, onChange }: { value: string; onChange: (v: string)
       document.querySelector('.shell') ?? document.body,
       )}
     </>
+  );
+}
+
+// Supabase accounts to share a closed entry with, by e-mail.
+function AccountsInput({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+  const [list, setList] = useState(cachedAccounts);
+  useEffect(() => {
+    void listAccounts().then(setList);
+  }, []);
+  if (!list.length) return <span className="dim small">Keine Konten verfügbar (supabase/003_access.sql ausgeführt?).</span>;
+  return (
+    <div className="chips ed-multi">
+      {list.map((a) => (
+        <button
+          key={a.id}
+          type="button"
+          className={value.includes(a.id) ? 'chip active' : 'chip'}
+          onClick={() => onChange(value.includes(a.id) ? value.filter((v) => v !== a.id) : [...value, a.id])}
+        >
+          {a.email}
+        </button>
+      ))}
+    </div>
   );
 }
 

@@ -5,6 +5,7 @@
 // Images: put files into images/field_reports/ and give the file name in `src`;
 // without `src` a placeholder frame with the caption is shown.
 
+import type { Access } from './access';
 
 export type Report = {
   id: string;
@@ -21,6 +22,7 @@ export type Report = {
   assessment: string[]; // Bewertung und Empfehlung
   images?: { src?: string; caption: string }[]; // SVGs may hold "censor" elements, see photos.ts
   involved?: string[]; // personnel ids
+  access?: Access; // see data/access.ts
 };
 
 export const REPORTS: Report[] = []; // filled from the database at start, see src/data/store.ts

@@ -22,6 +22,36 @@ export function Corrupt({ text, amount = 0.15, every = 90 }: { text: string; amo
   );
 }
 
+// Corrupted entries: opening one plays the memetic agent and ends the session.
+// Shell registers what that does.
+let kickHandler: (() => void) | null = null;
+export const setKickHandler = (h: (() => void) | null) => {
+  kickHandler = h;
+};
+export const memeticKick = () => kickHandler?.();
+
+// The memetic agent alone, then the session ends.
+export function MemeticKick({ onDone }: { onDone: () => void }) {
+  const done = useRef(onDone);
+  done.current = onDone;
+  useEffect(() => {
+    const stop = play('memetic', 0.7);
+    const t = setTimeout(() => done.current(), 5200);
+    return () => {
+      clearTimeout(t);
+      stop?.(300);
+    };
+  }, []);
+  return (
+    <motion.div className="destruct scipa-destruct memetic" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <MemeticGlyph />
+      <div className="memetic-title">MEMETISCHER TÖTUNGSAGENT</div>
+      <p className="scipa-destruct-text">Korrumpierte Akte geöffnet. Sitzung wird getrennt.</p>
+      <p className="scipa-destruct-text dim">Nicht wegsehen.</p>
+    </motion.div>
+  );
+}
+
 // A link to an entry that was deleted.
 export const Broken = () => <Corrupt text="[DATEN BESCHÄDIGT]" amount={0.12} every={160} />;
 

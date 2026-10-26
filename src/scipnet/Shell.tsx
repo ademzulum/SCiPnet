@@ -11,7 +11,8 @@ import ReportView from './ReportView';
 import Comms from './Comms';
 import ThreadView from './ThreadView';
 import GlitchLayer from './GlitchLayer';
-import { ScipaDestruct, SelfDestruct } from './Admin';
+import { MemeticKick, ScipaDestruct, SelfDestruct, setKickHandler } from './Admin';
+import Guard from './Guard';
 import { ADMIN_PERSON, O5_PERSON } from '../data/personnel';
 import AdminLogin from './AdminLogin';
 import Editor from './Editor';
@@ -155,7 +156,11 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
   const adminRef = useRef(false);
   const onLogoutRef = useRef(onLogout);
   onLogoutRef.current = onLogout;
-  const [destruct, setDestruct] = useState<'none' | 'countdown' | 'scipa' | 'collapse'>('none');
+  const [destruct, setDestruct] = useState<'none' | 'countdown' | 'scipa' | 'memetic' | 'collapse'>('none');
+  useEffect(() => {
+    setKickHandler(() => setDestruct((d) => (d === 'none' ? 'memetic' : d)));
+    return () => setKickHandler(null);
+  }, []);
   const [commsOk, setCommsOk] = useState(commsAuth.has);
   // Once the O5-13 file is opened there is no way out.
   const [hacking, setHacking] = useState(false);
@@ -218,7 +223,11 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       case 'personnel':
         return <PersonnelList go={go} />;
       case 'person':
-        return <PersonnelFile id={route.id} go={go} />;
+        return (
+          <Guard kind="personnel" id={route.id} go={go}>
+            <PersonnelFile id={route.id} go={go} />
+          </Guard>
+        );
       case 'hack':
         // the minigame itself is a full-screen overlay, see below
         return <PersonnelList go={go} />;
@@ -229,7 +238,11 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       case 'reports':
         return <ReportList go={go} />;
       case 'report':
-        return <ReportView id={route.id} go={go} />;
+        return (
+          <Guard kind="report" id={route.id} go={go}>
+            <ReportView id={route.id} go={go} />
+          </Guard>
+        );
       case 'archive':
         return <ArchiveHub go={go} />;
       case 'scps':
@@ -237,13 +250,21 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       case 'departments':
         return <Departments go={go} />;
       case 'mtf':
-        return <MtfView id={route.id} go={go} />;
+        return (
+          <Guard kind="mtf" id={route.id} go={go}>
+            <MtfView id={route.id} go={go} />
+          </Guard>
+        );
       case 'gois':
         return <GoiList go={go} />;
       case 'goi':
         return <GoiView id={route.id} go={go} />;
       case 'scp':
-        return <ScpView id={route.id} go={go} />;
+        return (
+          <Guard kind="scp" id={route.id} go={go}>
+            <ScpView id={route.id} go={go} />
+          </Guard>
+        );
       case 'assistant':
         return <Assistant go={go} notes={notes} ask={route.ask} onSelfDestruct={() => setDestruct('scipa')} />;
       case 'comms':
@@ -426,6 +447,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
 
       <ConfirmHost />
       <GlitchLayer pulse={route} storm={false} />
+      {destruct === 'memetic' && <MemeticKick onDone={() => setDestruct('collapse')} />}
       {destruct === 'scipa' && <ScipaDestruct onDone={() => setDestruct('collapse')} />}
       {destruct === 'countdown' && <SelfDestruct onDone={() => setDestruct('collapse')} />}
     </motion.div>

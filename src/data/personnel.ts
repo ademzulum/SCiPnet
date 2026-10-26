@@ -1,5 +1,6 @@
 // Personnel files. Text may contain [[...]] for redacted passages.
 
+import type { Access } from './access';
 
 export type Person = {
   id: string;
@@ -24,6 +25,7 @@ export type Person = {
     text: string[];
   };
   incidents: string[];
+  access?: Access; // see data/access.ts
 };
 
 export const PERSONNEL: Person[] = []; // filled from the database at start, see src/data/store.ts

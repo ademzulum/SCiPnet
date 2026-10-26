@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { canRead } from '../data/access';
+import { useAccount } from './session';
 import { Broken } from './Admin';
 import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
@@ -35,6 +37,7 @@ export function ReportRow({ report: r, go }: { report: Report; go: Go }) {
 const FILTERS = ['Alle', 'Offen', 'Abgeschlossen'] as const;
 
 export default function ReportList({ go }: { go: Go }) {
+  const account = useAccount().id;
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>('Alle');
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
@@ -99,7 +102,7 @@ export default function ReportList({ go }: { go: Go }) {
                   </span>
                 </span>
                 <strong className="report-card-title">{r.title}</strong>
-                <span className="dim report-card-summary">{r.summary}</span>
+                <span className="dim report-card-summary">{canRead('report', r, account) ? r.summary : 'Inhalt gesperrt.'}</span>
                 {/* the place gets its own line above the footer, clear of the signer */}
                 <span className="rep-place">
                   <span className="label">Einsatzort</span>

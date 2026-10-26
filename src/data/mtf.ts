@@ -1,6 +1,7 @@
 // Mobile Task Forces on file at Site-80. Missions after the SCP Wiki's task force
 // list (scp-wiki.wikidot.com/task-forces); insignias in images/archive/mtf (CC BY-SA 3.0).
 
+import type { Access } from './access';
 export type MtfStatus = 'Einsatzbereit' | 'Im Einsatz' | 'Bereitschaft' | 'Klassifiziert';
 
 export type Mtf = {
@@ -17,6 +18,7 @@ export type Mtf = {
   specialty: string[];
   readiness: number; // percent, shown as a gauge
   log: { date: string; text: string; tone?: 'ok' | 'warn' | 'bad' }[]; // recent deployments
+  access?: Access; // see data/access.ts
 };
 
 export const MTFS: Mtf[] = []; // filled from the database at start, see src/data/store.ts

@@ -1,5 +1,6 @@
 // SCP archive entries for Site-80. Text may contain [[...]] for redacted passages.
 
+import type { Access } from './access';
 // Containment classes (ACS): Thaumiel is a secondary class, see acs.secondary.
 export type ObjectClass = 'Safe' | 'Euclid' | 'Keter' | 'Esoteric' | 'Pending' | 'Explained' | 'Neutralisiert';
 
@@ -40,6 +41,7 @@ export type ScpObject = {
   mtf?: string | string[]; // assigned Mobile Task Force(s) (data/mtf.ts ids)
   addenda: Addendum[];
   reports?: string[]; // field report ids
+  access?: Access; // see data/access.ts
 };
 
 export const SCP: ScpObject[] = []; // filled from the database at start, see src/data/store.ts

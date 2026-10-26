@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import AccessDenied from './AccessDenied';
+import { READER_LEVEL, canRead, levelOf } from '../data/access';
+import { useAccount } from './session';
 import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
 import { FILTER_CARD } from './filterAnim';
@@ -24,6 +27,7 @@ export function ClassBadge({ c }: { c: ObjectClass }) {
 
 export default function Archive({ go }: { go: Go }) {
   const solved = useCleared();
+  const account = useAccount().id;
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<ObjectClass | 'Alle'>('Alle');
   const q = query.trim().toLowerCase();
@@ -91,7 +95,7 @@ export default function Archive({ go }: { go: Go }) {
                   s.name
                 )}
               </strong>
-              <span className="dim report-card-summary">{s.locked && !solved ? 'Inhalt gesperrt.' : s.summary}</span>
+              <span className="dim report-card-summary">{(s.locked && !solved) || !canRead('scp', s, account) ? 'Inhalt gesperrt.' : s.summary}</span>
               <span className="scp-card2-foot">
                 <span className={`scp-card2-cls dis-${s.acs.disruption}`}>
                   <AcsIcon name={s.acs.disruption} />
@@ -102,7 +106,7 @@ export default function Archive({ go }: { go: Go }) {
                   {s.acs.risk}
                 </span>
                 <ClearanceLevel c={s.clearance} />
-                {s.locked && !solved && <span className="lock">GESPERRT</span>}
+                {((s.locked && !solved) || !canRead('scp', s, account)) && <span className="lock">GESPERRT</span>}
               </span>
             </motion.button>
           ))}
@@ -116,6 +120,7 @@ export default function Archive({ go }: { go: Go }) {
 export function ScpView({ id, go }: { id: string; go: Go }) {
   const s = scpById(id);
   const solved = useCleared();
+  const account = useAccount().id;
   const sealed = !!s?.locked && !solved;
   const [open, setOpen] = useState<number | null>(0);
 
@@ -136,18 +141,16 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
 
   if (s.locked && sealed)
     return (
-      <div className="page">
-        {back}
-        <div className="box denied-doc">
-          <span className="denied-icon">⬢</span>
-          <div className="label">{s.id}</div>
-          <h2>{s.locked.corrupt ? <Corrupt text="ZUGRIFF VERWEIGERT" amount={0.12} every={160} /> : 'ZUGRIFF VERWEIGERT'}</h2>
-          <p>
-            Dieses Dokument erfordert Freigabe <strong>{s.locked.required}</strong>. Ihre Freigabe: RAISA.
-          </p>
-          <p className="dim small">Der Zugriffsversuch wurde protokolliert und an die Standortdirektion gemeldet.</p>
-        </div>
-      </div>
+      <AccessDenied
+        id={s.id}
+        reason="level"
+        required={Math.max(levelOf(s.locked.required), READER_LEVEL[account] + 1)}
+        requiredLabel={`${s.locked.required} · versiegelt`}
+        corrupt={s.locked.corrupt}
+        back={{ view: 'scps' }}
+        backLabel="SCP-Archiv"
+        go={go}
+      />
     );
 
   const reports = (s.reports ?? []).map((rid) => REPORTS.find((r) => r.id === rid) ?? rid);

@@ -35,14 +35,24 @@ export const useEntriesVersion = () =>
 // Loads every entry; returns an error text when the database can't be reached.
 export async function loadEntries(): Promise<string | null> {
   if (!supabase) return 'Die Datenbank ist nicht eingerichtet (VITE_SUPABASE_URL fehlt).';
-  // read without the login, so a broken or expired session never blocks the archive
-  const url = import.meta.env.VITE_SUPABASE_URL as string;
-  const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-  const res = await fetch(`${url}/rest/v1/entries?select=kind,data&order=position,id`, { headers: { apikey: key } }).catch(() => null);
-  if (!res?.ok) return 'Die Datenbank ist nicht erreichbar.';
-  const data = await res.json();
+  // with a login the database also returns the entries closed to that account;
+  // without one (or if the session is broken) the public ones, so a bad
+  // session never blocks the archive
+  let data: { kind: Kind; data: never }[] | null = null;
+  const { data: auth } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+  if (auth.session) {
+    const r = await supabase.from('entries').select('kind, data').order('position').order('id');
+    if (!r.error) data = r.data as never;
+  }
+  if (!data) {
+    const url = import.meta.env.VITE_SUPABASE_URL as string;
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+    const res = await fetch(`${url}/rest/v1/entries?select=kind,data&order=position,id`, { headers: { apikey: key } }).catch(() => null);
+    if (!res?.ok) return 'Die Datenbank ist nicht erreichbar.';
+    data = await res.json();
+  }
   for (const list of Object.values(LISTS)) list.length = 0;
-  for (const row of data as { kind: Kind; data: never }[]) LISTS[row.kind]?.push(row.data);
+  for (const row of data!) LISTS[row.kind]?.push(row.data);
   changed();
   return null;
 }
@@ -71,12 +81,19 @@ export async function saveEntry<K extends Kind>(kind: K, entry: Kinds[K], oldId?
   const at = list.findIndex((e) => e.id === (oldId ?? entry.id));
   if (oldId !== entry.id && list.some((e) => e.id === entry.id)) return `Die Kennung ${entry.id} ist schon vergeben.`;
   const position = at >= 0 ? at : list.length;
-  const { error } = await supabase.from('entries').upsert({ kind, id: entry.id, position, data: entry });
+  // closed entries are filtered by the database, see supabase/003_access.sql
+  const access = (entry as { access?: { mode?: string; readers?: string[] } }).access;
+  const visibility = access?.mode === 'closed' || access?.mode === 'readers' ? access.mode : 'public';
+  const { error } = await supabase
+    .from('entries')
+    .upsert({ kind, id: entry.id, position, data: entry, visibility, readers: visibility === 'readers' ? (access?.readers ?? []) : [] });
   if (error)
     return error.code === '42501'
       ? 'Keine Berechtigung.'
       : error.code === '23514'
         ? 'Die Datenbank kennt diese Art Eintrag noch nicht. Bitte supabase/002_messages.sql ausführen.'
+        : error.code === 'PGRST204'
+          ? 'Der Datenbank fehlen die Zugriffsspalten. Bitte supabase/003_access.sql ausführen.'
         : `Speichern fehlgeschlagen: ${error.message}`;
   if (oldId && oldId !== entry.id) await supabase.from('entries').delete().match({ kind, id: oldId });
   if (at >= 0) list[at] = entry;
@@ -106,6 +123,16 @@ export async function deleteEntry(kind: Kind, id: string): Promise<string | null
   changed();
   return null;
 }
+
+// Accounts that can be picked as readers (admins only; empty when unavailable).
+let accounts: { id: string; email: string }[] | null = null;
+export async function listAccounts() {
+  if (accounts || !supabase) return accounts ?? [];
+  const { data, error } = await supabase.rpc('list_accounts');
+  if (!error) accounts = data as { id: string; email: string }[];
+  return accounts ?? [];
+}
+export const cachedAccounts = () => accounts ?? [];
 
 // Uploads a picture to the public "images" bucket and returns its URL.
 export async function uploadImage(file: File, folder: 'personnel' | 'reports' | 'mtf'): Promise<{ url?: string; error?: string }> {
