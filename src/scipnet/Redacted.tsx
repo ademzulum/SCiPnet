@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAccount } from './session';
 import { play } from '../lib/sound';
+import { useEntityLinks } from './EntityLinks';
 
 const GLYPHS = '█▓▒░#%&@$01';
 
@@ -12,7 +13,9 @@ const OPEN = /[(\[„«"'‚]+$/;
 // Logged in as the Administrator, a click declassifies the passage.
 // Each bar is glued to the punctuation around it ("[[x]]." or "([[x]])"), so
 // a line never breaks between the bar and a full stop or bracket.
+// Names of entries with their own page (Groups of Interest) become links.
 export default function Redacted({ text }: { text: string }) {
+  const link = useEntityLinks();
   const parts = text.split(/\[\[(.+?)\]\]/);
   const out: React.ReactNode[] = [];
   for (let i = 0; i < parts.length; i++) {
@@ -35,7 +38,7 @@ export default function Redacted({ text }: { text: string }) {
   }
   // One inline wrapper: inside a flex or grid parent, loose text and bars would
   // each become their own item and break onto separate lines.
-  return <span className="redacted-text">{out}</span>;
+  return <span className="redacted-text">{out.flatMap((o, i) => (typeof o === 'string' ? link(o, i) : [o]))}</span>;
 }
 
 function Bar({ secret }: { secret: string }) {

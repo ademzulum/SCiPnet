@@ -20,6 +20,7 @@ import Assistant from './Assistant';
 import Hack from './Hack';
 import Sessions from './Sessions';
 import SideRails from './SideRails';
+import { Nav } from './EntityLinks';
 import { adminAccess, commsAuth, switchAccount, useAdminUnlocked } from './session';
 import { Bell, Toast, useNotifications } from './Notifications';
 import { play, type SoundName } from '../lib/sound';
@@ -305,28 +306,30 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       </nav>
 
       <main className="shell-main">
-        <AnimatePresence mode="wait">
-          <motion.div
-            // a side rail question (ask) goes to the open S.C.I.P.A. chat, not a new page
-            key={JSON.stringify(route.view === 'assistant' ? { view: 'assistant' } : route) + commsOk}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-          >
-            {/* wide screens: system log and tab context beside the page, top-aligned
-                with it and scrolling with it; the comms login brings its own panels */}
-            {!locked && !((route.view === 'comms' || route.view === 'thread') && !commsOk) && route.view !== 'admin' ? (
-              <div className="rail-layout" ref={fitRails}>
-                <SideRails side="left" route={route} go={go} />
-                {page}
-                <SideRails side="right" route={route} go={go} />
-              </div>
-            ) : (
-              page
-            )}
-          </motion.div>
-        </AnimatePresence>
+        <Nav.Provider value={{ go, route }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              // a side rail question (ask) goes to the open S.C.I.P.A. chat, not a new page
+              key={JSON.stringify(route.view === 'assistant' ? { view: 'assistant' } : route) + commsOk}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* wide screens: system log and tab context beside the page, top-aligned
+                  with it and scrolling with it; the comms login brings its own panels */}
+              {!locked && !((route.view === 'comms' || route.view === 'thread') && !commsOk) && route.view !== 'admin' ? (
+                <div className="rail-layout" ref={fitRails}>
+                  <SideRails side="left" route={route} go={go} />
+                  {page}
+                  <SideRails side="right" route={route} go={go} />
+                </div>
+              ) : (
+                page
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </Nav.Provider>
       </main>
 
       <Toast api={notes} go={go} hidden={locked} />

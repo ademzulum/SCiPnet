@@ -68,6 +68,11 @@ These are rules the project owner has given over time. Follow them for every cha
 - **Light palette:** every group defines one under `.crt[data-mode='light']`.
 - **No tilted elements:** the shape rules above apply to groups too, so no tilted stamps and no slanted cut corners.
 
+## Links between entries
+
+- Every mention of an entry that has its own page links to it. For Groups of Interest this is automatic: text rendered through `Redacted` links names from `src/data/gois.ts` (see `src/scipnet/EntityLinks.tsx`). Render new free text through `Redacted` so it gets the links; add new name variants in `EntityLinks.tsx`.
+- A page never links to itself, and text inside a card that is itself a button stays plain.
+
 ## Motion
 
 - **Entrances:** animate on `translate` (`.rise`, `--i` for stagger). Hover then uses `transform`, so the two never fight or jump.

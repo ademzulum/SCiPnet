@@ -32,8 +32,12 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
             <div className="label">
               Feldbericht · {r.id} · {sections} Abschnitte
             </div>
-            <h2>{r.title}</h2>
-            <p className="dim">{r.summary}</p>
+            <h2>
+              <Redacted text={r.title} />
+            </h2>
+            <p className="dim">
+              <Redacted text={r.summary} />
+            </p>
           </div>
           <span className="rv-stamp" aria-label={`Klassifizierung: ${r.classification}`}>
             {r.classification}
