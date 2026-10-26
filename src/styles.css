@@ -9721,3 +9721,118 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   transition: color 0.15s, text-decoration-color 0.15s;
 }
 .entity-link:hover { color: var(--accent); text-decoration-color: var(--accent); }
+
+/* ---- list cards (field reports, personnel) on the archive card's structure:
+   top row with the identifier and its pill, title and summary, a dashed footer
+   with chips and the level pill on the right ---- */
+.card2 { display: flex; flex-direction: column; gap: 0.6rem; }
+.card2-top { display: flex; align-items: center; gap: 0.8rem; }
+.card2-id { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+.card2-id strong { font-size: 16px; letter-spacing: 0.08em; color: var(--hi); }
+.card2-foot {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--line);
+}
+.card2-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 24px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 7%, var(--card-bg, var(--acs-bg)));
+  color: var(--hi);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.card2-chip:has(.avatar) { padding-left: 2px; }
+.card2-chip .avatar.sm { width: 20px; height: 20px; font-size: 9px; }
+.card2-chip.seal { margin-left: auto; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.75; }
+.card2-chip.seal.open { color: #7fe0a8; opacity: 1; }
+
+/* state pill (report status, personnel status) in the state's colour */
+.state-pill {
+  flex: none;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--sc) 55%, transparent);
+  background: color-mix(in srgb, var(--sc) 12%, transparent);
+  color: var(--sc);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.state-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.state-pill.status-Offen, .state-pill.status-Vermisst { --sc: #ff5a5f; }
+.state-pill.status-Abgeschlossen { --sc: #9aa4ad; }
+.state-pill.status-Aktiv { --sc: #4fbf7a; }
+.state-pill.status-Beurlaubt, .state-pill.status-Beobachtung { --sc: #e39a3b; }
+
+/* level pill: same look as the SCP list's clearance pill */
+.level-pill {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--lvl) 55%, transparent);
+  background: color-mix(in srgb, var(--lvl) 12%, transparent);
+  color: var(--lvl);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  --st: var(--lvl);
+}
+.level-pill .pips { margin-left: 0; }
+.card2-foot .level-pill { margin-left: 0; }
+.crt[data-mode='light'] .level-pill,
+.crt[data-mode='light'] .state-pill { filter: brightness(0.75) saturate(1.3); }
+
+/* personnel */
+.pers-photo {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--fg) 6%, var(--card-bg, var(--acs-bg)));
+  color: var(--dim, var(--fg));
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+.pers-photo img, .pers-photo svg { width: 100%; height: 100%; object-fit: cover; }
+.pers-card .card2-id strong { letter-spacing: 0.02em; }
+.pers-quote { font-style: italic; }
+.pers-quote.none { opacity: 0.55; }
+.pers-facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+.pers-facts > span { display: flex; flex-direction: column; gap: 0.1rem; }
+.pers-facts .label { margin: 0; font-size: 9px; }
+.pers-facts strong { color: var(--hi); font-size: 16px; }
+/* the card's top edge and wash take the status colour */
+.pers-card { --c: var(--sc); }
+.pers-card.st-Aktiv { --sc: #4fbf7a; }
+.pers-card.st-Beurlaubt, .pers-card.st-Beobachtung { --sc: #e39a3b; }
+.pers-card.st-Vermisst { --sc: #ff5a5f; }
+.pers-card {
+  border-top: 2px solid var(--sc, var(--edge));
+  background: linear-gradient(160deg, color-mix(in srgb, var(--sc, #9aa4ad) 8%, var(--card-bg, var(--acs-bg))), var(--card-bg, var(--acs-bg)) 55%);
+}
+.pers-card::before { display: none; }
+/* the id and department line stays on one line so names in a row line up */
+.card2-id > .dim.small { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.nobreak { white-space: nowrap; }

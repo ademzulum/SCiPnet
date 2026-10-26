@@ -11,7 +11,7 @@ import { useAdminUnlocked } from './session';
 import ScpLogo from '../components/ScpLogo';
 import { AcsBar, AcsIcon, AddendumBox, WarnIcon } from './Acs';
 import { MtfInsignia } from './Departments';
-import Pips from './Pips';
+import { LevelPill } from './Pips';
 import { mtfById } from '../data/mtf';
 
 const CLASSES: ObjectClass[] = ['Safe', 'Euclid', 'Keter', 'Thaumiel'];
@@ -226,10 +226,5 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
 // Clearance level of a file, in the level's colour: pips plus "Level n".
 function ClearanceLevel({ c }: { c: string }) {
   const n = Number(c.match(/\d/)?.[0] ?? 1);
-  return (
-    <span className={`scp-card2-lvl lvl-${n}`} title={`Freigabe ${c}`}>
-      <Pips n={n} of={5} />
-      Level {n}
-    </span>
-  );
+  return <LevelPill n={n} of={5} label={`Level ${n}`} title={`Freigabe ${c}`} />;
 }

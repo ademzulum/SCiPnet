@@ -75,21 +75,27 @@ export default function ReportList({ go }: { go: Go }) {
               <motion.button
                 key={r.id}
                 {...FILTER_CARD}
-                className={`report-card cl-${classKey(r.classification)}`}
+                className={`report-card card2 cl-${classKey(r.classification)}`}
                 onClick={() => go({ view: 'report', id: r.id })}
               >
-                <span className="report-card-top">
-                  <span className="dim small">{r.id}</span>
-                  <span className="cl-pill">{r.classification}</span>
+                <span className="card2-top">
+                  <span className="card2-id">
+                    <strong>{r.id}</strong>
+                    <span className="cl-pill">{r.classification}</span>
+                  </span>
+                  <span className={`state-pill status-${r.status}`}>{r.status}</span>
                 </span>
                 <strong className="report-card-title">{r.title}</strong>
                 <span className="dim report-card-summary">{r.summary}</span>
-                <span className="report-card-foot">
-                  <span className="avatar sm">{initials(author?.name ?? '?')}</span>
-                  <span className="small">
-                    {fmt(r.date)} · <Redacted text={r.location} />
+                <span className="card2-foot">
+                  <span className="card2-chip">
+                    <span className="avatar sm">{initials(author?.name ?? '?')}</span>
+                    {author?.name ?? 'Unbekannt'}
                   </span>
-                  <span className={`status status-${r.status}`}>{r.status}</span>
+                  <span className="card2-chip">{fmt(r.date)}</span>
+                  <span className="card2-chip">
+                    <Redacted text={r.location} />
+                  </span>
                 </span>
               </motion.button>
             );

@@ -15,15 +15,20 @@ const NAMES: [string, string][] = GOIS.flatMap((g): [string, string][] => {
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const PATTERN = new RegExp(`(${NAMES.map(([n]) => esc(n)).join('|')})`, 'g');
 
+// File numbers (SCP-8041, P-80-0912, FB-80-2026-033) never break at a hyphen.
+const ID = /([A-Z]{1,3}-\d[\d-]*\d)/;
+function keepIds(text: string, key: string): React.ReactNode[] {
+  return text.split(ID).map((p, i) => (i % 2 ? <span key={`${key}-id${i}`} className="nobreak">{p}</span> : p));
+}
+
 // Splits plain text into strings and links to the GoI pages it mentions. On a
 // group's own page its name stays plain text.
 export function useEntityLinks() {
   const nav = useContext(Nav);
   return (text: string, key: string | number): React.ReactNode[] => {
-    if (!nav) return [text];
-    return text.split(PATTERN).map((part, i) => {
+    return text.split(PATTERN).flatMap((part, i) => {
       const id = i % 2 ? NAMES.find(([n]) => n === part)?.[1] : undefined;
-      if (!id || (nav.route.view === 'goi' && nav.route.id === id)) return part;
+      if (!id || !nav || (nav.route.view === 'goi' && nav.route.id === id)) return keepIds(part, `${key}-${i}`);
       return (
         <a
           key={`${key}-${i}`}
