@@ -35,6 +35,8 @@ These are rules the project owner has given over time. Follow them for every cha
   - a coloured top edge
   - a soft colour wash on a solid `--card-bg`
   - a dashed line above the card footer
+- **Card surface:** every list card (SCP, reports, personnel, Mobile Task Forces, Groups of Interest) has the same solid surface. No card type is more see-through than the others; check the computed background colour when adding one.
+- **Card footer order:** level pill (`LevelPill`) on the left, other chips after it, the state chip (Offen, Versiegelt, Abgeschlossen) in the lower right corner in the `card2-chip seal` style. Every clearance or classification shows as the level pill, never as text or another badge. The footer stays on one line; long chips shorten with an ellipsis.
 - **Side rails:**
   - Both rails sit centred in the visible area between header and dock, with equal space above and below. A rail fits a 1600×900 window; tighten its boxes before letting it overflow.
   - Every tab has side rails on wide screens.

@@ -6,9 +6,12 @@ import { personById } from '../data/personnel';
 import type { Go } from './routes';
 import Redacted from './Redacted';
 import { initials } from './Comms';
+import { LevelPill } from './Pips';
 
 const fmt = (d: string) => new Date(d).toLocaleDateString('de-DE');
 export const classKey = (c: Report['classification']) => c.replace(' ', '-');
+// classification as a clearance level, the scale every list card uses
+const LEVEL: Record<string, number> = { Uneingeschränkt: 1, Eingeschränkt: 2, Vertraulich: 3, Geheim: 4, 'Streng geheim': 5 };
 
 // Compact row, used on the overview and in personnel files.
 export function ReportRow({ report: r, go }: { report: Report; go: Go }) {
@@ -81,21 +84,20 @@ export default function ReportList({ go }: { go: Go }) {
                 <span className="card2-top">
                   <span className="card2-id">
                     <strong>{r.id}</strong>
-                    <span className="cl-pill">{r.classification}</span>
+                    <span className="dim small">
+                      {fmt(r.date)} · <Redacted text={r.location} />
+                    </span>
                   </span>
-                  <span className={`state-pill status-${r.status}`}>{r.status}</span>
                 </span>
                 <strong className="report-card-title">{r.title}</strong>
                 <span className="dim report-card-summary">{r.summary}</span>
                 <span className="card2-foot">
                   <span className="card2-chip">
                     <span className="avatar sm">{initials(author?.name ?? '?')}</span>
-                    {author?.name ?? 'Unbekannt'}
+                    <span className="card2-chip-text">{author?.name ?? 'Unbekannt'}</span>
                   </span>
-                  <span className="card2-chip">{fmt(r.date)}</span>
-                  <span className="card2-chip">
-                    <Redacted text={r.location} />
-                  </span>
+                  <LevelPill n={LEVEL[r.classification] ?? 3} of={5} label={`Level ${LEVEL[r.classification] ?? 3}`} title={r.classification} />
+                  <span className={`card2-chip seal${r.status === 'Offen' ? ' open' : ''}`}>{r.status}</span>
                 </span>
               </motion.button>
             );

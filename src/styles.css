@@ -9906,3 +9906,12 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .mtf-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
 .mtf-card2 .mtf-ready { align-self: flex-start; }
 .mtf-card2 { --cl: var(--s); border-top-color: var(--s); }
+/* report cards: level pill first in the footer, status chip in the lower right */
+.report-card.card2 .card2-foot .level-pill { order: -1; }
+/* personnel folders: same solid surface as every other list card */
+.crt[data-theme='scip'] .folder { background-color: color-mix(in srgb, var(--fg) 4%, var(--bg)); }
+/* one footer line: the author chip gives way (ellipsis) before the status wraps */
+.report-card.card2 .card2-foot { flex-wrap: nowrap; }
+.report-card.card2 .card2-foot > * { flex: none; }
+.report-card.card2 .card2-foot > .card2-chip:not(.seal) { flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.card2-chip-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
