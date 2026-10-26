@@ -19,8 +19,12 @@ const REPORTS = import.meta.glob<string>('../../images/field_reports/*.{svg,png,
   import: 'default',
 });
 
+const MTF = import.meta.glob<string>('../../images/archive/mtf/*.png', { eager: true, query: '?url', import: 'default' });
+
+// Uploaded pictures are stored as their full URL and used as they are.
 const pick = (files: Record<string, string>, dir: string, file?: string) => {
   if (!file) return undefined;
+  if (/^https?:\/\//.test(file)) return file;
   const base = file.replace(/\.\w+$/, '');
   return ['svg', 'png', 'jpg', 'webp'].map((ext) => files[`${dir}${base}.${ext}`]).find(Boolean);
 };
@@ -28,3 +32,4 @@ const pick = (files: Record<string, string>, dir: string, file?: string) => {
 // name with or without extension, e.g. 'corvus_finch' or 'addendum.jpg'
 export const photoUrl = (name?: string) => pick(PEOPLE, '../../images/personell_pictures/thumbs/', name);
 export const reportImageUrl = (file?: string) => pick(REPORTS, '../../images/field_reports/', file);
+export const insigniaUrl = (file?: string) => pick(MTF, '../../images/archive/mtf/', file);

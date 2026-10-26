@@ -12,6 +12,7 @@ import valravnLogo from '../../images/archive/group_of_interest/valravn_logo.svg
 import valravnMark from '../../images/archive/group_of_interest/valravn_logomark.svg';
 import Pips from './Pips';
 import { useCleared } from './session';
+import { insigniaUrl } from '../data/photos';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { FILTER_CARD } from './filterAnim';
@@ -31,7 +32,7 @@ export function MtfInsignia({ m, size = 48 }: { m: Mtf; size?: number }) {
       className="mtf-insignia"
       role="img"
       aria-label={`Abzeichen MTF ${m.code}`}
-      style={{ width: size, height: size, '--img': `url(${m.insignia})` } as React.CSSProperties}
+      style={{ width: size, height: size, '--img': `url(${insigniaUrl(m.insignia)})` } as React.CSSProperties}
     />
   );
 }
@@ -182,7 +183,7 @@ function MtfBar({ m }: { m: Mtf }) {
     <section className={`acs mtf-acs st-${stKey(m)}`}>
       <div className="acs-head mtf-acs-head">
         {/* the insignia, large, faint and slowly turning, in the back at the right; the status lives in the panel below */}
-        <span className="mtf-hero-bg" style={{ '--img': `url(${m.insignia})` } as React.CSSProperties} aria-hidden />
+        <span className="mtf-hero-bg" style={{ '--img': `url(${insigniaUrl(m.insignia)})` } as React.CSSProperties} aria-hidden />
         <div className="acs-id">
           <span className="label">Einheit #</span>
           <strong>MTF {m.code}</strong>

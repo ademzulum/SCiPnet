@@ -7,6 +7,22 @@ import { SCP } from '../src/data/scp.js';
 import { ADMIN_PERSON, O5_PERSON, PERSONNEL } from '../src/data/personnel.js';
 import { REPORTS } from '../src/data/reports.js';
 
+// The archive lives in Supabase; read it with the public key (read access is
+// open to everyone) and keep it for a minute per function instance.
+const DB_URL = process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL;
+const DB_KEY = process.env.VITE_SUPABASE_ANON_KEY ?? process.env.SUPABASE_PUBLISHABLE_KEY;
+let loadedAt = 0;
+async function loadArchive() {
+  if (!DB_URL || !DB_KEY || Date.now() - loadedAt < 60_000) return;
+  const res = await fetch(`${DB_URL}/rest/v1/entries?select=kind,data&order=position`, { headers: { apikey: DB_KEY } });
+  if (!res.ok) return;
+  const rows = (await res.json()) as { kind: string; data: never }[];
+  const lists: Record<string, unknown[]> = { scp: SCP, personnel: PERSONNEL, report: REPORTS };
+  for (const l of Object.values(lists)) l.length = 0;
+  for (const r of rows) lists[r.kind]?.push(r.data);
+  loadedAt = Date.now();
+}
+
 const MODEL = process.env.AI_GATEWAY_MODEL ?? 'google/gemini-2.5-flash-lite';
 const MAX_INPUT = 500;
 const MAX_HISTORY = 8;
@@ -138,6 +154,7 @@ async function makeNotice(recent: string[]) {
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'local';
   if (limited(ip)) return Response.json({ error: 'rate' }, { status: 429 });
+  await loadArchive().catch(() => {});
 
   let body: { account?: unknown; kind?: unknown; message?: unknown; history?: unknown; unlocked?: unknown; notices?: unknown; recent?: unknown };
   try {

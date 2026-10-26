@@ -9983,3 +9983,17 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .admin-login-error { margin: 0; color: var(--accent); }
 .admin-login-actions { display: flex; justify-content: flex-end; gap: 0.6rem; }
 .admin-login-actions .ghost { border-color: var(--line); }
+
+/* database unreachable at start */
+.boot-error {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 0.8rem;
+  padding: 16px;
+  text-align: center;
+  font-family: 'IBM Plex Mono', monospace;
+  color: #dfe7ec;
+  background: #07090b;
+}
+.boot-error button { font: inherit; padding: 0.5rem 1rem; color: inherit; background: none; border: 1px solid #d7263d; border-radius: 6px; }

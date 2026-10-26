@@ -12,7 +12,7 @@ import '@fontsource/cormorant-garamond/600.css';
 import '@fontsource/barlow-condensed/600.css';
 import '@fontsource/barlow-condensed/800.css';
 import './styles.css';
-import App from './App';
+import { loadEntries } from './data/store';
 import { blockInspect } from './lib/noInspect';
 import { customCursor } from './lib/cursor';
 import { repaintScrollbarsOnThemeChange } from './lib/scrollbars';
@@ -21,8 +21,24 @@ blockInspect();
 customCursor();
 repaintScrollbarsOnThemeChange();
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+// The archive comes from the database; the app is imported only afterwards,
+// because some modules index the entries when they load.
+const root = createRoot(document.getElementById('root')!);
+loadEntries().then(async (error) => {
+  if (error) {
+    root.render(
+      <div className="boot-error">
+        <strong>SCiPnet</strong>
+        <p>{error}</p>
+        <button onClick={() => location.reload()}>Erneut versuchen</button>
+      </div>,
+    );
+    return;
+  }
+  const { default: App } = await import('./App');
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+});

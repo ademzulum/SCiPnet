@@ -1,0 +1,83 @@
+// The archive lives in Supabase (table public.entries, see supabase/). It is
+// loaded once before the app starts and copied into the lists in src/data/*.ts,
+// so pages keep reading SCP, PERSONNEL, ... as before. Writes go through
+// saveEntry / deleteEntry and only succeed for the Administrator: the database
+// checks the role, the interface only hides the buttons.
+import { useSyncExternalStore } from 'react';
+import { supabase } from '../lib/supabase';
+import { SCP, type ScpObject } from './scp';
+import { PERSONNEL, type Person } from './personnel';
+import { REPORTS, type Report } from './reports';
+import { MTFS, type Mtf } from './mtf';
+import { GOIS, type Goi } from './gois';
+
+export type Kinds = { scp: ScpObject; personnel: Person; report: Report; mtf: Mtf; goi: Goi };
+export type Kind = keyof Kinds;
+const LISTS: { [K in Kind]: Kinds[K][] } = { scp: SCP, personnel: PERSONNEL, report: REPORTS, mtf: MTFS, goi: GOIS };
+
+let version = 0;
+const listeners = new Set<() => void>();
+const changed = () => {
+  version++;
+  listeners.forEach((l) => l());
+};
+// Re-renders a component whenever an entry was saved or deleted.
+export const useEntriesVersion = () =>
+  useSyncExternalStore(
+    (l) => {
+      listeners.add(l);
+      return () => listeners.delete(l);
+    },
+    () => version,
+  );
+
+// Loads every entry; returns an error text when the database can't be reached.
+export async function loadEntries(): Promise<string | null> {
+  if (!supabase) return 'Die Datenbank ist nicht eingerichtet (VITE_SUPABASE_URL fehlt).';
+  const { data, error } = await supabase.from('entries').select('kind, data').order('position').order('id');
+  if (error) return 'Die Datenbank ist nicht erreichbar.';
+  for (const list of Object.values(LISTS)) list.length = 0;
+  for (const row of data as { kind: Kind; data: never }[]) LISTS[row.kind]?.push(row.data);
+  changed();
+  return null;
+}
+
+// Creates or replaces an entry. `oldId` is the id before editing, so a
+// renamed entry replaces its old row. Returns an error text or null.
+export async function saveEntry<K extends Kind>(kind: K, entry: Kinds[K], oldId?: string): Promise<string | null> {
+  if (!supabase) return 'Keine Verbindung zur Datenbank.';
+  const list = LISTS[kind] as Kinds[K][];
+  const at = list.findIndex((e) => e.id === (oldId ?? entry.id));
+  if (oldId !== entry.id && list.some((e) => e.id === entry.id)) return `Die Kennung ${entry.id} ist schon vergeben.`;
+  const position = at >= 0 ? at : list.length;
+  const { error } = await supabase.from('entries').upsert({ kind, id: entry.id, position, data: entry });
+  if (error) return error.code === '42501' ? 'Keine Berechtigung.' : `Speichern fehlgeschlagen: ${error.message}`;
+  if (oldId && oldId !== entry.id) await supabase.from('entries').delete().match({ kind, id: oldId });
+  if (at >= 0) list[at] = entry;
+  else list.push(entry);
+  changed();
+  return null;
+}
+
+export async function deleteEntry(kind: Kind, id: string): Promise<string | null> {
+  if (!supabase) return 'Keine Verbindung zur Datenbank.';
+  const { error, count } = await supabase.from('entries').delete({ count: 'exact' }).match({ kind, id });
+  if (error || !count) return 'Löschen fehlgeschlagen oder keine Berechtigung.';
+  const list = LISTS[kind] as { id: string }[];
+  list.splice(
+    list.findIndex((e) => e.id === id),
+    1,
+  );
+  changed();
+  return null;
+}
+
+// Uploads a picture to the public "images" bucket and returns its URL.
+export async function uploadImage(file: File, folder: 'personnel' | 'reports' | 'mtf'): Promise<{ url?: string; error?: string }> {
+  if (!supabase) return { error: 'Keine Verbindung zur Datenbank.' };
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'png';
+  const path = `${folder}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from('images').upload(path, file, { contentType: file.type });
+  if (error) return { error: 'Hochladen fehlgeschlagen oder keine Berechtigung.' };
+  return { url: supabase.storage.from('images').getPublicUrl(path).data.publicUrl };
+}
