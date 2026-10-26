@@ -181,8 +181,8 @@ function MtfBar({ m }: { m: Mtf }) {
   return (
     <section className={`acs mtf-acs st-${stKey(m)}`}>
       <div className="acs-head mtf-acs-head">
-        {/* the insignia turning slowly at the left; the status lives in the panel below */}
-        <span className="mtf-head-seal" style={{ '--img': `url(${m.insignia})` } as React.CSSProperties} aria-hidden />
+        {/* the insignia, large, faint and slowly turning, in the back at the right; the status lives in the panel below */}
+        <span className="mtf-hero-bg" style={{ '--img': `url(${m.insignia})` } as React.CSSProperties} aria-hidden />
         <div className="acs-id">
           <span className="label">Einheit #</span>
           <strong>MTF {m.code}</strong>

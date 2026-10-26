@@ -9950,3 +9950,5 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .rep-place { margin-top: auto; display: flex; align-items: baseline; gap: 0.6rem; font-size: 12px; color: var(--hi); }
 .rep-place .label { margin: 0; font-size: 9px; flex: none; }
 .report-card.card2 .rep-place + .card2-foot { margin-top: 0; }
+/* the turning insignia sits in the back at the right of the MTF head, clipped by it */
+.mtf-acs-head .mtf-hero-bg { left: auto; right: -50px; width: 300px; height: 300px; translate: 0 -50%; opacity: 0.1; }
