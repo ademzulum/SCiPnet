@@ -10063,7 +10063,7 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .admin-thread { border-color: color-mix(in srgb, #b58cff 45%, transparent); }
 .admin-channel .chat-window { position: relative; overflow: hidden; }
 .admin-channel .chat-window::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent 0 3px, color-mix(in srgb, #b58cff 6%, transparent) 3px 4px); animation: admin-chan-jitter 3.2s steps(1) infinite; }
-@keyframes admin-chan-jitter { 0%, 92%, 100% { transform: none; opacity: 1; } 93% { transform: translateX(-3px); opacity: 0.6; } 95% { transform: translateX(4px) skewX(-2deg); } 97% { transform: translateY(2px); opacity: 0.8; } }
+@keyframes admin-chan-jitter { 0%, 92%, 100% { transform: none; opacity: 1; } 93% { transform: translateX(-3px); opacity: 0.6; } 95% { transform: translateX(4px); } 97% { transform: translateY(2px); opacity: 0.8; } }
 .admin-msg { border-color: color-mix(in srgb, #b58cff 45%, transparent); animation: admin-msg-flicker 4.5s infinite; }
 @keyframes admin-msg-flicker { 0%, 88%, 100% { text-shadow: none; } 90% { text-shadow: -2px 0 #ff2a55, 2px 0 #00e1ff; } 92% { text-shadow: 1px 0 #00e1ff, -1px 0 #ff2a55; } }
 .msg-del, .notice-del { margin-left: 0.6rem; font-size: 11px; }
