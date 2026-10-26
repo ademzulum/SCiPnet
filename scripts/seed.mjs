@@ -1,5 +1,6 @@
-// Writes supabase/seed.sql from the entries in src/data/*.ts (the state before
-// the move to the database). Run: node scripts/seed.mjs
+// Wrote supabase/seed.sql once from the entries that used to live in
+// src/data/*.ts. Those lists are now filled from the database, so running it
+// again writes an empty seed; kept for reference.
 import { createServer } from 'vite';
 import { writeFileSync } from 'node:fs';
 

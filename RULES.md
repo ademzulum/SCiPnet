@@ -111,3 +111,12 @@ These are rules the project owner has given over time. Follow them for every cha
 - **Line breaks:** in every screenshot, check where text wraps. Check at the width between the side rails (1600 px window) as well as without rails. No value that breaks into an orphan ("· Hong Kong" alone on a line). No card whose text breaks over three or four lines because the card is too narrow. No content (redactions included) that runs past its column. Fix the layout or the content until it reads cleanly.
 - **Alignment:** markers sit centred on the line they belong to. Timeline dots sit on the date, list icons on their first line. Tiles in one row line up: a tile with an extra line does not push its value out of line with its neighbours.
 - **Pills:** back pills and other pills use the site font (IBM Plex Mono, 12px) on every page, themed pages included.
+
+## Accounts and data
+
+- **Three accounts:**
+  - Dr. Duncan Maynard (UIU terminal login): reads everything, redactions and censored faces stay.
+  - O5-13 (the signal minigame): reads everything, lifts redactions and censoring, never changes an entry. Its card and session entry stay distorted until the minigame is won.
+  - Der Administrator: the real Supabase login (email and password). The only account that creates, edits and deletes entries. Its card and session entry stay distorted until that login succeeds.
+- **Entries live in Supabase** (`public.entries`, see `supabase/schema.sql`), not in `src/data/*.ts`; those files keep the types only. Change content through the editor, not in code.
+- **Security sits in the database:** row level security lets anyone read and only the `admin` role write. Hiding buttons is never the protection. Only the publishable key goes into the frontend; the secret key never goes into the code or the repo.
