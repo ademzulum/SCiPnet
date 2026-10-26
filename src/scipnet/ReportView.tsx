@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { personById } from '../data/personnel';
 import { masked } from './cardAccess';
 import { Broken } from './Admin';
@@ -26,6 +28,8 @@ const fmtDate = (d: string) => new Date(d).toLocaleDateString('de-DE', { day: '2
 // objects and units, then numbered document sections and the sign-off.
 export default function ReportView({ id, go }: { id: string; go: Go }) {
   const admin = useAccount().elevated;
+  // the list of who and what took part folds away
+  const [showRefs, setShowRefs] = useState(true);
   const r = reportById(id);
   if (!r) return <p className="page">Bericht nicht gefunden.</p>;
   const author = personById(r.author);
@@ -177,8 +181,25 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
 
         {/* who and what took part, grouped: objects, task forces, personnel */}
         {(objects.length > 0 || missing.length > 0 || units.length > 0 || involved.length > 0) && (
-          <section className="box doc-section rep-refs">
-            <h3>Beteiligt</h3>
+          <section className={`box doc-section rep-refs${showRefs ? '' : ' closed'}`}>
+            <button type="button" className="rep-refs-head" aria-expanded={showRefs} onClick={() => setShowRefs((v) => !v)}>
+              <h3>Beteiligt</h3>
+              <span className="dim small">
+                {objects.length + missing.length} Objekte · {units.length} Mobile Task Forces · {involved.length} Personen
+              </span>
+              <svg className="rep-chev" viewBox="0 0 12 12" aria-hidden>
+                <path d="M2 4.5l4 4 4-4" />
+              </svg>
+            </button>
+            <AnimatePresence initial={false}>
+              {showRefs && (
+                <motion.div
+                  className="rep-refs-body"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                >
             {(objects.length > 0 || missing.length > 0) && (
               <div className="rep-group">
                 <span className="label">Objekte</span>
@@ -250,6 +271,9 @@ export default function ReportView({ id, go }: { id: string; go: Go }) {
                 </div>
               </div>
             )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </section>
         )}
 

@@ -4,7 +4,7 @@ import Dropdown, { optLabel, optValue, type Opt } from './Dropdown';
 import { askConfirm, setLeaveGuard } from './Confirm';
 import { CONTAINMENT, SECONDARY, ESOTERIC, type AcsClass } from '../data/acsClasses';
 import { AnimatePresence, motion } from 'motion/react';
-import { AcsIcon } from './Acs';
+import { AcsIcon, classInfo } from './Acs';
 import { DISRUPTION, RISK, SCP } from '../data/scp';
 import { PERSONNEL } from '../data/personnel';
 import { REPORTS, TEMPLATES, factHint, sectionHint, type ReportTemplate } from '../data/reports';
@@ -23,7 +23,8 @@ type Field =
   | { k: string; label: string; t: 'text' | 'area' | 'date' | 'number'; req?: boolean; hint?: string; ph?: (row: Obj) => string | undefined }
   | { k: string; label: string; t: 'group'; hint?: string }
   | { k: string; label: string; t: 'select'; options: () => Opt[]; empty?: string; apply?: (entry: Obj, v: string) => Obj; hint?: string }
-  | { k: string; label: string; t: 'paras' | 'tags' | 'check' | 'classes'; hint?: string; ph?: (row: Obj) => string | undefined }
+  | { k: string; label: string; t: 'paras' | 'tags' | 'check'; hint?: string; ph?: (row: Obj) => string | undefined }
+  | { k: string; label: string; t: 'classes'; set: ClassSet; hint?: string }
   | { k: string; label: string; t: 'multi'; options: () => Opt[]; hint?: string }
   | { k: string; label: string; t: 'accounts'; hint?: string }
   | { k: string; label: string; t: 'pick'; what: PickWhat; single?: boolean; hint?: string }
@@ -56,10 +57,10 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
     fields: [
       { k: 'id', label: 'Kennung', t: 'text', req: true, hint: 'z. B. SCP-8050' },
       { k: 'name', label: 'Name', t: 'text', req: true },
-      { k: 'objectClass', label: 'Eindämmungsklasse', t: 'select', options: () => CONTAINMENT.map((c) => c.name) },
-      { k: 'acs.secondary', label: 'Sekundärklasse', t: 'classes' },
-      { k: 'acs.disruption', label: 'Störungsklasse', t: 'select', options: () => DISRUPTION },
-      { k: 'acs.risk', label: 'Risikoklasse', t: 'select', options: () => RISK },
+      { k: 'objectClass', label: 'Eindämmungsklasse', t: 'classes', set: 'containment' },
+      { k: 'acs.secondary', label: 'Sekundärklasse', t: 'classes', set: 'secondary' },
+      { k: 'acs.disruption', label: 'Störungsklasse', t: 'classes', set: 'disruption' },
+      { k: 'acs.risk', label: 'Risikoklasse', t: 'classes', set: 'risk' },
       { k: 'acs.status', label: 'Status', t: 'text' },
       { k: 'acs.subclass', label: 'Unterklasse', t: 'text' },
       { k: 'clearance', label: 'Freigabe', t: 'select', options: () => LEVELS },
@@ -466,7 +467,7 @@ function Input({ f, value, onChange, row }: { f: Field; value: unknown; onChange
     case 'accounts':
       return <AccountsInput value={(value as string[]) ?? []} onChange={onChange} />;
     case 'classes':
-      return <ClassPicker value={(value as string) ?? ''} onChange={onChange} />;
+      return <ClassPicker set={f.set} value={(value as string) ?? ''} onChange={onChange} />;
     case 'check':
       return (
         <button type="button" role="switch" aria-checked={!!value} className={`search ed-toggle${value ? ' on' : ''}`} onClick={() => onChange(!value)}>
@@ -635,22 +636,49 @@ function RowsInput({ f, rows, onChange }: { f: Extract<Field, { t: 'rows' }>; ro
   );
 }
 
-// Secondary classes are too many for a list: a button opens a window with
-// every class icon; hovering one shows its explanation.
-function ClassPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+// Class pickers: a button opens a window with every class icon of the set and
+// a search over names and meanings; hovering a class shows its explanation.
+type ClassSet = 'containment' | 'secondary' | 'disruption' | 'risk';
+type PickClass = { name: string; info: string; cls: string; color?: string };
+const asPick = (c: AcsClass): PickClass => ({ name: c.name, info: c.info, cls: `sec-${c.name}`, color: c.color });
+const CLASS_SETS: Record<ClassSet, { title: string; none: boolean; groups: { label?: string; items: PickClass[] }[] }> = {
+  containment: { title: 'Eindämmungsklasse', none: false, groups: [{ items: CONTAINMENT.map(asPick) }] },
+  secondary: {
+    title: 'Sekundärklasse',
+    none: true,
+    groups: [
+      { label: 'Offizielle Klassen', items: SECONDARY.map(asPick) },
+      { label: 'Esoterische Klassen', items: ESOTERIC.map(asPick) },
+    ],
+  },
+  disruption: { title: 'Störungsklasse', none: false, groups: [{ items: DISRUPTION.map((d) => ({ name: d, info: classInfo(d), cls: `dis-${d}` })) }] },
+  risk: { title: 'Risikoklasse', none: false, groups: [{ items: RISK.map((r) => ({ name: r, info: classInfo(r), cls: `risk-${r}` })) }] },
+};
+
+function ClassPicker({ set: which, value, onChange }: { set: ClassSet; value: string; onChange: (v: string) => void }) {
+  const spec = CLASS_SETS[which];
   const [open, setOpen] = useState(false);
-  const [hover, setHover] = useState<AcsClass | null>(null);
-  const current = [...SECONDARY, ...ESOTERIC].find((c) => c.name === value);
+  const [q, setQ] = useState('');
+  const [hover, setHover] = useState<PickClass | null>(null);
+  const all = spec.groups.flatMap((g) => g.items);
+  const current = all.find((c) => c.name === value);
   const shown = hover ?? current;
+  const needle = q.trim().toLowerCase();
+  const match = (c: PickClass) => !needle || c.name.toLowerCase().includes(needle) || c.info.toLowerCase().includes(needle);
+  const close = () => {
+    setOpen(false);
+    setQ('');
+  };
   const pick = (v: string) => {
     onChange(v);
-    setOpen(false);
+    close();
   };
-  const tile = (c: AcsClass) => (
+  const tile = (c: PickClass) => (
     <button
       key={c.name}
       type="button"
-      className={`cp-tile sec-${c.name}${c.name === value ? ' on' : ''}`}
+      className={`cp-tile ${c.cls}${c.name === value ? ' on' : ''}`}
+      style={c.color ? ({ '--c': c.color } as React.CSSProperties) : undefined}
       onPointerEnter={() => setHover(c)}
       onFocus={() => setHover(c)}
       onClick={() => pick(c.name)}
@@ -663,7 +691,7 @@ function ClassPicker({ value, onChange }: { value: string; onChange: (v: string)
     <>
       <button type="button" className="search dd-btn cp-btn" onClick={() => setOpen(true)}>
         {current ? (
-          <span className={`cp-current sec-${current.name}`}>
+          <span className={`cp-current ${current.cls}`} style={current.color ? ({ '--c': current.color } as React.CSSProperties) : undefined}>
             <AcsIcon name={current.name} /> {current.name}
           </span>
         ) : (
@@ -679,21 +707,31 @@ function ClassPicker({ value, onChange }: { value: string; onChange: (v: string)
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onPointerDown={(e) => e.target === e.currentTarget && setOpen(false)}
-            onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
+            onPointerDown={(e) => e.target === e.currentTarget && close()}
+            onKeyDown={(e) => e.key === 'Escape' && close()}
           >
-            <motion.div className="box cp" role="dialog" aria-label="Sekundärklasse wählen" initial={{ y: 12 }} animate={{ y: 0 }} exit={{ y: 12 }}>
+            <motion.div className="box cp cp-search" role="dialog" aria-label={`${spec.title} wählen`} initial={{ y: 12 }} animate={{ y: 0 }} exit={{ y: 12 }}>
               <div className="cp-head">
-                <h2>Sekundärklasse</h2>
-                <button type="button" className="card action ghost" onClick={() => pick('')}>
-                  KEINE
-                </button>
+                <h2>{spec.title}</h2>
+                {spec.none && (
+                  <button type="button" className="card action ghost" onClick={() => pick('')}>
+                    KEINE
+                  </button>
+                )}
               </div>
+              <input className="search" autoFocus placeholder="Klasse oder Bedeutung suchen…" value={q} onChange={(e) => setQ(e.target.value)} />
               <div className="cp-scroll">
-                <div className="label">Offizielle Klassen</div>
-                <div className="cp-grid">{SECONDARY.map(tile)}</div>
-                <div className="label">Esoterische Klassen</div>
-                <div className="cp-grid">{ESOTERIC.map(tile)}</div>
+                {spec.groups.map((g) => {
+                  const items = g.items.filter(match);
+                  if (!items.length) return null;
+                  return (
+                    <div key={g.label ?? 'all'} className="cp-group">
+                      {g.label && <div className="label">{g.label}</div>}
+                      <div className="cp-grid">{items.map(tile)}</div>
+                    </div>
+                  );
+                })}
+                {!all.some(match) && <p className="dim">Keine Klasse gefunden.</p>}
               </div>
               <div className="cp-info">
                 {shown ? (

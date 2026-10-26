@@ -80,6 +80,8 @@ const INFO: Record<string, string> = {
   Critical: 'Extremes Risiko. Lebensbedrohlich und nicht abwendbar.',
 };
 
+export const classInfo = (name: string) => INFO[name] ?? '';
+
 // The emblem: an octagon with the four icons in a diamond (containment on top,
 // risk right, secondary below, disruption left), split by arrows that point
 // out to the corners.
