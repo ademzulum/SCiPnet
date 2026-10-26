@@ -5,7 +5,7 @@ import { personById } from '../data/personnel';
 import { play } from '../lib/sound';
 import { getPrefs, setPref, usePrefs } from '../lib/prefs';
 import { currentAccount, threadState } from './session';
-import { unseenMessages } from '../data/messages';
+import { markNoticesSeen, unseenMessages, unseenNotices } from '../data/messages';
 import { refreshKind } from '../data/store';
 import type { Go, Route } from './routes';
 
@@ -127,8 +127,26 @@ export function useNotifications(paused: boolean) {
         route: { view: 'admin-chat' },
       });
     };
+    // New notices ("Mitteilungen") the same way; each is announced once per browser.
+    // The first visit only takes note of the existing ones.
+    try {
+      if (localStorage.getItem('scipnet.seenNotices') === null) markNoticesSeen();
+    } catch {
+      // storage unavailable
+    }
+    const announceNotices = () => {
+      if (currentAccount() === 'admin') return markNoticesSeen();
+      const fresh = unseenNotices();
+      if (!fresh.length) return;
+      markNoticesSeen();
+      fresh.forEach((n) => push({ level: n.level, title: `Mitteilung · ${n.title}`, text: n.text, route: { view: 'overview' } }));
+    };
     timers.push(setTimeout(announce, unread ? 7000 : 3500));
-    const poll = setInterval(() => void refreshKind('message').then(announce), 15000);
+    timers.push(setTimeout(announceNotices, unread ? 9000 : 5500));
+    const poll = setInterval(() => {
+      void refreshKind('message').then(announce);
+      void refreshKind('notice').then(announceNotices);
+    }, 15000);
     timers.push(poll);
     let bag = [...POOL].sort(() => Math.random() - 0.5);
     let useAi = true;

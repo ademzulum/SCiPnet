@@ -19,25 +19,25 @@ export type AdminMessage = {
 export const NOTICES: Notice[] = []; // filled from the database at start, see src/data/store.ts
 export const MESSAGES: AdminMessage[] = []; // filled from the database at start, see src/data/store.ts
 
-// Which of the Administrator's messages this browser has opened. Kept beyond
-// the 15-minute session, so a message sent while nobody was logged in is
-// announced at the next login, like Lena's at the first start.
-const SEEN = 'scipnet.seenMessages';
-function seen(): string[] {
+// Which of the Administrator's messages this browser has opened, and which
+// notices it has announced. Kept beyond the 15-minute session, so something
+// sent while nobody was logged in is announced at the next login, like Lena's
+// message at the first start.
+function seen(key: string): string[] {
   try {
-    return JSON.parse(localStorage.getItem(SEEN) ?? '[]') as string[];
+    return JSON.parse(localStorage.getItem(key) ?? '[]') as string[];
   } catch {
     return [];
   }
 }
-export const unseenMessages = () => {
-  const s = seen();
-  return MESSAGES.filter((m) => !s.includes(m.id));
-};
-export function markMessagesSeen() {
+function mark(key: string, ids: string[]) {
   try {
-    localStorage.setItem(SEEN, JSON.stringify(MESSAGES.map((m) => m.id)));
+    localStorage.setItem(key, JSON.stringify(ids));
   } catch {
-    // storage unavailable: the messages are announced again next time
+    // storage unavailable: they are announced again next time
   }
 }
+export const unseenMessages = () => MESSAGES.filter((m) => !seen('scipnet.seenMessages').includes(m.id));
+export const markMessagesSeen = () => mark('scipnet.seenMessages', MESSAGES.map((m) => m.id));
+export const unseenNotices = () => NOTICES.filter((n) => !seen('scipnet.seenNotices').includes(n.id));
+export const markNoticesSeen = () => mark('scipnet.seenNotices', NOTICES.map((n) => n.id));
