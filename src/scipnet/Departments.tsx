@@ -10,6 +10,7 @@ import mcdLogo from '../../images/archive/group_of_interest/mcd_logo.svg';
 import mcdMark from '../../images/archive/group_of_interest/mcd_logomark.svg';
 import valravnLogo from '../../images/archive/group_of_interest/valravn_logo.svg';
 import valravnMark from '../../images/archive/group_of_interest/valravn_logomark.svg';
+import Pips from './Pips';
 import { useAdminUnlocked } from './session';
 
 // The archive hub and what hangs off it: SCP objects, Foundation departments
@@ -311,11 +312,7 @@ function Threat({ g }: { g: Goi }) {
   const n = LEVELS.indexOf(g.threat) + 1;
   return (
     <span className={`goi-threat t-${g.threat}`}>
-      <span className="goi-threat-bars" aria-hidden>
-        {LEVELS.map((l, i) => (
-          <i key={l} className={i < n ? 'on' : ''} />
-        ))}
-      </span>
+      <Pips n={n} of={LEVELS.length} />
       Bedrohung: {g.threat}
     </span>
   );

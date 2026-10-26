@@ -3,6 +3,7 @@ import { DISRUPTION, RISK, type Addendum, type ScpObject } from '../data/scp';
 import Redacted from './Redacted';
 import { mtfById } from '../data/mtf';
 import { MtfInsignia } from './Departments';
+import Pips from './Pips';
 import type { Go } from './routes';
 
 // The file header after the wiki's Anomaly Classification System bar: containment
@@ -123,10 +124,8 @@ export function AcsBar({ s, go }: { s: ScpObject; go: Go }) {
           </span>
           <span className="acs-clear-text">
             <strong>{clear.name}</strong>
-            <span className="acs-level-bars" aria-hidden>
-              {Array.from({ length: 5 }, (_, i) => (
-                <i key={i} className={i < level ? 'on' : ''} style={{ animationDelay: `${0.25 + i * 0.07}s` }} />
-              ))}
+            <span className="acs-pips" style={{ '--st': 'var(--lvl)' } as React.CSSProperties}>
+              <Pips n={level} of={5} />
             </span>
             <small>{clear.info}</small>
           </span>

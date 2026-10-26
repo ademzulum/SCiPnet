@@ -9651,3 +9651,7 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   .gf-lots li { grid-template-columns: 1fr; }
   .gf-lot, .gf-price, .gf-lots strong, .gf-lots em { grid-column: 1; grid-row: auto; border: none; padding: 0; place-items: start; }
 }
+
+/* level meters everywhere use the personnel pips (Pips.tsx); colour via --st */
+.acs-pips .pips, .goi-threat .pips { margin-left: 0; }
+.goi-threat { --st: currentColor; }

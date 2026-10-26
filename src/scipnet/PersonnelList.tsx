@@ -9,6 +9,7 @@ import { initials } from './Comms';
 import { photoUrl } from '../data/photos';
 import Picture from './Picture';
 import Redacted from './Redacted';
+import Pips from './Pips';
 import { REPORTS } from '../data/reports';
 
 // field reports a person wrote or appears in
@@ -24,11 +25,7 @@ export const clearanceLevel = (c: string) => (c === 'RAISA' ? 4 : Number(c.match
 export function ClearancePips({ c }: { c: string }) {
   const n = clearanceLevel(c);
   return (
-    <span className="pips" title={`Freigabe ${c}`}>
-      {Array.from({ length: 6 }, (_, i) => (
-        <span key={i} className={i < n ? 'pip on' : 'pip'} />
-      ))}
-    </span>
+    <Pips n={n} of={6} title={`Freigabe ${c}`} />
   );
 }
 

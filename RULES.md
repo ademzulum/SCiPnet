@@ -27,6 +27,7 @@ These are rules the project owner has given over time. Follow them for every cha
   - Rotation is also allowed for geometry that needs it, such as a diamond or arrows in the ACS emblem.
 - **Icons:** draw them as SVG or use a mask. Do not use Unicode glyphs (⚠, ✓ and so on) as icons.
 - **Room to breathe:** icons and text never touch borders or rings. This covers icons inside the octagon, the gauge label and the two icons in the class pill.
+- **Level meters:** every level shown as a bar (clearance, threat, any "n of m") uses the pips from the personnel overview: `Pips` in `src/scipnet/Pips.tsx`, coloured through `--st`. Never build another bar style for this. The pips' slight slant is part of that style and the one exception to the no-skew rule.
 - **Equal sizes:** icons that sit side by side are the same size, like the three icons on the archive hub.
 - **Lists match:** the overviews (SCP list, field reports, personnel, Mobile Task Forces, Groups of Interest) share one card language:
   - a coloured top edge
