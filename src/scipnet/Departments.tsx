@@ -321,59 +321,136 @@ function Threat({ g }: { g: Goi }) {
   );
 }
 
+// A Group of Interest file. Every group shares one frame (cover, figures,
+// numbered sections, side cards); the theme class brings the group's look.
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 export function GoiView({ id, go }: { id: string; go: Go }) {
   const g = goiById(id);
   if (!g) return <p className="page">Eintrag nicht gefunden.</p>;
+  const num = (i: number) => (g.theme === 'mcd' ? ROMAN[i] : String(i + 1).padStart(2, '0'));
+  const sections = [
+    ...g.sections.map((s) => ({ title: s.title, node: s.body.map((p, j) => <p key={j}><Redacted text={p} /></p>) })),
+    {
+      title: g.intercept.title,
+      node: (
+        <figure className="gf-intercept">
+          <figcaption>{g.intercept.source}</figcaption>
+          {g.intercept.lines.map(([who, line], i) => (
+            <p key={i} style={{ '--d': `${0.5 + i * 0.3}s` } as React.CSSProperties}>
+              {who && <b>{who}</b>}
+              <span>
+                <Redacted text={line} />
+              </span>
+            </p>
+          ))}
+        </figure>
+      ),
+    },
+    ...(g.ops
+      ? [
+          {
+            title: 'Bekannte Einsätze',
+            node: (
+              <ol className="gf-ops">
+                {g.ops.map((o) => (
+                  <li key={o.code}>
+                    <span className="gf-op-code">{o.code}</span>
+                    <strong>{o.place}</strong>
+                    <span>{o.note}</span>
+                  </li>
+                ))}
+              </ol>
+            ),
+          },
+        ]
+      : []),
+    ...(g.items
+      ? [
+          {
+            title: 'Abgefangener Katalog',
+            node: (
+              <>
+                <ul className="gf-lots">
+                  {g.items.map((it) => (
+                    <li key={it.lot}>
+                      <span className="gf-lot">{it.lot}</span>
+                      <strong>{it.name}</strong>
+                      <em>{it.note}</em>
+                      <span className="gf-price">{it.price}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="gf-disclaimer">Marshall, Carter and Dark Ltd. takes no responsibility for the misuse of this item.</div>
+              </>
+            ),
+          },
+        ]
+      : []),
+  ];
+
   return (
-    <div className={`page goi-page goi-${g.theme}`}>
+    <div className={`page gf goi-${g.theme}`}>
       {back(go, { view: 'gois' }, 'Interessengruppen')}
-      <header className="goi-hero">
-        <span className="goi-hero-bg" aria-hidden>
+
+      <header className="gf-cover rise" style={rise(0)}>
+        <span className="gf-cover-bg" aria-hidden>
           <GoiMark theme={g.theme} logo />
         </span>
-        <GoiMark theme={g.theme} />
-        <div>
-          <div className="goi-kicker">Group of Interest · Akte Site-80</div>
-          <h2>{g.name}</h2>
-          <p className="goi-tagline">“{g.tagline}”</p>
+        <div className="gf-cover-main">
+          <GoiMark theme={g.theme} />
+          <div>
+            <div className="gf-kicker">Group of Interest · Akte Site-80</div>
+            <h2>{g.name}</h2>
+            <p className="gf-tagline">“{g.tagline}”</p>
+          </div>
         </div>
-        <span className="goi-stamp" aria-hidden>
-          {g.theme === 'mcd' ? 'Abgefangen' : 'Beobachtet'}
-        </span>
+        <div className="gf-cover-side">
+          <span className="gf-status">{g.theme === 'mcd' ? 'Abgefangen' : 'Beobachtet'}</span>
+          <Threat g={g} />
+        </div>
       </header>
 
-      <div className="goi-stats">
+      <div className="gf-stats">
         {g.stats.map(([k, v], i) => (
-          <div key={k} className="rise" style={rise(i)}>
+          <div key={k} className="rise" style={rise(i + 1)}>
             <span>{k}</span>
             <strong>{v}</strong>
           </div>
         ))}
       </div>
 
-      <div className="goi-body">
-        <aside className="goi-side rise" style={rise(1)}>
-          <dl>
-            {g.facts.map(([k, v]) => (
-              <div key={k}>
-                <dt>{k}</dt>
-                <dd>{v}</dd>
-              </div>
-            ))}
-            <div>
-              <dt>Bedrohung</dt>
-              <dd>
-                <Threat g={g} />
-              </dd>
-            </div>
-          </dl>
-          <div className="goi-stance">
-            <span>Weisung der Foundation</span>
+      <div className="gf-grid">
+        <div className="gf-main">
+          {sections.map((s, i) => (
+            <section key={s.title} className="gf-sec rise" style={rise(i + 3)}>
+              <header>
+                <span className="gf-num">{num(i)}</span>
+                <h3>{s.title}</h3>
+              </header>
+              {s.node}
+            </section>
+          ))}
+        </div>
+
+        <aside className="gf-side">
+          <section className="gf-card rise" style={rise(3)}>
+            <h4>Steckbrief</h4>
+            <dl>
+              {g.facts.map(([k, v]) => (
+                <div key={k}>
+                  <dt>{k}</dt>
+                  <dd>{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+          <section className="gf-card gf-stance rise" style={rise(4)}>
+            <h4>Weisung der Foundation</h4>
             <p>{g.stance}</p>
-          </div>
-          <div className="goi-encounters">
-            <span className="goi-side-title">Begegnungen mit der Foundation</span>
-            <ol>
+          </section>
+          <section className="gf-card rise" style={rise(5)}>
+            <h4>Begegnungen mit der Foundation</h4>
+            <ol className="gf-encounters">
               {g.encounters.map((e) => (
                 <li key={e.date} className={`t-${e.tone}`}>
                   <time>{e.date}</time>
@@ -381,70 +458,8 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
                 </li>
               ))}
             </ol>
-          </div>
-        </aside>
-
-        <div className="goi-main">
-          {g.sections.map((s, i) => (
-            <section key={s.title} className="goi-section rise" style={rise(i + 2)}>
-              <h3>{s.title}</h3>
-              {s.body.map((p, j) => (
-                <p key={j}>
-                  <Redacted text={p} />
-                </p>
-              ))}
-            </section>
-          ))}
-
-          <section className="goi-section rise" style={rise(3)}>
-            <h3>{g.intercept.title}</h3>
-            <figure className="goi-intercept">
-              <figcaption>{g.intercept.source}</figcaption>
-              {g.intercept.lines.map(([who, line], i) => (
-                <p key={i} style={{ '--d': `${0.6 + i * 0.35}s` } as React.CSSProperties}>
-                  {who && <b>{who}</b>}
-                  <span>
-                    <Redacted text={line} />
-                  </span>
-                </p>
-              ))}
-            </figure>
           </section>
-
-          {g.ops && (
-            <section className="goi-section rise" style={rise(4)}>
-              <h3>Bekannte Einsätze</h3>
-              <ol className="goi-ops">
-                {g.ops.map((o) => (
-                  <li key={o.code}>
-                    <span className="goi-op-code">{o.code}</span>
-                    <strong>{o.place}</strong>
-                    <span>{o.note}</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          )}
-
-          {g.items && (
-            <section className="goi-section rise" style={rise(4)}>
-              <h3>Abgefangener Katalog</h3>
-              <ul className="goi-lots">
-                {g.items.map((it) => (
-                  <li key={it.lot}>
-                    <span className="goi-lot">{it.lot}</span>
-                    <span className="goi-lot-name">
-                      <strong>{it.name}</strong>
-                      <em>{it.note}</em>
-                    </span>
-                    <span className="goi-price">{it.price}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="goi-disclaimer">Marshall, Carter and Dark Ltd. takes no responsibility for the misuse of this item.</p>
-            </section>
-          )}
-        </div>
+        </aside>
       </div>
     </div>
   );
