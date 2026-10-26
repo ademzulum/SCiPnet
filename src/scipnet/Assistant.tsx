@@ -37,7 +37,7 @@ const VOICES = Object.fromEntries(
 );
 
 type Reply = Answer & { action?: Intent['action']; destruct?: boolean; ai?: boolean }; // ai: ask the model, this reply is the fallback
-type Msg = { from: 'me' | 'scipa'; text: string; action?: Intent['action']; icons?: string[] };
+type Msg = { from: 'me' | 'scipa'; text: string; action?: Intent['action']; legend?: Answer['legend'] };
 
 const norm = (s: string) =>
   ` ${s
@@ -332,7 +332,7 @@ export default function Assistant({ go, onSelfDestruct, notes, ask: question }: 
       const wait = Math.max(0, 600 + Math.min(1200, reply.text.length * 8) - (Date.now() - started));
       timer.current = setTimeout(() => {
         setThinking(false);
-        setLog((l) => [...l, { from: 'scipa', text: reply.text, action: reply.action, icons: reply.icons }]);
+        setLog((l) => [...l, { from: 'scipa', text: reply.text, action: reply.action, legend: reply.legend }]);
         if (reply.destruct) {
           voice?.pause();
           onSelfDestruct();
@@ -394,15 +394,16 @@ export default function Assistant({ go, onSelfDestruct, notes, ask: question }: 
                 animate={{ opacity: 1, y: 0 }}
               >
                 {m.text}
-                {m.icons && (
-                  <span className="scipa-icons">
-                    {m.icons.map((n) => (
-                      <span key={n} className={`scipa-icon acs ${ICON_CLASS[n] ?? ''}`}>
-                        <AcsIcon name={n} />
-                        {n === 'neutralized' ? 'Neutralisiert' : n[0].toUpperCase() + n.slice(1)}
-                      </span>
+                {m.legend && (
+                  <ul className="scipa-legend">
+                    {m.legend.map(([icon, name, meaning]) => (
+                      <li key={name} className={`acs ${ICON_CLASS[icon] ?? ''}`}>
+                        <AcsIcon name={icon} />
+                        <strong>{name}</strong>
+                        <span>{meaning}</span>
+                      </li>
                     ))}
-                  </span>
+                  </ul>
                 )}
                 {m.action && (
                   <button className="scipa-action" onClick={() => open(m.action!.route)}>

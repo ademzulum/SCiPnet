@@ -9402,25 +9402,32 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 }
 
 /* S.C.I.P.A.: class chips in answers, the guide in the side rail */
-.scipa-icons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-top: 0.6rem;
+.scipa-legend {
+  list-style: none;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  display: flex !important;
+  flex-direction: column;
+  gap: 4px !important;
 }
-.scipa-icon {
-  display: inline-flex !important;
-  flex-direction: row !important;
+/* one row per class: icon, name and meaning side by side, tinted in the class colour */
+.scipa-legend li {
+  display: grid !important;
+  grid-template-columns: 26px 9.5rem 1fr;
   align-items: center;
-  gap: 0.35rem !important;
-  padding: 2px 9px 2px 2px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--c, #9aa4ad) 16%, transparent);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  gap: 0.7rem !important;
+  padding: 5px 10px 5px 5px;
+  border-radius: var(--radius);
+  border-left: 2px solid var(--c, #9aa4ad);
+  background: color-mix(in srgb, var(--c, #9aa4ad) 10%, transparent);
 }
-.scipa-icon .acs-ico { width: 22px; height: 22px; padding: 2px; animation: none; }
+.scipa-legend .acs-ico { width: 26px; height: 26px; padding: 3px; animation: none; }
+.scipa-legend strong { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--c, var(--hi)); }
+.scipa-legend span { font-size: 13px; }
+@media (max-width: 640px) {
+  .scipa-legend li { grid-template-columns: 26px 1fr; }
+  .scipa-legend li span { grid-column: 2; }
+}
 .rail-guide { list-style: none; margin: 0; padding: 0; display: flex !important; flex-direction: column; gap: 2px !important; }
 .rail-guide button {
   all: unset;
@@ -9515,3 +9522,79 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 }
 .goi-hero-bg .goi-mark.goi-logo { width: 460px; height: 330px; }
 .goi-card-bg .goi-mark.goi-logo { width: 260px; height: 190px; }
+
+/* ---- GoI pages: key figures, intercepted document, encounters (shared frame, themed look) ---- */
+.goi-stats {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+  margin: 0 0 1.6rem;
+}
+.goi-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--g-line);
+  border-top: 2px solid var(--g-accent);
+  background: color-mix(in srgb, var(--g-accent) 6%, var(--g-panel));
+}
+.goi-stats span, .goi-side-title { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--g-accent); }
+.goi-stats strong { color: var(--g-hi); font-size: 20px; line-height: 1.15; }
+.goi-encounters { margin-top: 1.2rem; }
+.goi-encounters ol { list-style: none; margin: 0.6rem 0 0; padding: 0 0 0 14px; border-left: 1px solid var(--g-line); display: flex; flex-direction: column; gap: 0.8rem; }
+.goi-encounters li { position: relative; }
+.goi-encounters li::before {
+  content: '';
+  position: absolute;
+  left: -19px;
+  top: 4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow: 0 0 0 3px var(--g-panel);
+}
+.goi-encounters li.t-ok { --tone: #4fbf7a; }
+.goi-encounters li.t-warn { --tone: #e39a3b; }
+.goi-encounters li.t-bad { --tone: #e0524f; }
+.goi-encounters time { font-size: 11px; letter-spacing: 0.12em; color: var(--tone); font-weight: 600; }
+.goi-encounters p { margin: 0.1rem 0 0; font-size: 0.92em; }
+.goi-intercept { margin: 0; padding: 1rem 1.2rem; border-radius: var(--radius); display: flex; flex-direction: column; gap: 0.45rem; }
+.goi-intercept figcaption { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--g-accent); margin-bottom: 0.3rem; }
+.goi-intercept p { margin: 0 !important; opacity: 0; animation: goi-line 0.4s var(--d) ease-out forwards; }
+@keyframes goi-line { from { opacity: 0; translate: 0 4px; } to { opacity: 1; translate: 0 0; } }
+/* Valravn: a radio log on a dark scope with scan lines */
+.goi-valravn .goi-intercept {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  border: 1px solid var(--g-line);
+  border-left: 3px solid var(--g-accent);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 3px, color-mix(in srgb, var(--g-accent) 5%, transparent) 3px 4px),
+    var(--g-bg);
+}
+.goi-valravn .goi-intercept p { display: grid; grid-template-columns: 6.5rem 1fr; gap: 0.8rem; }
+.goi-valravn .goi-intercept b { color: var(--g-accent); font-weight: 600; letter-spacing: 0.08em; }
+/* MC&D: an engraved invitation card in a gold double rule */
+.goi-mcd .goi-intercept {
+  align-items: center;
+  text-align: center;
+  padding: 1.6rem 1.4rem;
+  border: 3px double var(--g-accent);
+  background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--g-accent) 10%, var(--g-panel)), var(--g-panel) 70%);
+  font-size: 17px;
+}
+.goi-mcd .goi-intercept p:nth-of-type(-n + 2) { font-style: italic; font-size: 19px; color: var(--g-hi); }
+.goi-mcd .goi-intercept p:nth-of-type(3) { margin-top: 0.8rem !important; }
+.goi-mcd .goi-intercept b { font-family: 'Barlow', sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--g-accent); margin-right: 0.6rem; font-weight: 500; }
+.goi-mcd .goi-stats strong { font-weight: 600; font-size: 22px; }
+.goi-valravn .goi-stats strong { font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+@media (max-width: 640px) {
+  .goi-valravn .goi-intercept p { grid-template-columns: 1fr; gap: 0.1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .goi-intercept p { animation: none; opacity: 1; }
+}

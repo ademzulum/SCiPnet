@@ -342,6 +342,15 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
         </span>
       </header>
 
+      <div className="goi-stats">
+        {g.stats.map(([k, v], i) => (
+          <div key={k} className="rise" style={rise(i)}>
+            <span>{k}</span>
+            <strong>{v}</strong>
+          </div>
+        ))}
+      </div>
+
       <div className="goi-body">
         <aside className="goi-side rise" style={rise(1)}>
           <dl>
@@ -362,6 +371,17 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
             <span>Weisung der Foundation</span>
             <p>{g.stance}</p>
           </div>
+          <div className="goi-encounters">
+            <span className="goi-side-title">Begegnungen mit der Foundation</span>
+            <ol>
+              {g.encounters.map((e) => (
+                <li key={e.date} className={`t-${e.tone}`}>
+                  <time>{e.date}</time>
+                  <p>{e.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </aside>
 
         <div className="goi-main">
@@ -375,6 +395,21 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
               ))}
             </section>
           ))}
+
+          <section className="goi-section rise" style={rise(3)}>
+            <h3>{g.intercept.title}</h3>
+            <figure className="goi-intercept">
+              <figcaption>{g.intercept.source}</figcaption>
+              {g.intercept.lines.map(([who, line], i) => (
+                <p key={i} style={{ '--d': `${0.6 + i * 0.35}s` } as React.CSSProperties}>
+                  {who && <b>{who}</b>}
+                  <span>
+                    <Redacted text={line} />
+                  </span>
+                </p>
+              ))}
+            </figure>
+          </section>
 
           {g.ops && (
             <section className="goi-section rise" style={rise(4)}>

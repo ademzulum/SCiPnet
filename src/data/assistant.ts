@@ -11,8 +11,9 @@
 
 import type { Route } from '../scipnet/routes';
 
-// icons: ACS icon names (images/archive/acs) shown as a row of class chips under the text
-export type Answer = { text: string; audio?: string; icons?: string[] };
+// legend: one row per class under the text: ACS icon (images/archive/acs), name, meaning
+export type Legend = [icon: string, name: string, meaning: string][];
+export type Answer = { text: string; audio?: string; legend?: Legend };
 
 export type Intent = {
   id: string;
@@ -73,8 +74,13 @@ export const INTENTS: Intent[] = [
     keywords: ['klassen', 'klassifizierung', 'klassifizierungen', 'acs', 'anomaly classification', 'klassen erklaren', 'klassensystem'],
     answers: [
       {
-        text: 'Jede Akte trägt das Anomaly Classification System, kurz ACS. Es hat vier Achsen: Eindämmungsklasse (wie schwer einzudämmen), Sekundärklasse (Sonderfälle), Störungsklasse (wie weit die Wirkung reicht) und Risikoklasse (wie gefährlich für Anwesende). Dazu kommen Freigabestufe, Subklasse und Status. Fragen Sie nach einer Achse für Details.',
-        icons: ['safe', 'esoteric', 'dark', 'notice'],
+        text: 'Jede Akte trägt das Anomaly Classification System, kurz ACS. Es hat vier Achsen, dazu Freigabestufe, Subklasse und Status. Fragen Sie nach einer Achse für Details.',
+        legend: [
+          ['safe', 'Eindämmungsklasse', 'wie schwer das Objekt einzudämmen ist'],
+          ['thaumiel', 'Sekundärklasse', 'Sonderfälle, die die Eindämmungsklasse ergänzen'],
+          ['keneq', 'Störungsklasse', 'wie weit die Wirkung reicht'],
+          ['danger', 'Risikoklasse', 'wie gefährlich es für Anwesende ist'],
+        ],
       },
     ],
   },
@@ -83,8 +89,14 @@ export const INTENTS: Intent[] = [
     keywords: ['eindammungsklasse', 'eindammungsklassen', 'safe', 'euclid', 'keter', 'neutralisiert', 'objektklasse'],
     answers: [
       {
-        text: 'Eindämmungsklassen: Safe ist zuverlässig eindämmbar. Euclid verhält sich nicht vollständig vorhersagbar. Keter ist nur unter großem Aufwand einzudämmen. Neutralisiert ist nicht mehr anomal. Passt keine davon, steht dort Esoteric, und die Sekundärklasse sagt mehr.',
-        icons: ['safe', 'euclid', 'keter', 'neutralized'],
+        text: 'Eindämmungsklassen sagen, wie schwer ein Objekt einzudämmen ist.',
+        legend: [
+          ['safe', 'Safe', 'zuverlässig eindämmbar'],
+          ['euclid', 'Euclid', 'nicht vollständig vorhersagbar'],
+          ['keter', 'Keter', 'nur unter großem Aufwand einzudämmen'],
+          ['neutralized', 'Neutralisiert', 'nicht mehr anomal'],
+          ['esoteric', 'Esoteric', 'keine Klasse passt; die Sekundärklasse sagt mehr'],
+        ],
       },
     ],
   },
@@ -93,8 +105,11 @@ export const INTENTS: Intent[] = [
     keywords: ['sekundarklasse', 'sekundarklassen', 'thaumiel', 'esoteric', 'esoterisch', 'nachrichtlich'],
     answers: [
       {
-        text: 'Sekundärklassen ergänzen die Eindämmungsklasse bei Sonderfällen. Thaumiel: die Foundation setzt das Objekt selbst zur Eindämmung anderer Anomalien ein. Nachrichtlich: die Wirkung läuft über übertragene Information, etwa ein Funksignal. Ohne Sekundärklasse bleibt das Feld leer.',
-        icons: ['esoteric', 'thaumiel', 'nachrichtlich'],
+        text: 'Sekundärklassen ergänzen die Eindämmungsklasse bei Sonderfällen. Ohne Sekundärklasse bleibt das Feld leer.',
+        legend: [
+          ['thaumiel', 'Thaumiel', 'die Foundation setzt das Objekt selbst zur Eindämmung anderer Anomalien ein'],
+          ['nachrichtlich', 'Nachrichtlich', 'die Wirkung läuft über übertragene Information, etwa ein Funksignal'],
+        ],
       },
     ],
   },
@@ -103,8 +118,14 @@ export const INTENTS: Intent[] = [
     keywords: ['storungsklasse', 'storungsklassen', 'dark', 'vlam', 'keneq', 'ekhi', 'amida'],
     answers: [
       {
-        text: 'Störungsklassen messen, wie weit ein Objekt die Normalität stören kann. Dark: kaum. Vlam: örtlich begrenzt. Keneq: eine Region oder Stadt. Ekhi: weitreichend bis landesweit. Amida: weltweit.',
-        icons: ['dark', 'vlam', 'keneq', 'ekhi', 'amida'],
+        text: 'Störungsklassen messen, wie weit ein Objekt die Normalität stören kann.',
+        legend: [
+          ['dark', 'Dark', 'kaum'],
+          ['vlam', 'Vlam', 'örtlich begrenzt'],
+          ['keneq', 'Keneq', 'eine Region oder Stadt'],
+          ['ekhi', 'Ekhi', 'weitreichend bis landesweit'],
+          ['amida', 'Amida', 'weltweit'],
+        ],
       },
     ],
   },
@@ -113,8 +134,14 @@ export const INTENTS: Intent[] = [
     keywords: ['risikoklasse', 'risikoklassen', 'notice', 'caution', 'warning', 'danger', 'critical'],
     answers: [
       {
-        text: 'Risikoklassen beschreiben die Gefahr für Personen in der Nähe. Notice: kaum spürbar. Caution: spürbar, möglicher Schaden. Warning: akut, bis zu schwerem Schaden. Danger: Schaden unvermeidlich. Critical: lebensbedrohlich und nicht abwendbar.',
-        icons: ['notice', 'caution', 'warning', 'danger', 'critical'],
+        text: 'Risikoklassen beschreiben die Gefahr für Personen in der Nähe.',
+        legend: [
+          ['notice', 'Notice', 'kaum spürbar'],
+          ['caution', 'Caution', 'spürbar, möglicher Schaden'],
+          ['warning', 'Warning', 'akut, bis zu schwerem Schaden'],
+          ['danger', 'Danger', 'Schaden unvermeidlich'],
+          ['critical', 'Critical', 'lebensbedrohlich und nicht abwendbar'],
+        ],
       },
     ],
   },
@@ -141,8 +168,13 @@ export const INTENTS: Intent[] = [
     keywords: ['oktagon', 'achteck', 'emblem', 'raute', 'symbol rechts'],
     answers: [
       {
-        text: 'Das Achteck rechts im Kopf jeder Akte fasst alles auf einen Blick: oben die Eindämmungsklasse, rechts das Risiko, links die Störung, unten die Sekundärklasse. Gedacht für Zellentüren, damit jeder sofort sieht, womit er es zu tun hat.',
-        icons: ['keter', 'danger', 'keneq', 'thaumiel'],
+        text: 'Das Achteck rechts im Kopf jeder Akte fasst alles auf einen Blick. Gedacht für Zellentüren, damit jeder sofort sieht, womit er es zu tun hat.',
+        legend: [
+          ['keter', 'Oben', 'die Eindämmungsklasse'],
+          ['danger', 'Rechts', 'das Risiko'],
+          ['keneq', 'Links', 'die Störung'],
+          ['thaumiel', 'Unten', 'die Sekundärklasse'],
+        ],
       },
     ],
   },
