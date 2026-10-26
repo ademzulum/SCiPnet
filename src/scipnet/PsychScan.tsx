@@ -38,7 +38,6 @@ export function BrainScan({ p }: { p: Person }) {
   const [phase, setPhase] = useState<'idle' | 'scan' | 'done'>('idle');
   const [pct, setPct] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
-  const [hover, setHover] = useState<number | null>(null);
   // until the first click the regions take turns lighting up, as a hint that they can be picked
   const [touched, setTouched] = useState(false);
 
@@ -146,26 +145,10 @@ export function BrainScan({ p }: { p: Person }) {
                       : undefined
                   }
                   onClick={() => phase === 'done' && pick(i)}
-                  onMouseEnter={() => setHover(i)}
-                  onMouseLeave={() => setHover((h) => (h === i ? null : h))}
                 />
               );
             })}
             <path d={ART} className="brain-art" />
-            {/* the outline of the selected (and hovered) region is the line art itself, lit up inside
-                that region, so the roughly cut region shapes never show their own edges */}
-            {phase === 'done' &&
-              [sel, hover !== sel ? hover : null].map(
-                (i, k) =>
-                  i !== null && (
-                    <g key={k}>
-                      <clipPath id={`brain-clip-${k}`}>
-                        <path d={REGIONS[i].d} />
-                      </clipPath>
-                      <path d={ART} className={`brain-art-lit${k ? ' hover' : ''}`} clipPath={`url(#brain-clip-${k})`} />
-                    </g>
-                  ),
-              )}
             {/* sweep and hotspots above the line art */}
             {phase === 'scan' && (
               <>
