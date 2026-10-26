@@ -10171,5 +10171,5 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .brain-head-tools { display: inline-flex; align-items: center; gap: 1rem; }
 .brain-cue { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
 .brain-cue svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
-.brain-cue { display: flex; margin-top: 0.3rem; white-space: nowrap; }
+.brain-cue { display: flex; margin: 0.15rem 0 0.2rem; white-space: nowrap; }
 .brain-head .link { white-space: nowrap; }
