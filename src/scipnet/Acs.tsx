@@ -4,7 +4,7 @@ import Redacted from './Redacted';
 
 // The file header after the wiki's Anomaly Classification System bar: containment
 // and secondary class with their icons on the left, disruption and risk class on
-// the right with the diamond of all four, subclass and status underneath.
+// the right with the octagon emblem of all four, subclass and status underneath.
 // Icons: images/acs (SCP Wiki, CC BY-SA 3.0, see LICENSE.txt there).
 
 const ICONS: Record<string, string> = Object.fromEntries(
@@ -36,42 +36,112 @@ export function WarnIcon({ shape = 'triangle' }: { shape?: 'triangle' | 'octagon
   );
 }
 
-const CLEARANCE = ['Uneingeschränkt', 'Eingeschränkt', 'Vertraulich', 'Geheim', 'Streng geheim', 'Kosmisch streng geheim'];
+// Clearance levels and class meanings after the Classification Committee memo
+// (scp-wiki.wikidot.com/classification-committee-memo).
+const CLEARANCE = [
+  { name: 'Uneingeschränkt', info: 'Für alle Mitarbeitenden einsehbar.' },
+  { name: 'Eingeschränkt', info: 'Ab Freigabe Stufe 2.' },
+  { name: 'Vertraulich', info: 'Ab Freigabe Stufe 3.' },
+  { name: 'Geheim', info: 'Ab Freigabe Stufe 4.' },
+  { name: 'Streng geheim', info: 'Gesperrt ohne ausdrückliche Genehmigung des O5-Rats.' },
+];
+const INFO: Record<string, string> = {
+  Safe: 'Statische Klasse. Zuverlässig und vollständig eindämmbar.',
+  Euclid: 'Statische Klasse. Verhalten nicht vollständig vorhersagbar.',
+  Keter: 'Statische Klasse. Eindämmung aufwendig und störanfällig.',
+  Neutralisiert: 'Statische Klasse. Nicht mehr anomal.',
+  Esoteric: 'Sonderfall. Eindämmung über die statischen Klassen hinaus, siehe Sekundärklasse.',
+  Thaumiel: 'Wird von der Foundation zur Eindämmung anderer Anomalien eingesetzt.',
+  Nachrichtlich: 'Wirkt über übertragene Information.',
+  Dark: 'Kaum Potenzial, die Allgemeinheit zu stören.',
+  Vlam: 'Geringes Potenzial, Störung meist örtlich begrenzt.',
+  Keneq: 'Mittleres Potenzial, Störung auf Region oder Stadt begrenzt.',
+  Ekhi: 'Hohes Potenzial, Störung weitreichend bis landesweit.',
+  Amida: 'Weltweite Störung, globale Bedrohung der Normalität.',
+  Notice: 'Geringes Risiko. Kaum spürbare Wirkung, selten Schaden.',
+  Caution: 'Mäßiges Risiko. Spürbare Wirkung, möglicher Schaden.',
+  Warning: 'Hohes Risiko. Akute Wirkung bis hin zu schwerem Schaden.',
+  Danger: 'Sehr hohes Risiko. Schaden für Anwesende unvermeidlich.',
+  Critical: 'Extremes Risiko. Lebensbedrohlich und nicht abwendbar.',
+};
+
+// The emblem: an octagon with the four icons in a diamond (containment on top,
+// risk right, secondary below, disruption left), split by arrows that point
+// out to the corners.
+function Emblem({ cls, sec, dis, risk }: { cls: string; sec?: string; dis: string; risk: string }) {
+  const arrow = (r: number) => (
+    <g key={r} transform={`rotate(${r} 50 50)`}>
+      <line x1="50" y1="50" x2="50" y2="14" />
+      <path d="M45 19 L50 12 L55 19" />
+    </g>
+  );
+  return (
+    <div className="acs-emblem" aria-hidden>
+      <svg viewBox="0 0 100 100">
+        <polygon className="acs-oct" points="30,1 70,1 99,30 99,70 70,99 30,99 1,70 1,30" />
+        <polygon className="acs-oct-in" points="32,6 68,6 94,32 94,68 68,94 32,94 6,68 6,32" />
+        <g className="acs-arrows">{[45, 135, 225, 315].map(arrow)}</g>
+      </svg>
+      <span className={`top class-${cls}`}>
+        <AcsIcon name={cls} />
+      </span>
+      <span className={`right risk-${risk}`}>
+        <AcsIcon name={risk} />
+      </span>
+      <span className={`bottom ${sec ? 'sec' : 'empty'}`}>{sec && <AcsIcon name={sec} />}</span>
+      <span className={`left dis-${dis}`}>
+        <AcsIcon name={dis} />
+      </span>
+    </div>
+  );
+}
 
 export function AcsBar({ s }: { s: ScpObject }) {
-  const level = Number(s.clearance.match(/\d/)?.[0] ?? 1);
+  const level = Math.min(5, Number(s.clearance.match(/\d/)?.[0] ?? 1));
   const cls = s.acs.containment ?? s.objectClass;
   const sec = s.acs.secondary;
   const dis = DISRUPTION.indexOf(s.acs.disruption) + 1;
   const risk = RISK.indexOf(s.acs.risk) + 1;
+  const clear = CLEARANCE[level - 1];
   return (
     <section className="acs">
       <div className={`acs-head lvl-${level}`}>
-        <span>
-          <span className="label">Item #</span> <strong>{s.id}</strong>
-        </span>
-        <span className="acs-level">
-          <span className="acs-level-bars" aria-hidden>
-            {Array.from({ length: 6 }, (_, i) => (
-              <i key={i} className={i < level ? 'on' : ''} style={{ animationDelay: `${0.2 + i * 0.06}s` }} />
-            ))}
+        <div className="acs-id">
+          <span className="label">Item #</span>
+          <strong>{s.id}</strong>
+        </div>
+        <div className="acs-clear" title={clear.info}>
+          <span className="acs-lvl-badge">
+            <small>Level</small>
+            {level}
           </span>
-          Level {level} · {CLEARANCE[level - 1]}
-        </span>
+          <span className="acs-clear-text">
+            <strong>{clear.name}</strong>
+            <span className="acs-level-bars" aria-hidden>
+              {Array.from({ length: 5 }, (_, i) => (
+                <i key={i} className={i < level ? 'on' : ''} style={{ animationDelay: `${0.25 + i * 0.07}s` }} />
+              ))}
+            </span>
+            <small>{clear.info}</small>
+          </span>
+        </div>
       </div>
       <div className="acs-grid">
         <div className={`acs-contain class-${cls}`}>
           <div className="acs-texts">
             <span className="label">Eindämmungsklasse:</span>
-            <strong>{cls}</strong>
+            <strong title={INFO[cls]}>{cls}</strong>
+            {INFO[cls] && <small>{INFO[cls]}</small>}
             {sec && (
               <>
                 <span className="label">Sekundärklasse:</span>
-                <strong>{sec}</strong>
+                <strong title={INFO[sec]}>{sec}</strong>
+                {INFO[sec] && <small>{INFO[sec]}</small>}
               </>
             )}
           </div>
-          <span className="acs-pill">
+          {/* with a secondary class the pill slides open like a switch to show it */}
+          <span className={`acs-pill${sec ? ' two' : ''}`}>
             <AcsIcon name={cls} />
             {sec && <AcsIcon name={sec} className="sec" />}
           </span>
@@ -83,6 +153,7 @@ export function AcsBar({ s }: { s: ScpObject }) {
               <div className="acs-texts">
                 <span className="label">Störungsklasse:</span>
                 <strong>{s.acs.disruption}</strong>
+                <small>{INFO[s.acs.disruption]}</small>
               </div>
               <span className="acs-badge">
                 <b>{dis}</b>
@@ -93,6 +164,7 @@ export function AcsBar({ s }: { s: ScpObject }) {
               <div className="acs-texts">
                 <span className="label">Risikoklasse:</span>
                 <strong>{s.acs.risk}</strong>
+                <small>{INFO[s.acs.risk]}</small>
               </div>
               <span className="acs-badge">
                 <b>{risk}</b>
@@ -100,19 +172,7 @@ export function AcsBar({ s }: { s: ScpObject }) {
               </span>
             </div>
           </div>
-          {/* the diamond: containment on top, risk right, disruption left, secondary below */}
-          <div className="acs-diamond" aria-hidden>
-            <span className={`class-${cls}`}>
-              <AcsIcon name={cls} />
-            </span>
-            <span className={`risk-${s.acs.risk}`}>
-              <AcsIcon name={s.acs.risk} />
-            </span>
-            <span className={`dis-${s.acs.disruption}`}>
-              <AcsIcon name={s.acs.disruption} />
-            </span>
-            <span className={sec ? 'sec' : 'empty'}>{sec && <AcsIcon name={sec} />}</span>
-          </div>
+          <Emblem cls={cls} sec={sec} dis={s.acs.disruption} risk={s.acs.risk} />
         </div>
 
         <div className={`acs-foot${s.acs.subclass ? '' : ' empty'}`}>
