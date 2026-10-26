@@ -10284,3 +10284,15 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .rep-face { display: grid; place-items: center; flex: none; width: 34px; height: 34px; border-radius: 50%; overflow: hidden; border: 1px solid var(--line); font-size: 11px; letter-spacing: 0.06em; background: color-mix(in srgb, currentColor 8%, var(--card-bg)); }
 .rep-face img { width: 100%; height: 100%; object-fit: cover; }
 div.rep-ref.broken-ref { cursor: default; border-style: dashed; }
+
+/* side rails: bars with round ends and a percentage; levels in their colour; titles of linked entries wrap instead of being cut */
+.rail-row { align-items: center; padding: 0.5rem 0; }
+.rail-n { display: inline-flex; align-items: baseline; gap: 0.4rem; color: var(--hi); }
+.rail-n small { font-size: 10px; opacity: 0.55; }
+.rail-track { height: 6px; border-radius: 999px; overflow: hidden; }
+.rail-fill { border-radius: 999px; min-width: 6px; }
+.rail-fill.by-lvl { background: var(--lvl); }
+.rail-label .level-pill { margin-left: 0; }
+.rail-link strong { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; line-height: 1.35; }
+/* report card signer: long names wrap onto a second line instead of being cut */
+.rep-author-text > span:last-child { overflow: visible; white-space: normal; text-overflow: clip; text-wrap: balance; line-height: 1.3; }

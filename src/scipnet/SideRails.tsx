@@ -1,3 +1,5 @@
+import { LevelPill } from './Pips';
+import { REPORT_LEVEL } from '../data/access';
 import { useEffect, useState } from 'react';
 import { masked } from './cardAccess';
 import { PERSONNEL, personById } from '../data/personnel';
@@ -59,8 +61,9 @@ function SystemLog() {
   );
 }
 
-// A labelled bar per group, as a share of the total.
-function Bars({ title, rows, go }: { title: string; rows: { label: string; n: number; tone?: string; to?: Route }[]; go: Go }) {
+// A labelled bar per group, as a share of the total. Rows with a clearance
+// level show the level pill and fill in the level's colour.
+function Bars({ title, rows, go }: { title: string; rows: { label: string; n: number; tone?: string; to?: Route; lvl?: number }[]; go: Go }) {
   const total = rows.reduce((s, r) => s + r.n, 0) || 1;
   return (
     <section className="box rail-box">
@@ -72,10 +75,13 @@ function Bars({ title, rows, go }: { title: string; rows: { label: string; n: nu
         {rows.map((r) => (
           <li key={r.label}>
             <button className="rail-row" disabled={!r.to} onClick={() => r.to && go(r.to)}>
-              <span className="rail-label">{r.label}</span>
-              <span className="rail-n">{r.n}</span>
-              <span className="rail-track">
-                <span className={`rail-fill ${r.tone ?? ''}`} style={{ width: `${(r.n / total) * 100}%` }} />
+              <span className="rail-label">{r.lvl ? <LevelPill n={r.lvl} of={5} label={r.label} /> : r.label}</span>
+              <span className="rail-n">
+                {r.n}
+                <small>{Math.round((r.n / total) * 100)} %</small>
+              </span>
+              <span className={`rail-track${r.lvl ? ` lvl-${r.lvl}` : ''}`}>
+                <span className={`rail-fill ${r.lvl ? 'by-lvl' : (r.tone ?? '')}`} style={{ width: `${(r.n / total) * 100}%` }} />
               </span>
             </button>
           </li>
@@ -162,10 +168,10 @@ function Context({ route, go }: { route: Route; go: Go }) {
     }
     case 'reports':
     case 'report': {
-      const cls = count(REPORTS, (r) => r.classification, ['Vertraulich', 'Geheim', 'Streng geheim']).map((r) => ({
-        ...r,
-        tone: r.label === 'Streng geheim' ? 'bad' : r.label === 'Geheim' ? 'warn' : 'info',
-      }));
+      // every level that has reports, lowest first
+      const cls = count(REPORTS, (r) => r.classification, Object.keys(REPORT_LEVEL))
+        .filter((r) => r.n)
+        .map((r) => ({ ...r, lvl: REPORT_LEVEL[r.label] }));
       const open = REPORTS.filter((r) => r.status === 'Offen').map((r) => ({
         label: masked('report', r, r.title),
         sub: `${r.id} · ${personById(r.author)?.name ?? '[DATEN BESCHÄDIGT]'}`,
