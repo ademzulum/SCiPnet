@@ -84,6 +84,7 @@ export default function ReportList({ go }: { go: Go }) {
                 <span className="card2-top">
                   <span className="card2-id">
                     <strong>{r.id}</strong>
+                    <span className="dim small">{fmt(r.date)}</span>
                   </span>
                   {/* who signed the report, top right like the insignia on SCP cards */}
                   <span className="rep-author" title={`Gezeichnet: ${author?.name ?? 'Unbekannt'}`}>
@@ -94,12 +95,15 @@ export default function ReportList({ go }: { go: Go }) {
                     </span>
                   </span>
                 </span>
-                {/* full width, so a redacted place never squeezes under the signer */}
-                <span className="dim small rep-meta">
-                  {fmt(r.date)} · <Redacted text={r.location} />
-                </span>
                 <strong className="report-card-title">{r.title}</strong>
                 <span className="dim report-card-summary">{r.summary}</span>
+                {/* the place gets its own line above the footer, clear of the signer */}
+                <span className="rep-place">
+                  <span className="label">Einsatzort</span>
+                  <span>
+                    <Redacted text={r.location} />
+                  </span>
+                </span>
                 <span className="card2-foot">
                   <LevelPill n={LEVEL[r.classification] ?? 3} of={5} label={`Level ${LEVEL[r.classification] ?? 3}`} title={r.classification} />
                   <span className={`card2-chip seal${r.status === 'Offen' ? ' open' : ''}`}>{r.status}</span>

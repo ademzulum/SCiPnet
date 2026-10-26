@@ -9947,3 +9947,6 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 }
 .mtf-motto { font-style: italic; }
 @media (prefers-reduced-motion: reduce) { .mtf-head-seal { animation: none; } }
+.rep-place { margin-top: auto; display: flex; align-items: baseline; gap: 0.6rem; font-size: 12px; color: var(--hi); }
+.rep-place .label { margin: 0; font-size: 9px; flex: none; }
+.report-card.card2 .rep-place + .card2-foot { margin-top: 0; }
