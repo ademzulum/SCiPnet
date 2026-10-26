@@ -4,6 +4,7 @@ import { SCP } from '../data/scp';
 import type { Go } from './routes';
 import Redacted from './Redacted';
 import ScpLogo from '../components/ScpLogo';
+import scpMark from '../../images/scipnet_terminal/scp_logo.svg';
 import { ClassBadge } from './Archive';
 import { useAdminUnlocked } from './session';
 
@@ -36,8 +37,8 @@ const GLOBE = (
 
 export function ArchiveHub({ go }: { go: Go }) {
   const parts = [
-    { key: 'scps', label: 'SCP-Objekte', sub: 'Anomaliendatenbank mit Eindämmungsakten.', n: SCP.length, to: { view: 'scps' } as const, icon: <ScpLogo size={52} /> },
-    { key: 'departments', label: 'Abteilungen', sub: 'Interne Stellen der Foundation. Mobile Einsatzkräfte.', n: MTFS.length, to: { view: 'departments' } as const, icon: <MtfInsignia m={MTFS[1]} size={52} /> },
+    { key: 'scps', label: 'SCP-Objekte', sub: 'Anomaliendatenbank mit Eindämmungsakten.', n: SCP.length, to: { view: 'scps' } as const, icon: <span className="hub-scp-mark" style={{ '--img': `url("${scpMark}")` } as React.CSSProperties} /> },
+    { key: 'departments', label: 'Abteilungen', sub: 'Interne Stellen der Foundation. Mobile Task Forces.', n: MTFS.length, to: { view: 'departments' } as const, icon: <MtfInsignia m={MTFS[1]} size={52} /> },
     { key: 'gois', label: 'Interessengruppen', sub: 'Organisationen außerhalb der Foundation mit Bezug zum Anomalen.', n: GOIS.length, to: { view: 'gois' } as const, icon: GLOBE },
   ];
   return (
@@ -73,6 +74,13 @@ const back = (go: Go, to: Parameters<Go>[0], label: string) => (
 
 const stKey = (m: Mtf) => m.status.replace(' ', '-');
 
+// the three fact tiles under the MTF header: label, line icon, value
+const FACTS: [string, string, (m: Mtf) => string][] = [
+  ['Stationierung', 'M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z M12 7.5a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4z', (m) => m.base],
+  ['Stärke', 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6 M16 4.5a3.5 3.5 0 0 1 0 6.5 M18 14.5c1.8.8 3 2.6 3 5', (m) => m.strength],
+  ['Führung', 'M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8-4.3-4.1 5.9-.9z', (m) => m.lead],
+];
+
 export function Departments({ go }: { go: Go }) {
   // further departments come later; shown so the structure is clear
   const later = ['O5-Rat', 'RAISA', 'Ethikkomitee', 'Abteilung Memetik'];
@@ -83,10 +91,10 @@ export function Departments({ go }: { go: Go }) {
         <div>
           <div className="label">Foundation intern</div>
           <h2>Abteilungen</h2>
-          <p className="dim">Mobile Einsatzkräfte (MTF) mit Zuständigkeit für Site-80.</p>
+          <p className="dim">Mobile Task Forces (MTF) mit Zuständigkeit für Site-80.</p>
         </div>
       </div>
-      <h3 className="hub-section">Mobile Einsatzkräfte</h3>
+      <h3 className="hub-section">Mobile Task Forces</h3>
       <div className="mtf-grid">
         {MTFS.map((m, i) => (
           <button key={m.id} style={rise(i)} className={`box mtf-card rise st-${stKey(m)}`} onClick={() => go({ view: 'mtf', id: m.id })}>
@@ -145,7 +153,7 @@ export function MtfView({ id, go }: { id: string; go: Go }) {
           <div className="mtf-gauge" style={{ '--v': m.readiness } as React.CSSProperties}>
             <svg viewBox="0 0 100 100" aria-hidden>
               <circle cx="50" cy="50" r="42" className="mtf-gauge-track" />
-              <circle cx="50" cy="50" r="42" className="mtf-gauge-fill" pathLength={100} />
+              <circle cx="50" cy="50" r="42" className="mtf-gauge-fill" pathLength={100} style={{ strokeDashoffset: 100 - m.readiness }} />
             </svg>
             <span>
               <strong>{m.readiness}%</strong>
@@ -155,16 +163,22 @@ export function MtfView({ id, go }: { id: string; go: Go }) {
         </header>
 
         <div className="mtf-facts">
-          {[
-            ['Stationierung', m.base],
-            ['Stärke', m.strength],
-            ['Führung', m.lead],
-          ].map(([k, v], i) => (
-            <div key={k} className="box rise" style={rise(i)}>
-              <span className="label">{k}</span>
-              <strong>
-                <Redacted text={v} />
-              </strong>
+          {FACTS.map(([k, icon, get], i) => (
+            <div key={k} className="box mtf-fact rise" style={rise(i)}>
+              <span className="mtf-fact-icon" aria-hidden>
+                <svg viewBox="0 0 24 24">
+                  <path d={icon} />
+                </svg>
+              </span>
+              <span className="mtf-fact-text">
+                <span className="label">{k}</span>
+                <strong>
+                  <Redacted text={get(m)} />
+                </strong>
+              </span>
+              <span className="mtf-fact-idx" aria-hidden>
+                0{i + 1}
+              </span>
             </div>
           ))}
         </div>

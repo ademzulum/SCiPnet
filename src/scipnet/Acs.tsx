@@ -90,7 +90,7 @@ function Emblem({ cls, sec, dis, risk }: { cls: string; sec?: string; dis: strin
       <span className={`right risk-${risk}`}>
         <AcsIcon name={risk} />
       </span>
-      <span className={`bottom ${sec ? 'sec' : 'empty'}`}>{sec && <AcsIcon name={sec} />}</span>
+      <span className={`bottom ${sec ? `sec sec-${sec}` : 'empty'}`}>{sec && <AcsIcon name={sec} />}</span>
       <span className={`left dis-${dis}`}>
         <AcsIcon name={dis} />
       </span>
@@ -149,7 +149,7 @@ export function AcsBar({ s, go }: { s: ScpObject; go: Go }) {
           {/* with a secondary class the pill slides open like a switch to show it */}
           <span className={`acs-pill${sec ? ' two' : ''}`}>
             <AcsIcon name={cls} />
-            {sec && <AcsIcon name={sec} className="sec" />}
+            {sec && <AcsIcon name={sec} className={`sec sec-${sec}`} />}
           </span>
         </div>
 
@@ -194,7 +194,7 @@ export function AcsBar({ s, go }: { s: ScpObject; go: Go }) {
           <button className="acs-mtf" onClick={() => go({ view: 'mtf', id: mtf.id })}>
             <MtfInsignia m={mtf} size={46} />
             <span className="acs-texts">
-              <span className="label">Zugewiesene Einsatzkraft:</span>
+              <span className="label">Zugewiesene Mobile Task Force:</span>
               <strong>
                 MTF {mtf.code} <span className="acs-mtf-nick">„{mtf.nickname}“</span>
               </strong>

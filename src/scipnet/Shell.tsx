@@ -213,7 +213,7 @@ export default function Shell({ onLogout, fresh }: { onLogout: () => void; fresh
       case 'scp':
         return <ScpView id={route.id} go={go} />;
       case 'assistant':
-        return <Assistant go={go} notes={notes} onSelfDestruct={() => setDestruct('scipa')} />;
+        return <Assistant go={go} notes={notes} ask={route.ask} onSelfDestruct={() => setDestruct('scipa')} />;
       case 'comms':
         return <Comms go={go} />;
       case 'thread':

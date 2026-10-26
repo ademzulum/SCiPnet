@@ -11,7 +11,8 @@
 
 import type { Route } from '../scipnet/routes';
 
-export type Answer = { text: string; audio?: string };
+// icons: ACS icon names (images/acs) shown as a row of class chips under the text
+export type Answer = { text: string; audio?: string; icons?: string[] };
 
 export type Intent = {
   id: string;
@@ -66,6 +67,85 @@ export const UNKNOWN: Answer[] = [
 export const SUGGESTIONS = ['Wer bist du?', 'Zeige Feldberichte', 'Was ist SCP-8041?', 'Wer ist Dr. Brandt?', 'Wie spät ist es?'];
 
 export const INTENTS: Intent[] = [
+  // ---- classification guide (scripted, no model): the ACS bar explained ----
+  {
+    id: 'acs',
+    keywords: ['klassen', 'klassifizierung', 'klassifizierungen', 'acs', 'anomaly classification', 'klassen erklaren', 'klassensystem'],
+    answers: [
+      {
+        text: 'Jede Akte trägt das Anomaly Classification System, kurz ACS. Es hat vier Achsen: Eindämmungsklasse (wie schwer einzudämmen), Sekundärklasse (Sonderfälle), Störungsklasse (wie weit die Wirkung reicht) und Risikoklasse (wie gefährlich für Anwesende). Dazu kommen Freigabestufe, Subklasse und Status. Fragen Sie nach einer Achse für Details.',
+        icons: ['safe', 'esoteric', 'dark', 'notice'],
+      },
+    ],
+  },
+  {
+    id: 'acs-containment',
+    keywords: ['eindammungsklasse', 'eindammungsklassen', 'safe', 'euclid', 'keter', 'neutralisiert', 'objektklasse'],
+    answers: [
+      {
+        text: 'Eindämmungsklassen: Safe ist zuverlässig eindämmbar. Euclid verhält sich nicht vollständig vorhersagbar. Keter ist nur unter großem Aufwand einzudämmen. Neutralisiert ist nicht mehr anomal. Passt keine davon, steht dort Esoteric, und die Sekundärklasse sagt mehr.',
+        icons: ['safe', 'euclid', 'keter', 'neutralized'],
+      },
+    ],
+  },
+  {
+    id: 'acs-secondary',
+    keywords: ['sekundarklasse', 'sekundarklassen', 'thaumiel', 'esoteric', 'esoterisch', 'nachrichtlich'],
+    answers: [
+      {
+        text: 'Sekundärklassen ergänzen die Eindämmungsklasse bei Sonderfällen. Thaumiel: die Foundation setzt das Objekt selbst zur Eindämmung anderer Anomalien ein. Nachrichtlich: die Wirkung läuft über übertragene Information, etwa ein Funksignal. Ohne Sekundärklasse bleibt das Feld leer.',
+        icons: ['esoteric', 'thaumiel', 'nachrichtlich'],
+      },
+    ],
+  },
+  {
+    id: 'acs-disruption',
+    keywords: ['storungsklasse', 'storungsklassen', 'dark', 'vlam', 'keneq', 'ekhi', 'amida'],
+    answers: [
+      {
+        text: 'Störungsklassen messen, wie weit ein Objekt die Normalität stören kann. Dark: kaum. Vlam: örtlich begrenzt. Keneq: eine Region oder Stadt. Ekhi: weitreichend bis landesweit. Amida: weltweit.',
+        icons: ['dark', 'vlam', 'keneq', 'ekhi', 'amida'],
+      },
+    ],
+  },
+  {
+    id: 'acs-risk',
+    keywords: ['risikoklasse', 'risikoklassen', 'notice', 'caution', 'warning', 'danger', 'critical'],
+    answers: [
+      {
+        text: 'Risikoklassen beschreiben die Gefahr für Personen in der Nähe. Notice: kaum spürbar. Caution: spürbar, möglicher Schaden. Warning: akut, bis zu schwerem Schaden. Danger: Schaden unvermeidlich. Critical: lebensbedrohlich und nicht abwendbar.',
+        icons: ['notice', 'caution', 'warning', 'danger', 'critical'],
+      },
+    ],
+  },
+  {
+    id: 'acs-clearance',
+    keywords: ['freigabestufe', 'freigabestufen', 'clearance', 'level 1', 'level 5', 'streng geheim', 'vertraulich'],
+    answers: [
+      {
+        text: 'Freigabestufen: Level 1 uneingeschränkt, für alle. Level 2 eingeschränkt. Level 3 vertraulich. Level 4 geheim. Level 5 streng geheim, nur mit Genehmigung des O5-Rats.',
+      },
+    ],
+  },
+  {
+    id: 'acs-subclass',
+    keywords: ['subklasse', 'subklassen', 'eindammungsstatus', 'status einer akte', 'status bedeutet'],
+    answers: [
+      {
+        text: 'Die Subklasse beschreibt die Art der Anomalie genauer, zum Beispiel visuell, antimemetisch oder strukturell. Der Status sagt, wie es um die Eindämmung gerade steht: eingedämmt, teilweise eingedämmt, nicht eindämmbar. Darunter nennt die Akte die zuständige Mobile Task Force.',
+      },
+    ],
+  },
+  {
+    id: 'acs-emblem',
+    keywords: ['oktagon', 'achteck', 'emblem', 'raute', 'symbol rechts'],
+    answers: [
+      {
+        text: 'Das Achteck rechts im Kopf jeder Akte fasst alles auf einen Blick: oben die Eindämmungsklasse, rechts das Risiko, links die Störung, unten die Sekundärklasse. Gedacht für Zellentüren, damit jeder sofort sieht, womit er es zu tun hat.',
+        icons: ['keter', 'danger', 'keneq', 'thaumiel'],
+      },
+    ],
+  },
   {
     id: 'hello',
     keywords: ['hallo', 'hi', 'hey', 'guten tag', 'guten morgen', 'moin', 'servus'],

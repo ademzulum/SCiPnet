@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<!-- SCiPnet's own mark for the "Nachrichtlich" secondary class: a mast sending waves -->
+<path fill="#010101" d="M100 88a12 12 0 1 1 0 24a12 12 0 0 1 0-24z M94 112h12l14 52h-11l-4-15h-10l-4 15H80z M97 139h6l-3-11z"/>
+<path fill="none" stroke="#010101" stroke-width="9" stroke-linecap="round" d="M76 76a34 34 0 0 0 0 48 M124 76a34 34 0 0 1 0 48 M58 58a60 60 0 0 0 0 84 M142 58a60 60 0 0 1 0 84"/>
+</svg>

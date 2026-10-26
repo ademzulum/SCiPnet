@@ -79,7 +79,14 @@ export default function ReportList({ go }: { go: Go }) {
                 onClick={() => go({ view: 'report', id: r.id })}
               >
                 <span className="report-card-top">
-                  <span className="dim small">{r.id}</span>
+                  <span className="rc-id">
+                    <span className="rc-icon" aria-hidden>
+                      <svg viewBox="0 0 24 24">
+                        <path d="M6 3h9l4 4v14H6z M15 3v4h4 M9 11h7 M9 15h7" />
+                      </svg>
+                    </span>
+                    <span className="small">{r.id}</span>
+                  </span>
                   <span className="cl-pill">{r.classification}</span>
                 </span>
                 <strong className="report-card-title">{r.title}</strong>

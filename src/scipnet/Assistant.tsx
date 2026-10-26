@@ -19,6 +19,14 @@ import { PERSONNEL } from '../data/personnel';
 import { REPORTS } from '../data/reports';
 import { play } from '../lib/sound';
 import type { Go, Route } from './routes';
+import { AcsIcon } from './Acs';
+
+// colour class per ACS icon in S.C.I.P.A.'s class chips
+const ICON_CLASS: Record<string, string> = {
+  safe: 'class-Safe', euclid: 'class-Euclid', keter: 'class-Keter', esoteric: 'class-Esoteric', thaumiel: 'sec-Thaumiel', nachrichtlich: 'sec-Nachrichtlich',
+  dark: 'dis-Dark', vlam: 'dis-Vlam', keneq: 'dis-Keneq', ekhi: 'dis-Ekhi', amida: 'dis-Amida',
+  notice: 'risk-Notice', caution: 'risk-Caution', warning: 'risk-Warning', danger: 'risk-Danger', critical: 'risk-Critical',
+};
 import type { Api as Notices } from './Notifications';
 
 // Voice files dropped into sounds/assistant/, keyed by file name.
@@ -29,7 +37,7 @@ const VOICES = Object.fromEntries(
 );
 
 type Reply = Answer & { action?: Intent['action']; destruct?: boolean; ai?: boolean }; // ai: ask the model, this reply is the fallback
-type Msg = { from: 'me' | 'scipa'; text: string; action?: Intent['action'] };
+type Msg = { from: 'me' | 'scipa'; text: string; action?: Intent['action']; icons?: string[] };
 
 const norm = (s: string) =>
   ` ${s
@@ -255,7 +263,7 @@ function applyCommands(text: string, notes: Notices): Reply {
   return { text: final, action, audio };
 }
 
-export default function Assistant({ go, onSelfDestruct, notes }: { go: Go; onSelfDestruct: () => void; notes: Notices }) {
+export default function Assistant({ go, onSelfDestruct, notes, ask: question }: { go: Go; onSelfDestruct: () => void; notes: Notices; ask?: string }) {
   const [greeting] = useState(() => (visited ? WELCOME_BACK : pick(GREETINGS)));
   const [log, setLog] = useState<Msg[]>([{ from: 'scipa', text: greeting.text }]);
   const [input, setInput] = useState('');
@@ -295,6 +303,17 @@ export default function Assistant({ go, onSelfDestruct, notes }: { go: Go; onSel
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: 'smooth' });
   }, [log.length, thinking]);
 
+  // a question handed over from the side rail is asked once on arrival
+  const asked = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (!question || asked.current === question) return;
+    const t = setTimeout(() => {
+      asked.current = question;
+      send(question);
+    }, 500);
+    return () => clearTimeout(t);
+  }, [question]);
+
   const send = (text: string) => {
     const t = text.trim();
     if (!t || thinking) return;
@@ -313,7 +332,7 @@ export default function Assistant({ go, onSelfDestruct, notes }: { go: Go; onSel
       const wait = Math.max(0, 600 + Math.min(1200, reply.text.length * 8) - (Date.now() - started));
       timer.current = setTimeout(() => {
         setThinking(false);
-        setLog((l) => [...l, { from: 'scipa', text: reply.text, action: reply.action }]);
+        setLog((l) => [...l, { from: 'scipa', text: reply.text, action: reply.action, icons: reply.icons }]);
         if (reply.destruct) {
           voice?.pause();
           onSelfDestruct();
@@ -375,6 +394,16 @@ export default function Assistant({ go, onSelfDestruct, notes }: { go: Go; onSel
                 animate={{ opacity: 1, y: 0 }}
               >
                 {m.text}
+                {m.icons && (
+                  <span className="scipa-icons">
+                    {m.icons.map((n) => (
+                      <span key={n} className={`scipa-icon acs ${ICON_CLASS[n] ?? ''}`}>
+                        <AcsIcon name={n} />
+                        {n === 'neutralized' ? 'Neutralisiert' : n[0].toUpperCase() + n.slice(1)}
+                      </span>
+                    ))}
+                  </span>
+                )}
                 {m.action && (
                   <button className="scipa-action" onClick={() => open(m.action!.route)}>
                     {m.action.label} →

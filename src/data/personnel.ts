@@ -224,7 +224,7 @@ export const PERSONNEL: Person[] = [
     name: 'Halvard Hallström',
     photo: 'halvard_hallstroem',
     role: 'Operator, MTF Delta-5',
-    department: 'Mobile Einsatzkräfte',
+    department: 'Mobile Task Forces',
     clearance: 'Stufe 2',
     status: 'Beobachtung',
     since: '2023',

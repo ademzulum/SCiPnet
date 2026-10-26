@@ -6,6 +6,7 @@ import { THREADS } from '../data/threads';
 import { MTFS } from '../data/mtf';
 import { GOIS } from '../data/gois';
 import type { Go, Route } from './routes';
+import { AcsIcon } from './Acs';
 
 // Panels in the empty space left and right of the page on wide screens
 // (styles.css shows them from 1500px); they sit in a grid with the page,
@@ -103,6 +104,37 @@ function Links({ title, items, go }: { title: string; items: { label: string; su
   );
 }
 
+// Questions S.C.I.P.A. answers from her script: each opens the assistant tab
+// with the question already asked.
+const GUIDE = [
+  { label: 'Klassensystem', icon: 'esoteric', q: 'Erkläre die Klassen' },
+  { label: 'Eindämmungsklassen', icon: 'keter', q: 'Was bedeuten die Eindämmungsklassen?' },
+  { label: 'Sekundärklassen', icon: 'thaumiel', q: 'Was sind Sekundärklassen?' },
+  { label: 'Störungsklassen', icon: 'keneq', q: 'Was bedeuten die Störungsklassen?' },
+  { label: 'Risikoklassen', icon: 'danger', q: 'Was bedeuten die Risikoklassen?' },
+  { label: 'Freigabestufen', icon: 'notice', q: 'Was bedeuten die Freigabestufen?' },
+  { label: 'Subklasse und Status', icon: 'safe', q: 'Was bedeutet die Subklasse?' },
+];
+function ClassGuide({ go }: { go: Go }) {
+  return (
+    <section className="box rail-box">
+      <div className="box-head">
+        <h3>S.C.I.P.A. erklärt</h3>
+      </div>
+      <ul className="rail-guide acs">
+        {GUIDE.map((g) => (
+          <li key={g.label}>
+            <button onClick={() => go({ view: 'assistant', ask: g.q })}>
+              <AcsIcon name={g.icon} />
+              {g.label}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function Context({ route, go }: { route: Route; go: Go }) {
   const count = <T,>(list: T[], key: (x: T) => string, order: string[]) =>
     order.map((label) => ({ label, n: list.filter((x) => key(x) === label).length }));
@@ -148,7 +180,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
       // the hub: what each part of the archive holds, and which units are out
       const parts = [
         { label: 'SCP-Objekte', n: SCP.length, tone: 'info', to: { view: 'scps' } as Route },
-        { label: 'Mobile Einsatzkräfte', n: MTFS.length, tone: 'ok', to: { view: 'departments' } as Route },
+        { label: 'Mobile Task Forces', n: MTFS.length, tone: 'ok', to: { view: 'departments' } as Route },
         { label: 'Interessengruppen', n: GOIS.length, tone: 'warn', to: { view: 'gois' } as Route },
       ];
       const out = MTFS.filter((m) => m.status === 'Im Einsatz').map((m) => ({
@@ -212,6 +244,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
         <>
           <Bars title="Objektklassen" rows={cls} go={go} />
           <Links title="Keter-Objekte" items={keter} go={go} />
+          <ClassGuide go={go} />
         </>
       );
     }
@@ -230,6 +263,8 @@ function Context({ route, go }: { route: Route; go: Go }) {
       );
     case 'assistant':
       return (
+        <>
+          <ClassGuide go={go} />
         <section className="box rail-box">
           <div className="box-head">
             <h3>S.C.I.P.A. kann</h3>
@@ -242,6 +277,7 @@ function Context({ route, go }: { route: Route; go: Go }) {
             <li>Spracheingabe über das Mikrofon</li>
           </ul>
         </section>
+        </>
       );
     default: {
       // overview: who is on duty

@@ -13,7 +13,7 @@ export type Route =
   | { view: 'mtf'; id: string }
   | { view: 'gois' }
   | { view: 'goi'; id: string }
-  | { view: 'assistant' }
+  | { view: 'assistant'; ask?: string } // ask: a question sent on arrival (side rail)
   | { view: 'comms' }
   | { view: 'thread'; id: string };
 
