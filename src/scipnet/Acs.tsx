@@ -102,7 +102,8 @@ function Emblem({ cls, sec, dis, risk }: { cls: string; sec?: string; dis: strin
   );
 }
 
-export function AcsBar({ s, go }: { s: ScpObject; go: Go }) {
+// The file's head: item number and name on the left, clearance on the right.
+export function AcsBar({ s, go, name }: { s: ScpObject; go: Go; name?: string }) {
   const mtf = s.mtf ? mtfById(s.mtf) : undefined;
   const level = Math.min(5, Number(s.clearance.match(/\d/)?.[0] ?? 1));
   const cls = s.acs.containment ?? s.objectClass;
@@ -116,6 +117,7 @@ export function AcsBar({ s, go }: { s: ScpObject; go: Go }) {
         <div className="acs-id">
           <span className="label">Item #</span>
           <strong>{s.id}</strong>
+          {name && <span className="acs-name">{name}</span>}
         </div>
         <div className="acs-clear" title={clear.info}>
           <span className="acs-lvl-badge">

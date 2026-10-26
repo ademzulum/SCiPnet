@@ -9915,3 +9915,10 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .report-card.card2 .card2-foot > * { flex: none; }
 .report-card.card2 .card2-foot > .card2-chip:not(.seal) { flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .card2-chip-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* the file's name sits in the ACS head now that the title banner is gone */
+.acs-name { margin-top: 0.1rem; font-size: 14px; letter-spacing: 0.02em; text-transform: none; color: var(--fg); opacity: 0.85; }
+/* MTF head: the turning insignia sits between designation and status pill */
+.mtf-acs-head { position: relative; overflow: hidden; }
+.mtf-acs-head > :not(.mtf-hero-bg) { position: relative; }
+.mtf-acs-head .mtf-hero-bg { left: 50%; right: auto; width: 240px; height: 240px; translate: -50% -50%; opacity: 0.09; }

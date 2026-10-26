@@ -180,10 +180,13 @@ function MtfBar({ m }: { m: Mtf }) {
   const objects = SCP.filter((s) => s.mtf === m.id);
   return (
     <section className={`acs mtf-acs st-${stKey(m)}`}>
-      <div className="acs-head">
+      <div className="acs-head mtf-acs-head">
+        {/* the insignia, large, faint and slowly turning, behind the empty middle of the head */}
+        <span className="mtf-hero-bg" style={{ '--img': `url(${m.insignia})` } as React.CSSProperties} aria-hidden />
         <div className="acs-id">
           <span className="label">Einheit #</span>
           <strong>MTF {m.code}</strong>
+          <span className="acs-name">„{m.nickname}“</span>
         </div>
         <span className={`state-pill mtf-pill st-${stKey(m)}`}>{m.status}</span>
       </div>
@@ -268,17 +271,6 @@ export function MtfView({ id, go }: { id: string; go: Go }) {
     <div className="page">
       {back(go, { view: 'departments' }, 'Mobile Task Forces')}
       <article className={`scp-doc mtf-doc st-${stKey(m)}`}>
-        <header className="scp-doc-head box mtf-doc-head">
-          {/* the insignia again, huge and faint, behind the header */}
-          <span className="mtf-hero-bg" style={{ '--img': `url(${m.insignia})` } as React.CSSProperties} aria-hidden />
-          <MtfInsignia m={m} size={54} />
-          <div className="scp-doc-title">
-            <div className="label">Mobile Task Force · Akte Site-80</div>
-            <h2>MTF {m.code}</h2>
-            <p>„{m.nickname}“</p>
-          </div>
-        </header>
-
         <MtfBar m={m} />
 
         <section className="box doc-section">

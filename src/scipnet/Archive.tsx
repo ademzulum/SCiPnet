@@ -150,16 +150,7 @@ export function ScpView({ id, go }: { id: string; go: Go }) {
     <div className="page">
       {back}
       <article className={`scp-doc${s.antimemetic ? ' antimemetic' : ''}`}>
-        <header className="scp-doc-head box">
-          <ScpLogo size={54} />
-          <div className="scp-doc-title">
-            <div className="label">SCP Foundation · Secure. Contain. Protect.</div>
-            <h2>{s.id}</h2>
-            <p>{s.locked && solved ? (s.locked.realName ?? s.name) : s.name}</p>
-          </div>
-        </header>
-
-        <AcsBar s={s} go={go} />
+        <AcsBar s={s} go={go} name={s.locked && solved ? (s.locked.realName ?? s.name) : s.name} />
 
         {s.warning && (
           <div className="file-warning" role="note">
