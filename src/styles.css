@@ -10173,3 +10173,9 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 .brain-cue svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
 .brain-cue { display: flex; margin: 0.15rem 0 0.2rem; white-space: nowrap; }
 .brain-head .link { white-space: nowrap; }
+
+/* denied: the lock stays put; its shackle tries to lift twice and snaps back shut */
+.lockhex.denied .lockhex-lock { animation: none; }
+.lockhex.denied .lockhex-shackle { transition: none; animation: shackle-tug 1.1s cubic-bezier(0.3, 0, 0.2, 1) 0.15s; }
+@keyframes shackle-tug { 0%, 100% { transform: none; } 18% { transform: translateY(-3.5px); } 30% { transform: none; } 52% { transform: translateY(-2px); } 62% { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .lockhex.denied .lockhex-shackle { animation: none; } }
