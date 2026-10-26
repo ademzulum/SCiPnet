@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { EditButton } from './Editor';
 import { AnimatePresence, motion } from 'motion/react';
 import { FILTER_CARD } from './filterAnim';
-import { SCP, scpById, type ObjectClass } from '../data/scp';
+import { SCP, scpById, type ObjectClass, mtfIds } from '../data/scp';
 import { REPORTS } from '../data/reports';
 import { play } from '../lib/sound';
 import type { Go } from './routes';
@@ -80,7 +80,7 @@ export default function Archive({ go }: { go: Go }) {
                   <strong>{s.id}</strong>
                   <ClassBadge c={s.objectClass} />
                 </span>
-                {s.mtf && mtfById(s.mtf) && <MtfInsignia m={mtfById(s.mtf)!} size={30} />}
+                {mtfIds(s).map(mtfById).filter((m) => m !== undefined).slice(0, 1).map((m) => <MtfInsignia key={m.id} m={m} size={30} />)}
               </span>
               <strong className="report-card-title">
                 {s.locked && solved ? (

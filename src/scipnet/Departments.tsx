@@ -1,7 +1,7 @@
 import { MTFS, mtfById, type Mtf } from '../data/mtf';
 import { EditButton } from './Editor';
 import { GOIS, goiById, type Goi } from '../data/gois';
-import { SCP } from '../data/scp';
+import { SCP, mtfIds } from '../data/scp';
 import type { Go } from './routes';
 import Redacted from './Redacted';
 import ScpLogo from '../components/ScpLogo';
@@ -180,7 +180,7 @@ export function Departments({ go }: { go: Go }) {
 // assigned objects and strength, the readiness gauge where the octagon sits, and
 // the station and command below.
 function MtfBar({ m }: { m: Mtf }) {
-  const objects = SCP.filter((s) => s.mtf === m.id);
+  const objects = SCP.filter((s) => mtfIds(s).includes(m.id));
   return (
     <section className={`acs mtf-acs st-${stKey(m)}`}>
       <div className="acs-head mtf-acs-head">
@@ -268,7 +268,7 @@ export function MtfView({ id, go }: { id: string; go: Go }) {
   const m = mtfById(id);
   const solved = useCleared();
   if (!m) return <p className="page">Eintrag nicht gefunden.</p>;
-  const objects = SCP.filter((s) => s.mtf === m.id);
+  const objects = SCP.filter((s) => mtfIds(s).includes(m.id));
   return (
     <div className="page">
       <EditButton kind="mtf" id={m.id} go={go} />

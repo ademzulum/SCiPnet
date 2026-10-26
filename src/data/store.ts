@@ -5,7 +5,7 @@
 // checks the role, the interface only hides the buttons.
 import { useSyncExternalStore } from 'react';
 import { supabase } from '../lib/supabase';
-import { SCP, type ScpObject } from './scp';
+import { SCP, mtfIds, type ScpObject } from './scp';
 import { PERSONNEL, type Person } from './personnel';
 import { REPORTS, type Report } from './reports';
 import { MTFS, type Mtf } from './mtf';
@@ -90,7 +90,7 @@ export function references(kind: Kind, id: string): string[] {
   if (kind === 'personnel')
     return REPORTS.filter((r) => r.author === id || r.involved?.includes(id)).map((r) => `${r.id} (${r.author === id ? 'Verfasser' : 'Beteiligte'})`);
   if (kind === 'report') return SCP.filter((s) => s.reports?.includes(id)).map((s) => `${s.id} (Feldberichte)`);
-  if (kind === 'mtf') return SCP.filter((s) => s.mtf === id).map((s) => `${s.id} (Mobile Task Force)`);
+  if (kind === 'mtf') return SCP.filter((s) => mtfIds(s).includes(id)).map((s) => `${s.id} (Mobile Task Force)`);
   return [];
 }
 

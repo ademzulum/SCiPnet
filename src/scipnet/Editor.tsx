@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Dropdown, { optLabel, optValue, type Opt } from './Dropdown';
 import { askConfirm, setLeaveGuard } from './Confirm';
 import { CONTAINMENT, SECONDARY, ESOTERIC, type AcsClass } from '../data/acsClasses';
@@ -60,8 +61,8 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
       { k: 'acs.status', label: 'Status', t: 'text' },
       { k: 'acs.subclass', label: 'Unterklasse', t: 'text' },
       { k: 'clearance', label: 'Freigabe', t: 'select', options: () => LEVELS },
-      { k: 'mtf', label: 'Zugewiesene Mobile Task Force', t: 'select', options: units, empty: 'Keine' },
-      { k: 'antimemetic', label: 'Antimemetisch (Beschreibung verblasst)', t: 'check' },
+      { k: 'mtf', label: 'Zugewiesene Mobile Task Forces', t: 'multi', options: units },
+      { k: 'antimemetic', label: 'Antimemetisch', t: 'check', hint: 'Beschreibung verblasst' },
       { k: 'warning', label: 'Warnhinweis', t: 'text' },
       { k: 'summary', label: 'Kurzbeschreibung', t: 'area', req: true },
       { k: 'containment', label: 'Sicherheitsmaßnahmen', t: 'paras' },
@@ -314,11 +315,18 @@ function Input({ f, value, onChange }: { f: Field; value: unknown; onChange: (v:
     case 'classes':
       return <ClassPicker value={(value as string) ?? ''} onChange={onChange} />;
     case 'check':
-      return <input type="checkbox" checked={!!value} onChange={(e) => onChange(e.target.checked)} />;
+      return (
+        <button type="button" role="switch" aria-checked={!!value} className={`search ed-toggle${value ? ' on' : ''}`} onClick={() => onChange(!value)}>
+          <span className="ed-switch" aria-hidden />
+          {value ? 'Ja' : 'Nein'}
+          {'hint' in f && f.hint && <span className="dim small">{f.hint}</span>}
+        </button>
+      );
     case 'select':
       return <Dropdown value={(value as string) ?? ''} options={f.options()} empty={f.empty} onChange={onChange} />;
     case 'multi': {
-      const picked = (value as string[]) ?? [];
+      // a single id (older entries) counts as a list of one
+      const picked = Array.isArray(value) ? (value as string[]) : value ? [value as string] : [];
       return (
         <div className="chips ed-multi">
           {f.options().map((opt) => {
@@ -437,6 +445,7 @@ function ClassPicker({ value, onChange }: { value: string; onChange: (v: string)
         )}
         <span className="dim small">Auswählen…</span>
       </button>
+      {createPortal(
       <AnimatePresence>
         {open && (
           <motion.div
@@ -472,7 +481,10 @@ function ClassPicker({ value, onChange }: { value: string; onChange: (v: string)
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      // outside the field's <label>, so a click on the backdrop doesn't reopen it
+      document.querySelector('.shell') ?? document.body,
+      )}
     </>
   );
 }
@@ -598,7 +610,7 @@ export default function Editor({ kind, id, go }: { kind: Kind; id?: string; go: 
                 {'req' in f && f.req ? ' *' : ''}
               </span>
               <Input f={f} value={get(entry, f.k)} onChange={(v) => setEntry((o) => set(o, f.k, v))} />
-              {'hint' in f && f.hint && <span className="dim small">{f.hint}</span>}
+              {'hint' in f && f.hint && f.t !== 'check' && <span className="dim small">{f.hint}</span>}
             </label>
           ))}
         </div>

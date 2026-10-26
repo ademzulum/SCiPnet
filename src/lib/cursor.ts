@@ -71,18 +71,26 @@ export function customCursor() {
     if (e.pointerType !== 'mouse') return;
     mx = e.clientX;
     my = e.clientY;
-    const el = e.target as Element;
+    retarget(e.target as Element);
+  }, { passive: true });
+  // Scrolling moves content under a still pointer (lists, pop-ups): frame
+  // whatever is under it now, without the hover tick.
+  addEventListener('scroll', () => {
+    const el = document.elementFromPoint(mx, my);
+    if (el) retarget(el, true);
+  }, { passive: true, capture: true });
+  function retarget(el: Element, quiet = false) {
     const next = el.closest?.(CLICKABLE) ?? null;
     // the framed element squares its corners to match the frame (styles.css)
     if (next !== target && target) unmark(target);
     // a quiet tick each time the frame snaps onto something new
-    if (next && next !== target && !next.closest('.hack-overlay')) play('hover', 0.25);
+    if (!quiet && next && next !== target && !next.closest('.hack-overlay')) play('hover', 0.25);
     target = next;
     root.classList.toggle('cur-lock', !!target);
     root.classList.toggle('cur-text', !!el.closest?.(TEXT));
     root.classList.add('cur-on');
     setTheme(el);
-  }, { passive: true });
+  }
   document.addEventListener('mouseleave', () => root.classList.remove('cur-on'));
   // theme switches (light/dark, alerts) change the colours under a still pointer
   setInterval(() => { theme = null; setTheme(document.elementFromPoint(mx, my)); }, 1000);

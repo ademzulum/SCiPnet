@@ -37,12 +37,15 @@ export type ScpObject = {
     subclass?: string;
   };
   warning?: string; // warning banner above the file
-  mtf?: string; // assigned Mobile Task Force (data/mtf.ts id)
+  mtf?: string | string[]; // assigned Mobile Task Force(s) (data/mtf.ts ids)
   addenda: Addendum[];
   reports?: string[]; // field report ids
 };
 
 export const SCP: ScpObject[] = []; // filled from the database at start, see src/data/store.ts
+
+// assigned task forces as a list (older entries hold a single id)
+export const mtfIds = (s: ScpObject): string[] => (Array.isArray(s.mtf) ? s.mtf : s.mtf ? [s.mtf] : []);
 
 export const scpById = (id: string) => SCP.find((s) => s.id === id);
 export const scpForReport = (reportId: string) => SCP.find((s) => s.reports?.includes(reportId));

@@ -14,6 +14,8 @@ import { NOTICES, type Notice } from '../data/messages';
 import { deleteEntry, saveEntry } from '../data/store';
 import { askConfirm, setLeaveGuard } from './Confirm';
 import Dropdown from './Dropdown';
+import { createPortal } from 'react-dom';
+import { motion } from 'motion/react';
 
 const LEVEL_LABEL = { info: 'Info', warn: 'Hinweis', alert: 'Dringend' };
 
@@ -42,23 +44,34 @@ function NoticeForm({ onClose }: { onClose: () => void }) {
     filled.current = false;
     onClose();
   };
-  return (
-    <form className="notice notice-form" onSubmit={submit}>
-      <Dropdown
-        value={level}
-        options={Object.entries(LEVEL_LABEL) as [string, string][]}
-        onChange={(v) => setLevel(v as Notice['level'])}
-      />
-      <input className="search" placeholder="Titel" required maxLength={40} value={title} onChange={(e) => setTitle(e.target.value)} />
-      <textarea className="search" placeholder="Text" required rows={2} maxLength={200} value={text} onChange={(e) => setText(e.target.value)} />
-      {error && <span className="ed-error small">{error}</span>}
-      <div className="admin-login-actions">
-        <button type="button" className="card action ghost" onClick={cancel}>
-          ABBRECHEN
-        </button>
-        <button className="card action">VERÖFFENTLICHEN</button>
-      </div>
-    </form>
+  // a small window over the page; a click beside it cancels (asking if there is a draft)
+  return createPortal(
+    <motion.div className="admin-login-back" initial={{ opacity: 0 }} animate={{ opacity: 1 }} onPointerDown={(e) => e.target === e.currentTarget && cancel()}>
+      <motion.form className="box admin-login notice-form" initial={{ y: 12 }} animate={{ y: 0 }} onSubmit={submit} onKeyDown={(e) => e.key === 'Escape' && cancel()}>
+        <div className="label">Administrator · Übersicht</div>
+        <h2>Neue Mitteilung</h2>
+        <label>
+          <span className="label">Stufe</span>
+          <Dropdown value={level} options={Object.entries(LEVEL_LABEL) as [string, string][]} onChange={(v) => setLevel(v as Notice['level'])} />
+        </label>
+        <label>
+          <span className="label">Titel</span>
+          <input className="search" autoFocus required maxLength={40} value={title} onChange={(e) => setTitle(e.target.value)} />
+        </label>
+        <label>
+          <span className="label">Text</span>
+          <textarea className="search" required rows={3} maxLength={200} value={text} onChange={(e) => setText(e.target.value)} />
+        </label>
+        {error && <span className="ed-error small">{error}</span>}
+        <div className="admin-login-actions">
+          <button type="button" className="card action ghost" onClick={cancel}>
+            ABBRECHEN
+          </button>
+          <button className="card action">VERÖFFENTLICHEN</button>
+        </div>
+      </motion.form>
+    </motion.div>,
+    document.querySelector('.shell') ?? document.body,
   );
 }
 

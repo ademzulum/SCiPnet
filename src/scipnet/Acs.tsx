@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { DISRUPTION, RISK, type Addendum, type ScpObject } from '../data/scp';
+import { DISRUPTION, RISK, type Addendum, type ScpObject, mtfIds } from '../data/scp';
 import Redacted from './Redacted';
 import { mtfById } from '../data/mtf';
 import { Broken } from './Admin';
@@ -115,7 +115,7 @@ function Emblem({ cls, sec, dis, risk }: { cls: string; sec?: string; dis: strin
 
 // The file's head: item number and name on the left, clearance on the right.
 export function AcsBar({ s, go, name }: { s: ScpObject; go: Go; name?: string }) {
-  const mtf = s.mtf ? mtfById(s.mtf) : undefined;
+  const units = mtfIds(s).map((id) => mtfById(id) ?? id);
   const level = Math.min(5, Number(s.clearance.match(/\d/)?.[0] ?? 1));
   const cls = s.acs.containment ?? s.objectClass;
   const sec = s.acs.secondary;
@@ -202,28 +202,33 @@ export function AcsBar({ s, go, name }: { s: ScpObject; go: Go; name?: string })
           <strong>{s.acs.status}</strong>
         </div>
 
-        {s.mtf && !mtf && (
-          <div className="acs-mtf broken-ref">
-            <span className="acs-texts">
-              <span className="label">Zugewiesene Mobile Task Force:</span>
-              <strong>
-                <Broken />
-              </strong>
-            </span>
+        {units.length > 0 && (
+          <div className="acs-mtfs">
+            {units.map((mtf) =>
+              typeof mtf === 'string' ? (
+                <div key={mtf} className="acs-mtf broken-ref">
+                  <span className="acs-texts">
+                    <span className="label">Zugewiesene Mobile Task Force:</span>
+                    <strong>
+                      <Broken />
+                    </strong>
+                  </span>
+                </div>
+              ) : (
+                <button key={mtf.id} className="acs-mtf" onClick={() => go({ view: 'mtf', id: mtf.id })}>
+                  <MtfInsignia m={mtf} size={46} />
+                  <span className="acs-texts">
+                    <span className="label">Zugewiesene Mobile Task Force:</span>
+                    <strong>
+                      MTF {mtf.code} <span className="acs-mtf-nick">„{mtf.nickname}“</span>
+                    </strong>
+                  </span>
+                  <span className="acs-mtf-status">{mtf.status}</span>
+                  <span className="acs-mtf-go">Einheit öffnen →</span>
+                </button>
+              ),
+            )}
           </div>
-        )}
-        {mtf && (
-          <button className="acs-mtf" onClick={() => go({ view: 'mtf', id: mtf.id })}>
-            <MtfInsignia m={mtf} size={46} />
-            <span className="acs-texts">
-              <span className="label">Zugewiesene Mobile Task Force:</span>
-              <strong>
-                MTF {mtf.code} <span className="acs-mtf-nick">„{mtf.nickname}“</span>
-              </strong>
-            </span>
-            <span className="acs-mtf-status">{mtf.status}</span>
-            <span className="acs-mtf-go">Einheit öffnen →</span>
-          </button>
         )}
       </div>
     </section>

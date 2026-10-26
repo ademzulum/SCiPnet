@@ -10001,7 +10001,8 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 /* ---- the Administrator's editor ---------------------------------------- */
 .edit-btn { white-space: nowrap; }
 .archive-hero .edit-btn { margin-left: auto; margin-right: 1rem; align-self: center; }
-.page > .edit-btn { float: right; }
+.page { position: relative; }
+.page > .edit-btn { position: absolute; top: 0; right: 0; z-index: 2; }
 .editor { display: grid; gap: 1.2rem; padding: 1.4rem; background-color: var(--card-bg, var(--bg)); }
 .editor-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 0.6rem; }
 .editor-head h2 { margin: 0.2rem 0 0; }
@@ -10014,8 +10015,6 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 .ed-grid > .t-paras,
 .ed-grid > .t-rows,
 .ed-grid > .t-multi { grid-column: 1 / -1; }
-.ed-field.t-check { grid-template-columns: auto 1fr; align-items: center; }
-.ed-field.t-check .label { order: 2; }
 .ed-multi { flex-wrap: wrap; }
 .ed-rows { display: grid; gap: 0.7rem; }
 .ed-row {
@@ -10093,3 +10092,13 @@ div.linked-card.broken-ref, div.acs-mtf.broken-ref { cursor: default; border-sty
 
 /* overview notices: four tall, then a scroll bar */
 .notice-scroll { max-height: 24.75rem; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
+
+/* editor switch (replaces the checkbox), several task forces in the ACS bar */
+.ed-toggle { display: flex; align-items: center; gap: 0.7rem; width: 100%; text-align: left; cursor: pointer; }
+.ed-toggle .dim { margin-left: auto; }
+.ed-switch { position: relative; flex: none; width: 34px; height: 18px; border-radius: 999px; border: 1px solid var(--line); background: color-mix(in srgb, var(--fg) 8%, transparent); transition: background 0.2s, border-color 0.2s; }
+.ed-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--fg); opacity: 0.6; transition: transform 0.2s, background 0.2s, opacity 0.2s; }
+.ed-toggle.on .ed-switch { border-color: #b58cff; background: color-mix(in srgb, #b58cff 25%, transparent); }
+.ed-toggle.on .ed-switch::after { transform: translateX(16px); background: #b58cff; opacity: 1; }
+.acs-mtfs { grid-column: 1 / -1; display: grid; gap: 1px; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+.acs-mtfs > .acs-mtf { border-radius: 0; }
