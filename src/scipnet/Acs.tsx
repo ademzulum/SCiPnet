@@ -74,8 +74,8 @@ const INFO: Record<string, string> = {
 function Emblem({ cls, sec, dis, risk }: { cls: string; sec?: string; dis: string; risk: string }) {
   const arrow = (r: number) => (
     <g key={r} transform={`rotate(${r} 50 50)`}>
-      <line x1="50" y1="50" x2="50" y2="14" />
-      <path d="M45 19 L50 12 L55 19" />
+      <line x1="50" y1="38" x2="50" y2="-8" />
+      <path d="M45 -3 L50 -10 L55 -3" />
     </g>
   );
   return (
@@ -83,7 +83,6 @@ function Emblem({ cls, sec, dis, risk }: { cls: string; sec?: string; dis: strin
       <svg viewBox="0 0 100 100">
         <polygon className="acs-oct" points="30,1 70,1 99,30 99,70 70,99 30,99 1,70 1,30" />
         <polygon className="acs-oct-in" points="32,6 68,6 94,32 94,68 68,94 32,94 6,68 6,32" />
-        <g className="acs-arrows">{[45, 135, 225, 315].map(arrow)}</g>
       </svg>
       <span className={`top class-${cls}`}>
         <AcsIcon name={cls} />
@@ -95,6 +94,9 @@ function Emblem({ cls, sec, dis, risk }: { cls: string; sec?: string; dis: strin
       <span className={`left dis-${dis}`}>
         <AcsIcon name={dis} />
       </span>
+      <svg viewBox="0 0 100 100" className="acs-arrows-layer">
+        <g className="acs-arrows">{[45, 135, 225, 315].map(arrow)}</g>
+      </svg>
     </div>
   );
 }

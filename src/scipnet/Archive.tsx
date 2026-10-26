@@ -9,7 +9,9 @@ import Redacted from './Redacted';
 import { Corrupt } from './Admin';
 import { useAdminUnlocked } from './session';
 import ScpLogo from '../components/ScpLogo';
-import { AcsBar, AddendumBox, WarnIcon } from './Acs';
+import { AcsBar, AcsIcon, AddendumBox, WarnIcon } from './Acs';
+import { MtfInsignia } from './Departments';
+import { mtfById } from '../data/mtf';
 
 const CLASSES: ObjectClass[] = ['Safe', 'Euclid', 'Keter', 'Thaumiel'];
 
@@ -65,12 +67,16 @@ export default function Archive({ go }: { go: Go }) {
             <motion.button
               key={s.id}
               {...FILTER_CARD}
-              className={`report-card archive-card class-edge-${s.objectClass}${s.locked && !solved ? ' locked' : ''}`}
+              className={`report-card archive-card scp-card2 acs class-${s.acs.containment ?? s.objectClass} class-edge-${s.objectClass}${s.locked && !solved ? ' locked' : ''}`}
               onClick={() => go({ view: 'scp', id: s.id })}
             >
-              <span className="report-card-top">
-                <span className="dim small">{s.id}</span>
-                <ClassBadge c={s.objectClass} />
+              <span className="scp-card2-top">
+                <AcsIcon name={s.acs.containment ?? s.objectClass} />
+                <span className="scp-card2-id">
+                  <strong>{s.id}</strong>
+                  <ClassBadge c={s.objectClass} />
+                </span>
+                {s.mtf && mtfById(s.mtf) && <MtfInsignia m={mtfById(s.mtf)!} size={30} />}
               </span>
               <strong className="report-card-title">
                 {s.locked && solved ? (
@@ -82,8 +88,16 @@ export default function Archive({ go }: { go: Go }) {
                 )}
               </strong>
               <span className="dim report-card-summary">{s.locked && !solved ? 'Inhalt gesperrt.' : s.summary}</span>
-              <span className="report-card-foot">
-                <span className="small">Freigabe {s.clearance}</span>
+              <span className="scp-card2-foot">
+                <span className={`scp-card2-cls dis-${s.acs.disruption}`}>
+                  <AcsIcon name={s.acs.disruption} />
+                  {s.acs.disruption}
+                </span>
+                <span className={`scp-card2-cls risk-${s.acs.risk}`}>
+                  <AcsIcon name={s.acs.risk} />
+                  {s.acs.risk}
+                </span>
+                <span className="scp-card2-lvl small">{s.clearance}</span>
                 {s.locked && !solved && <span className="lock">GESPERRT</span>}
               </span>
             </motion.button>

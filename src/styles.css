@@ -8233,11 +8233,14 @@ html:not(.cur-lock) .cur-ring i {
   --acs-ink: #0d0f12;
   /* solid base for colour mixes; --surface is a gradient in light mode */
   --acs-bg: #15181c;
+  /* plates behind icons: the badge, the octagon */
+  --acs-plate: #0d0f12;
+  --acs-arrow: rgba(220, 226, 232, 0.75);
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.crt[data-mode='light'] .acs { --acs-ink: #1a1d22; --acs-bg: #ffffff; }
+.crt[data-mode='light'] .acs { --acs-ink: #1a1d22; --acs-bg: #ffffff; --acs-plate: #e4e9ee; --acs-arrow: rgba(30, 38, 46, 0.7); }
 .acs-head {
   display: flex;
   flex-wrap: wrap;
@@ -8352,8 +8355,7 @@ html:not(.cur-lock) .cur-ring i {
 .acs-pill .acs-ico { width: 52px; height: 52px; animation-delay: 0.3s; }
 .acs-pill .acs-ico.sec {
   --c: #c9ced4;
-  margin-left: -10px;
-  box-shadow: 0 0 0 3px var(--acs-ink);
+  margin-left: 6px;
   animation-delay: 0.42s;
 }
 .acs-right {
@@ -8376,9 +8378,9 @@ html:not(.cur-lock) .cur-ring i {
   gap: 0.45rem;
   padding: 3px 3px 3px 0.7rem;
   border-radius: 999px;
-  background: var(--acs-ink);
+  background: var(--acs-plate);
 }
-.acs-badge b { font-size: 15px; color: #e8eaed; }
+.acs-badge b { font-size: 15px; color: var(--hi); }
 .acs-badge .acs-ico { width: 34px; height: 34px; padding: 4px; animation-delay: 0.4s; }
 .acs-row + .acs-row .acs-badge .acs-ico { animation-delay: 0.5s; }
 .acs-foot {
@@ -8400,7 +8402,7 @@ html:not(.cur-lock) .cur-ring i {
 .acs-grid > :nth-last-child(2) { border-radius: 0 0 0 var(--radius); }
 @keyframes acs-in {
   from { opacity: 0; transform: translateY(6px); clip-path: inset(0 100% 0 0); }
-  to { opacity: 1; transform: none; clip-path: inset(0 0 0 0); }
+  to { opacity: 1; transform: none; clip-path: inset(-4px); }
 }
 @keyframes acs-pop {
   from { opacity: 0; transform: scale(0.4) rotate(-40deg); }
@@ -8495,7 +8497,7 @@ html:not(.cur-lock) .cur-ring i {
 .acs-pill { animation: acs-fade 0.4s 0.2s ease-out both; }
 .acs-pill .acs-ico { animation: acs-fade 0.4s 0.2s ease-out both; }
 .acs-pill.two .acs-ico.sec {
-  margin-left: -10px;
+  margin-left: 6px;
   animation: acs-slide 0.6s 0.55s cubic-bezier(0.5, 0, 0.2, 1.2) both;
 }
 @keyframes acs-fade {
@@ -8503,7 +8505,7 @@ html:not(.cur-lock) .cur-ring i {
 }
 @keyframes acs-slide {
   from { margin-left: -52px; opacity: 0.2; }
-  to { margin-left: -10px; opacity: 1; }
+  to { margin-left: 6px; opacity: 1; }
 }
 
 /* octagon emblem */
@@ -8513,24 +8515,26 @@ html:not(.cur-lock) .cur-ring i {
   align-self: center;
   width: 128px;
   height: 128px;
-  margin: 0 0.4rem;
+  margin: 0 1.1rem;
   animation: acs-pop 0.6s 0.3s cubic-bezier(0.3, 1.4, 0.5, 1) both;
 }
 .acs-emblem svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.acs-oct { fill: var(--acs-ink); stroke: var(--line); stroke-width: 1; }
+.acs-oct { fill: var(--acs-plate); stroke: color-mix(in srgb, var(--fg) 25%, transparent); stroke-width: 1; }
 .acs-oct-in { fill: none; stroke: color-mix(in srgb, var(--fg) 18%, transparent); stroke-width: 0.8; }
+.acs-emblem svg { overflow: visible; }
+.acs-emblem svg.acs-arrows-layer { z-index: 1; pointer-events: none; }
 .acs-arrows line,
 .acs-arrows path {
   fill: none;
-  stroke: color-mix(in srgb, var(--fg) 45%, transparent);
+  stroke: var(--acs-arrow);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 .acs-emblem > span {
   position: absolute;
-  width: 27%;
-  height: 27%;
+  width: 22%;
+  height: 22%;
   translate: -50% -50%;
 }
 .acs-emblem > .top { left: 50%; top: 21%; }
@@ -8546,7 +8550,7 @@ html:not(.cur-lock) .cur-ring i {
   width: 100%;
   height: 100%;
   padding: 3px;
-  box-shadow: 0 0 0 2px var(--acs-ink);
+  box-shadow: 0 0 0 2px var(--acs-plate);
   animation: acs-fade 0.4s 0.6s ease-out both;
 }
 @media (max-width: 460px) {
@@ -8980,12 +8984,12 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   border: 1px solid var(--line);
   border-left: 4px solid var(--accent);
   border-radius: 0 0 var(--radius) var(--radius);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 12%, var(--acs-bg)), var(--acs-bg) 70%);
   cursor: var(--cur-pointer, pointer);
   animation: acs-in 0.45s 0.44s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   transition: background 0.2s;
 }
-.acs-mtf:hover { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.acs-mtf:hover { background: color-mix(in srgb, var(--accent) 16%, var(--acs-bg)); }
 .acs-mtf .acs-texts strong { font-size: 18px; }
 .acs-mtf-nick { opacity: 0.75; font-weight: 600; }
 .acs-mtf-status { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.7; }
@@ -9299,3 +9303,39 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 @media (prefers-reduced-motion: reduce) {
   .mtf-hero-bg, .mtf-seal-ring, .goi-mcd .goi-hero h2 { animation: none; }
 }
+
+/* ---- SCP list cards: ACS icons, task force insignia ----------------------- */
+.scp-card2 {
+  gap: 0.6rem;
+  border-top: 2px solid var(--c, var(--edge));
+  background: linear-gradient(160deg, color-mix(in srgb, var(--c, #9aa4ad) 10%, var(--acs-bg)), var(--acs-bg) 55%);
+}
+.scp-card2.acs { display: flex; flex-direction: column; }
+.scp-card2-top { display: flex; align-items: center; gap: 0.8rem; }
+.scp-card2-top > .acs-ico { width: 40px; height: 40px; animation: none; }
+.scp-card2-id { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+.scp-card2-id strong { font-size: 16px; letter-spacing: 0.08em; color: var(--hi); }
+.scp-card2-top .mtf-insignia { opacity: 0.8; }
+.scp-card2-foot {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--line);
+}
+.scp-card2-cls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 2px 8px 2px 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c) 14%, var(--acs-bg));
+  color: var(--hi);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.scp-card2-cls .acs-ico { width: 20px; height: 20px; padding: 2px; animation: none; }
+.scp-card2-lvl { margin-left: auto; opacity: 0.7; }
