@@ -95,3 +95,6 @@ These are rules the project owner has given over time. Follow them for every cha
 
 - **Commits:** commit after each change.
 - **Checking:** check visually with Playwright (dev server on port 5199) in dark and in light mode before reporting.
+- **Line breaks:** in every screenshot, check where text wraps. Check at the width between the side rails (1600 px window) as well as without rails. No value that breaks into an orphan ("· Hong Kong" alone on a line). No card whose text breaks over three or four lines because the card is too narrow. No content (redactions included) that runs past its column. Fix the layout or the content until it reads cleanly.
+- **Alignment:** markers sit centred on the line they belong to. Timeline dots sit on the date, list icons on their first line. Tiles in one row line up: a tile with an extra line does not push its value out of line with its neighbours.
+- **Pills:** back pills and other pills use the site font (IBM Plex Mono, 12px) on every page, themed pages included.

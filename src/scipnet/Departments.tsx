@@ -411,10 +411,11 @@ export function GoiView({ id, go }: { id: string; go: Go }) {
       </header>
 
       <div className="gf-stats">
-        {g.stats.map(([k, v], i) => (
+        {g.stats.map(([k, v, note], i) => (
           <div key={k} className="rise" style={rise(i + 1)}>
             <span>{k}</span>
             <strong>{v}</strong>
+            {note && <small>{note}</small>}
           </div>
         ))}
       </div>

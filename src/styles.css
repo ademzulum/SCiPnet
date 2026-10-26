@@ -9605,3 +9605,49 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   letter-spacing: 0;
 }
 .scipa-legend li.lvl-MTF .scipa-badge { font-size: 8px; }
+
+/* The live log in the side rail changes every few seconds. With scroll
+   anchoring the browser picked a line in it as anchor and moved the page to
+   follow it, so a page scrolled to the end crept upwards. */
+.shell-main, .rail { overflow-anchor: none; }
+
+/* a long redaction bar breaks like text instead of running out of its column */
+.redact { white-space: normal; overflow-wrap: anywhere; word-break: break-all; }
+
+/* GoI overview: each card is as tall as its own content */
+.goi-grid { align-items: start; }
+
+/* GoI figures: value centred in the tile, so tiles with a two-line value and
+   one-line values stay in line */
+.gf-stats > div { justify-content: center; }
+.gf-stats strong { text-wrap: balance; }
+
+/* back pill: the site's pill font on every GoI file, like on every other page */
+.gf .back { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-style: normal; }
+
+/* encounters: the dot sits on the date line, centred on it */
+.gf-encounters time { display: block; line-height: 20px; }
+.gf-encounters li::before { top: 4px; }
+.gf-stats small { font-family: 'Barlow', sans-serif; font-size: 13px; letter-spacing: 0.04em; white-space: nowrap; opacity: 0.8; }
+/* catalogue as one row per lot (number, name and note, price): narrow cards
+   broke every name over three or four lines in the column between the rails */
+.gf-lots { grid-template-columns: 1fr; gap: 0.7rem; }
+.gf-lots li {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 1.2rem;
+  row-gap: 0.1rem;
+  padding: 1rem 1.3rem;
+  text-align: left;
+}
+.gf-lots li:hover { transform: translateX(4px); }
+.gf-lot { grid-row: 1 / 3; align-self: stretch; display: grid; place-items: center; border-right: 1px solid var(--g-line); padding-right: 1rem; }
+.gf-lots strong { grid-column: 2; }
+.gf-lots em { grid-column: 2; }
+.gf-price { grid-column: 3; grid-row: 1 / 3; margin: 0; padding: 0; border: none; white-space: nowrap; }
+@media (max-width: 640px) {
+  .gf-lots li { grid-template-columns: 1fr; }
+  .gf-lot, .gf-price, .gf-lots strong, .gf-lots em { grid-column: 1; grid-row: auto; border: none; padding: 0; place-items: start; }
+}

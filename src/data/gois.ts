@@ -13,7 +13,7 @@ export type Goi = {
   sections: { title: string; body: string[] }[];
   items?: { lot: string; name: string; note: string; price: string }[]; // MC&D catalogue
   ops?: { code: string; place: string; note: string }[]; // Valravn deployments
-  stats: [string, string][]; // strip of key figures under the header
+  stats: [label: string, value: string, note?: string][]; // strip of key figures under the header; note is a small line under the value
   intercept: { title: string; source: string; lines: [string, string][] }; // radio log or letter: [speaker or label, line]
   encounters: { date: string; text: string; tone: 'ok' | 'warn' | 'bad' }[]; // contacts with the Foundation
 };
@@ -116,7 +116,7 @@ export const GOIS: Goi[] = [
     stats: [
       ['Gegründet', '17. Jh.'],
       ['Kunden', 'unter 200'],
-      ['Niederlassungen', 'NYC · London · Hong Kong'],
+      ['Niederlassungen', '3', 'NYC · London · Hong Kong'],
       ['Abgefangene Lose', '3'],
     ],
     intercept: {
