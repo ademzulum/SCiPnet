@@ -9396,18 +9396,6 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 }
 .report-card::before { height: 2px; background: var(--cl); }
 .report-card-foot { border-top: 1px dashed var(--line); padding-top: 0.6rem; }
-.rc-icon {
-  display: inline-grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--cl);
-  flex: none;
-}
-.rc-icon svg { width: 17px; height: 17px; fill: none; stroke: #0d0f12; stroke-width: 1.8; stroke-linejoin: round; }
-.rc-id { flex: 1; display: flex; align-items: center; gap: 0.7rem; }
-.rc-id .small { font-size: 13px; letter-spacing: 0.06em; color: var(--hi); opacity: 1; }
 .folder {
   border-top: 2px solid var(--st);
   background: linear-gradient(160deg, color-mix(in srgb, var(--st) 9%, var(--card-bg)), var(--card-bg) 55%);
