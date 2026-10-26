@@ -9836,3 +9836,12 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 /* the id and department line stays on one line so names in a row line up */
 .card2-id > .dim.small { max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .nobreak { white-space: nowrap; }
+
+/* ---- personnel folders: the folder look (tab, portrait, fact tiles) with the
+   list cards' status pill, level pill and footer chips ---- */
+.folder .folder-photo { width: 84px; height: 100px; border-radius: var(--radius); }
+.folder-body { align-items: flex-start; }
+.folder-body > .state-pill { margin-left: auto; }
+.folder-name { font-size: 17px; }
+.folder-foot { border-top: 1px dashed var(--line); padding-top: 0.6rem; }
+.folder-foot .level-pill { margin-left: 0; }

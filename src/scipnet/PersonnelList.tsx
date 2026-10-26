@@ -73,37 +73,36 @@ export default function PersonnelList({ go }: { go: Go }) {
         </div>
       </div>
 
-      <div className="report-grid filter-grid">
+      <div className="folder-grid filter-grid">
         <AnimatePresence mode="popLayout" initial={false}>
           {items.map((p) => (
             <motion.button
               key={p.id}
               {...FILTER_CARD}
-              className={`report-card card2 pers-card st-${p.status}${p.id.startsWith('X-') ? ' external' : ''}`}
+              className={`folder st-${p.status}${p.id.startsWith('X-') ? ' external' : ''}`}
               onClick={() => go({ view: 'person', id: p.id })}
             >
-              <span className="card2-top">
-                <span className="pers-photo" aria-hidden>
+              <span className="folder-tab">{p.id}</span>
+              <span className="folder-body">
+                <span className="folder-photo" aria-hidden>
                   {p.photo ? <Picture src={photoUrl(p.photo)} alt="" censored={!admin} cover /> : initials(p.name)}
                 </span>
-                <span className="card2-id">
-                  <strong>{p.name}</strong>
+                <span className="folder-info">
+                  <strong className="folder-name">{p.name}</strong>
                   <span className="small">{p.role}</span>
-                  <span className="dim small">
-                    {p.id} · {p.department}
-                  </span>
+                  <span className="dim small">{p.department}</span>
                 </span>
                 <span className={`state-pill status-${p.status}`}>{p.status}</span>
               </span>
               {/* always a quote line, so cards in a row line up even without one */}
               {p.quote ? (
-                <span className="dim report-card-summary pers-quote">
+                <span className="folder-quote">
                   „<Redacted text={p.quote} />“
                 </span>
               ) : (
-                <span className="dim report-card-summary pers-quote none">Keine Aussage auf Akte.</span>
+                <span className="folder-quote none">Keine Aussage auf Akte.</span>
               )}
-              <span className="pers-facts">
+              <span className="folder-facts">
                 <span>
                   <span className="label">Seit</span>
                   <strong>{p.since}</strong>
@@ -117,7 +116,7 @@ export default function PersonnelList({ go }: { go: Go }) {
                   <strong className={noteCount(p.incidents) ? 'warn-text' : undefined}>{noteCount(p.incidents)}</strong>
                 </span>
               </span>
-              <span className="card2-foot">
+              <span className="folder-foot">
                 <LevelPill n={clearanceLevel(p.clearance)} of={6} label={p.clearance} title={`Freigabe ${p.clearance}`} />
                 {admin || biometric.has(p.id) ? (
                   <span className="card2-chip seal open">Offen</span>
@@ -129,41 +128,40 @@ export default function PersonnelList({ go }: { go: Go }) {
           ))}
 
         {solved ? (
-          <motion.button key="admin" {...FILTER_CARD} className="report-card card2 pers-card admin-folder" onClick={() => go({ view: 'admin' })}>
-            <span className="card2-top">
-              <span className="pers-photo" aria-hidden>
+          <motion.button key="admin" {...FILTER_CARD} className="folder admin-folder" onClick={() => go({ view: 'admin' })}>
+            <span className="folder-tab">{ADMIN_PERSON.id}</span>
+            <span className="folder-body">
+              <span className="folder-photo" aria-hidden>
                 ∅
               </span>
-              <span className="card2-id">
+              <span className="folder-info">
                 <strong>{ADMIN_PERSON.name}</strong>
                 <span className="small">{ADMIN_PERSON.role}</span>
-                <span className="dim small">
-                  {ADMIN_PERSON.id} · {ADMIN_PERSON.department}
-                </span>
+                <span className="dim small">{ADMIN_PERSON.department}</span>
               </span>
             </span>
-            <span className="card2-foot">
+            <span className="folder-foot">
               <LevelPill n={6} of={6} label={ADMIN_PERSON.clearance} />
               <span className="card2-chip seal open">Offen</span>
             </span>
           </motion.button>
         ) : (
-          <motion.button key="admin-locked" {...FILTER_CARD} className="report-card card2 pers-card admin-card" onClick={() => go({ view: 'admin' })}>
-            <span className="card2-top">
-              <span className="pers-photo" aria-hidden>
+          <motion.button key="admin-locked" {...FILTER_CARD} className="folder admin-card" onClick={() => go({ view: 'admin' })}>
+            <span className="folder-tab">
+              <Corrupt text="A-00-0000" amount={0.2} every={400} />
+            </span>
+            <span className="folder-body">
+              <span className="folder-photo" aria-hidden>
                 ?
               </span>
-              <span className="card2-id">
+              <span className="folder-info">
                 <strong>
                   <Corrupt text="Der Administrator" amount={0.06} every={250} />
                 </strong>
                 <span className="small">[DATEN BESCHÄDIGT]</span>
-                <span className="dim small">
-                  <Corrupt text="A-00-0000" amount={0.2} every={400} />
-                </span>
               </span>
             </span>
-            <span className="card2-foot">
+            <span className="folder-foot">
               <span className="small">
                 <Corrupt text="??????" amount={0.5} every={300} />
               </span>
