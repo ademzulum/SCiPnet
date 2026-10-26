@@ -3,6 +3,8 @@
 // sounds/ui: generic interface feedback
 import click from '../../sounds/ui/click.mp3';
 import enter from '../../sounds/ui/enter.wav';
+import hover from '../../sounds/ui/hover.mp3';
+import uiSuccess from '../../sounds/ui/ui_success.mp3';
 import error from '../../sounds/ui/error.wav';
 import negative from '../../sounds/ui/negative.mp3';
 import notify from '../../sounds/ui/notification.mp3';
@@ -19,6 +21,7 @@ import uiuSuccess from '../../sounds/uiu_terminal/breach_success.wav';
 import biometric from '../../sounds/scipnet/biometric_scan.mp3';
 import brainScan from '../../sounds/scipnet/brain_scan.mp3';
 import commsLogin from '../../sounds/scipnet/comms_login.wav';
+import fileUnlocked from '../../sounds/scipnet/personell_file_login_success.mp3';
 import selfDestruct from '../../sounds/scipnet/self_destruct.mp3';
 import startup from '../../sounds/scipnet/startup.mp3';
 // sounds/tabs: one per dock section
@@ -28,7 +31,7 @@ import tabOverview from '../../sounds/tabs/overview.mp3';
 import tabPersonnel from '../../sounds/tabs/personnel_files.mp3';
 import tabReports from '../../sounds/tabs/field_reports.mp3';
 
-const URLS = { biometric, brainScan, click, commsLogin, enter, error, frequencyFound, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, tabArchive, tabComms, tabOverview, tabPersonnel, tabReports, terminalNoise, triangulate, uiuSuccess };
+const URLS = { biometric, brainScan, click, commsLogin, enter, error, fileUnlocked, hover, uiSuccess, frequencyFound, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, tabArchive, tabComms, tabOverview, tabPersonnel, tabReports, terminalNoise, triangulate, uiuSuccess };
 export type SoundName = keyof typeof URLS;
 
 let ctx: AudioContext | null = null;

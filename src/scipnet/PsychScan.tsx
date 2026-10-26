@@ -53,7 +53,7 @@ export function BrainScan({ p }: { p: Person }) {
         setPhase('done');
         setSel(0);
         stopSweep(250);
-        play('uiuSuccess', 0.35);
+        play('uiSuccess', 0.6);
       }
     };
     raf = requestAnimationFrame(tick);

@@ -276,7 +276,7 @@ function PsychTab({ p, onGranted }: { p: Person; onGranted: () => void }) {
     if (access === 'granted') {
       // the lock springs open and turns green before the profile shows
       psychAccess.grant(p.id);
-      play('uiuSuccess', 0.35);
+      play('uiSuccess', 0.7);
       setPhase('opening');
       await wait(1100);
       setPhase('granted');

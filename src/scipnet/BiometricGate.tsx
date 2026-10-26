@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Person } from '../data/personnel';
+import SuccessMark from './SuccessMark';
 import { play } from '../lib/sound';
 
 // Full-page biometric check in front of a personnel file:
@@ -177,6 +178,7 @@ export default function BiometricGate({
         setP('nomatch');
         later(() => done.current.onVerified(), RESULT_MS + 900);
       } else {
+        play('fileUnlocked', 0.8);
         setP('granted');
         later(() => done.current.onVerified(), RESULT_MS);
       }
@@ -283,7 +285,7 @@ export default function BiometricGate({
 
             {(phase === 'granted' || phase === 'nomatch') && (
               <div className="bio-result">
-                <span className="bio-result-icon">{phase === 'granted' ? '✓' : '✕'}</span>
+                {phase === 'granted' ? <SuccessMark /> : <span className="bio-result-icon">✕</span>}
               </div>
             )}
 

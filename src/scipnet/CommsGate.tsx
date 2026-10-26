@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useAccount } from './session';
 import { THREADS } from '../data/threads';
 import { play } from '../lib/sound';
+import SuccessMark from './SuccessMark';
 
 // Login in front of the communications hub: the channel key fills in, the
 // user tunes the receiver to the Site-80 frequency (slider or arrow keys),
@@ -202,6 +203,7 @@ export default function CommsGate({ onDone }: { onDone: () => void }) {
               ))}
               {phase === 'ok' && (
                 <motion.li className="cg-ok" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+                  <SuccessMark size={44} />
                   VERBINDUNG HERGESTELLT
                 </motion.li>
               )}
