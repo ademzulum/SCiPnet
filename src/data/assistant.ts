@@ -11,7 +11,8 @@
 
 import type { Route } from '../scipnet/routes';
 
-// legend: one row per class under the text: ACS icon (images/archive/acs), name, meaning
+// legend: one row per class under the text: ACS icon (images/archive/acs), name, meaning.
+// An icon starting with '#' is a text badge instead ('#3' takes clearance level 3's colour).
 export type Legend = [icon: string, name: string, meaning: string][];
 export type Answer = { text: string; audio?: string; legend?: Legend };
 
@@ -150,7 +151,14 @@ export const INTENTS: Intent[] = [
     keywords: ['freigabestufe', 'freigabestufen', 'clearance', 'level 1', 'level 5', 'streng geheim', 'vertraulich'],
     answers: [
       {
-        text: 'Freigabestufen: Level 1 uneingeschränkt, für alle. Level 2 eingeschränkt. Level 3 vertraulich. Level 4 geheim. Level 5 streng geheim, nur mit Genehmigung des O5-Rats.',
+        text: 'Freigabestufen sagen, wer eine Akte lesen darf. Die Balken im Kopf jeder Akte zeigen die Stufe.',
+        legend: [
+          ['#1', 'Level 1', 'uneingeschränkt, für alle Mitarbeitenden'],
+          ['#2', 'Level 2', 'eingeschränkt, ab Freigabe Stufe 2'],
+          ['#3', 'Level 3', 'vertraulich, ab Freigabe Stufe 3'],
+          ['#4', 'Level 4', 'geheim, ab Freigabe Stufe 4'],
+          ['#5', 'Level 5', 'streng geheim, nur mit Genehmigung des O5-Rats'],
+        ],
       },
     ],
   },
@@ -159,7 +167,14 @@ export const INTENTS: Intent[] = [
     keywords: ['subklasse', 'subklassen', 'eindammungsstatus', 'status einer akte', 'status bedeutet'],
     answers: [
       {
-        text: 'Die Subklasse beschreibt die Art der Anomalie genauer, zum Beispiel visuell, antimemetisch oder strukturell. Der Status sagt, wie es um die Eindämmung gerade steht: eingedämmt, teilweise eingedämmt, nicht eindämmbar. Darunter nennt die Akte die zuständige Mobile Task Force.',
+        text: 'Unter den Klassen stehen Subklasse und Status, darunter die zuständige Mobile Task Force.',
+        legend: [
+          ['#S', 'Subklasse', 'die Art der Anomalie, etwa visuell, antimemetisch oder strukturell'],
+          ['safe', 'Eingedämmt', 'die Eindämmung hält'],
+          ['euclid', 'Teilweise', 'teilweise eingedämmt, die Lage wird beobachtet'],
+          ['keter', 'Nicht eindämmbar', 'die Eindämmung ist derzeit nicht möglich'],
+          ['#MTF', 'Mobile Task Force', 'die Einheit, die für das Objekt zuständig ist'],
+        ],
       },
     ],
   },

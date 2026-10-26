@@ -9589,3 +9589,19 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   .goi-mcd .gf-cover h2 { animation: none; }
 }
 @keyframes mcd-gild { to { background-position: -200% 0; } }
+
+/* text badges in S.C.I.P.A.'s legend: clearance levels take their level colour */
+.scipa-legend li.scipa-text { --c: var(--lvl, #9aa4ad); }
+.scipa-badge {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--c);
+  color: #0d0f12;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.scipa-legend li.lvl-MTF .scipa-badge { font-size: 8px; }

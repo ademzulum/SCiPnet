@@ -397,8 +397,8 @@ export default function Assistant({ go, onSelfDestruct, notes, ask: question }: 
                 {m.legend && (
                   <ul className="scipa-legend">
                     {m.legend.map(([icon, name, meaning]) => (
-                      <li key={name} className={`acs ${ICON_CLASS[icon] ?? ''}`}>
-                        <AcsIcon name={icon} />
+                      <li key={name} className={icon[0] === '#' ? `acs scipa-text lvl-${icon.slice(1)}` : `acs ${ICON_CLASS[icon] ?? ''}`}>
+                        {icon[0] === '#' ? <span className="scipa-badge">{icon.slice(1)}</span> : <AcsIcon name={icon} />}
                         <strong>{name}</strong>
                         <span>{meaning}</span>
                       </li>
