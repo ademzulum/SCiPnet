@@ -8889,8 +8889,11 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   height: 7px;
   border-radius: 50%;
   background: currentColor;
-  animation: hintping 1.6s ease-out infinite;
-  color: inherit;
+  animation: status-ping 1.6s ease-out infinite;
+}
+@keyframes status-ping {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 70%, transparent); }
+  100% { box-shadow: 0 0 0 7px transparent; }
 }
 .mtf-gauge {
   position: relative;
@@ -8942,7 +8945,7 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   color: var(--hi);
   font-size: 11px;
   letter-spacing: 0.08em;
-  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  border-radius: 999px;
 }
 .mtf-log { list-style: none; margin: 0; padding: 0 0 0 1rem; border-left: 1px solid var(--line); }
 .mtf-log li {
@@ -9099,7 +9102,7 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 }
 .goi-threat.t-Hoch { color: var(--g-warn); }
 .goi-threat-bars { display: flex; gap: 2px; }
-.goi-threat-bars i { width: 12px; height: 6px; background: color-mix(in srgb, currentColor 22%, transparent); transform: skewX(-20deg); }
+.goi-threat-bars i { width: 12px; height: 6px; background: color-mix(in srgb, currentColor 22%, transparent); border-radius: 2px; }
 .goi-threat-bars i.on { background: currentColor; }
 
 /* themed page */
@@ -9147,7 +9150,7 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   font-size: 14px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  rotate: -8deg;
+  border-radius: var(--radius);
   opacity: 0.8;
   animation: goi-stamp 0.45s 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
 }
@@ -9211,7 +9214,7 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   background: var(--g-panel);
   border: 1px solid var(--g-line);
   border-left: 3px solid var(--g-accent);
-  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+  border-radius: var(--radius);
 }
 .goi-op-code { color: var(--g-accent); font-weight: 600; letter-spacing: 0.1em; }
 .goi-ops strong { color: var(--g-hi); }
@@ -9271,7 +9274,6 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
   font-size: 9px;
   letter-spacing: 0.15em;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4), inset 0 0 0 4px rgba(0, 0, 0, 0.15);
-  rotate: 12deg;
 }
 .goi-mcd .goi-kicker { font-family: 'Barlow', sans-serif; font-size: 10px; }
 .goi-mcd .goi-section h3 { font-size: 28px; font-weight: 600; font-style: italic; border-bottom: 1px solid var(--g-line); padding-bottom: 0.3rem; }
@@ -9453,3 +9455,68 @@ button.mtf-card:hover { transform: translateY(-2px); border-color: color-mix(in 
 }
 .rail-guide button:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .rail-guide .acs-ico { width: 24px; height: 24px; padding: 3px; --c: color-mix(in srgb, var(--fg) 30%, transparent); animation: none; }
+
+/* ---- GoI overview cards: banner in the group's look, shared card frame ---- */
+/* Shared guideline (RULES.md): var(--radius) corners, same padding rhythm,
+   kicker/title/body/foot order, threat meter, light palette. The group only
+   brings colours, typeface, mark and texture. */
+.goi-grid { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1rem; }
+.goi-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  border-radius: var(--radius) !important;
+  background: var(--g-panel) !important;
+  border: 1px solid var(--g-line) !important;
+  outline: none !important;
+}
+.goi-card-banner {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.3rem 1.2rem;
+  border-bottom: 1px solid var(--g-line);
+}
+.goi-card-bg { position: absolute; right: -30px; top: -40px; opacity: 0.08; pointer-events: none; }
+.goi-card-bg .goi-mark { width: 190px; height: 190px; }
+.goi-card-banner > .goi-mark { width: 60px; height: 60px; position: relative; }
+.goi-card-title { position: relative; display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.goi-card-title .goi-kicker { font-size: 10px; }
+.goi-card-title em { font-size: 13px; opacity: 0.75; }
+.goi-card-body { display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem 1.2rem 1.1rem; }
+.goi-card-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.goi-card-facts > span { display: flex; flex-direction: column; gap: 0.1rem; color: var(--g-hi); font-size: 14px; }
+.goi-card-facts .label { margin: 0; color: var(--g-accent); font-size: 9px; }
+.goi-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.7rem;
+  border-top: 1px dashed var(--g-line);
+}
+.goi-card-go { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--g-accent); transition: translate 0.2s; }
+.goi-card:hover .goi-card-go { translate: 4px 0; }
+.goi-card.goi-valravn .goi-card-banner {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 39px, color-mix(in srgb, var(--g-accent) 7%, transparent) 39px 40px),
+    linear-gradient(135deg, var(--g-bg2), var(--g-bg));
+  border-top: 3px solid var(--g-accent);
+}
+.goi-card.goi-valravn .goi-card-title strong { font-size: 24px; }
+.goi-card.goi-mcd .goi-card-banner {
+  background: radial-gradient(circle at 15% 0%, var(--g-bg2), var(--g-bg) 75%);
+  border-top: 3px double var(--g-accent);
+}
+.goi-card.goi-mcd .goi-card-title strong { font-size: 26px; }
+.goi-card.goi-mcd .goi-kicker { font-family: 'Barlow', sans-serif; }
+/* the themed pages follow the same frame */
+.goi-page, .goi-mcd.goi-page { border-radius: var(--radius); }
+.goi-mcd.goi-page { outline: none; }
+.goi-card, .goi-card * { font-family: var(--g-font) !important; }
+.goi-valravn { --g-font: 'Barlow Condensed', 'Barlow', sans-serif; }
+.goi-mcd { --g-font: 'Cormorant Garamond', Georgia, serif; }
+.goi-card .label, .goi-card .goi-kicker, .goi-card .goi-threat, .goi-card .goi-card-go { font-family: 'Barlow', sans-serif !important; }
+.goi-stance, .goi-lots li { border-radius: var(--radius); }

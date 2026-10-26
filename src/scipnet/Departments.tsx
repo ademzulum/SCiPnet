@@ -251,11 +251,32 @@ export function GoiList({ go }: { go: Go }) {
       <div className="goi-grid">
         {GOIS.map((g, i) => (
           <button key={g.id} style={rise(i)} className={`goi-card rise goi-${g.theme}`} onClick={() => go({ view: 'goi', id: g.id })}>
-            <GoiMark theme={g.theme} />
-            <span className="goi-card-text">
-              <strong>{g.name}</strong>
+            {/* banner in the group's own look, its mark large and faint behind */}
+            <span className="goi-card-banner">
+              <span className="goi-card-bg" aria-hidden>
+                <GoiMark theme={g.theme} />
+              </span>
+              <GoiMark theme={g.theme} />
+              <span className="goi-card-title">
+                <span className="goi-kicker">Group of Interest</span>
+                <strong>{g.name}</strong>
+                <em>“{g.tagline}”</em>
+              </span>
+            </span>
+            <span className="goi-card-body">
               <span className="small">{g.short}</span>
-              <Threat g={g} />
+              <span className="goi-card-facts">
+                {g.facts.slice(0, 2).map(([k, v]) => (
+                  <span key={k}>
+                    <span className="label">{k}</span>
+                    {v}
+                  </span>
+                ))}
+              </span>
+              <span className="goi-card-foot">
+                <Threat g={g} />
+                <span className="goi-card-go">Akte öffnen →</span>
+              </span>
             </span>
           </button>
         ))}
