@@ -278,8 +278,10 @@ function PsychTab({ p, onGranted }: { p: Person; onGranted: () => void }) {
   const request = async () => {
     setPhase('asking');
     await wait(1500);
-    // the solved signal puzzle opens every profile
-    const access = cleared() ? 'granted' : p.psych.access;
+    // the solved signal puzzle opens every profile; a locked one opens for
+    // anyone whose clearance reaches its required level (RAISA counts as 4)
+    const need = levelOf(p.psych.required);
+    const access = cleared() || p.psych.access === 'granted' || (need > 0 && need <= READER_LEVEL[me.id]) ? 'granted' : 'denied';
     if (access === 'granted') {
       // the lock springs open and turns green before the profile shows
       psychAccess.grant(p.id);
