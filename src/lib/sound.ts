@@ -34,6 +34,15 @@ import tabReports from '../../sounds/tabs/field_reports.mp3';
 const URLS = { biometric, brainScan, click, commsLogin, enter, error, fileUnlocked, hover, uiSuccess, frequencyFound, memetic, negative, notify, receivedMessage, selfDestruct, sentMessage, startup, tabArchive, tabComms, tabOverview, tabPersonnel, tabReports, terminalNoise, triangulate, uiuSuccess };
 export type SoundName = keyof typeof URLS;
 
+// Files that need trimming, in seconds: start skips leading silence, and the
+// sound fades to zero over `fade` and stops at `end`. hover.mp3 has a faint
+// crackle after the tick (from 0.33 s) and 14 s of silence; ui_success.mp3 is
+// cut off at 2 s while it still rings.
+const TRIM: Partial<Record<SoundName, { start?: number; end: number; fade: number }>> = {
+  hover: { start: 0.05, end: 0.3, fade: 0.06 },
+  uiSuccess: { end: 1.99, fade: 0.9 },
+};
+
 let ctx: AudioContext | null = null;
 const buffers = new Map<SoundName, AudioBuffer>();
 
@@ -80,7 +89,18 @@ export function play(name: SoundName, volume = 1, loop = false): (fadeMs?: numbe
   src.buffer = buf;
   src.loop = loop;
   src.connect(gain).connect(audio.destination);
-  src.start();
+  const trim = loop ? undefined : TRIM[name];
+  if (trim) {
+    const t0 = audio.currentTime;
+    const start = trim.start ?? 0;
+    const len = trim.end - start;
+    gain.gain.setValueAtTime(volume, t0 + len - trim.fade);
+    // exponential ramps cannot reach 0, so ramp to near-silence and finish linearly
+    gain.gain.exponentialRampToValueAtTime(volume * 0.02, t0 + len - 0.01);
+    gain.gain.linearRampToValueAtTime(0, t0 + len);
+    src.start(t0, start);
+    src.stop(t0 + len + 0.01);
+  } else src.start();
   return (fadeMs = 0) => {
     try {
       const end = audio.currentTime + fadeMs / 1000;
