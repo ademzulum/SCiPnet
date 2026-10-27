@@ -44,7 +44,6 @@ const TONES: Opt[] = [
   ['warn', 'Auffällig'],
   ['bad', 'Kritisch'],
 ];
-const reports = () => REPORTS.map((r): Opt => [r.id, `${r.id} · ${r.title}`]);
 
 const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kinds[K] } } = {
   scp: {
@@ -82,7 +81,7 @@ const FIELDS: { [K in Kind]?: { title: string; fields: Field[]; blank: () => Kin
         t: 'addenda',
         hint: 'Kopf „Addendum 8041/I · Art“, Beginn und Ende des Transkripts und „Ende Addendum …“ setzt die Akte selbst.',
       },
-      { k: 'reports', label: 'Verknüpfte Feldberichte', t: 'multi', options: reports },
+      { k: 'reports', label: 'Verknüpfte Feldberichte', t: 'pick', what: 'report' },
       ...ACCESS(false),
     ],
   },

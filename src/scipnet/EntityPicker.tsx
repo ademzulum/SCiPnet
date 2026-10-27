@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import { PERSONNEL } from '../data/personnel';
+import { PERSONNEL, personById } from '../data/personnel';
+import { REPORTS } from '../data/reports';
+import { REPORT_LEVEL } from '../data/access';
+import { LevelPill } from './Pips';
 import { MTFS } from '../data/mtf';
 import { SCP } from '../data/scp';
 import { photoUrl } from '../data/photos';
@@ -14,7 +17,7 @@ import Picture from './Picture';
 // Picking personnel, task forces or objects in the editor: the field shows
 // what is picked, a button opens a window with a search over ids and names
 // and one card per entry, like its card elsewhere on the site.
-export type PickWhat = 'person' | 'mtf' | 'scp';
+export type PickWhat = 'person' | 'mtf' | 'scp' | 'report';
 
 type Item = { id: string; text: string; card: React.ReactNode; chip: React.ReactNode };
 
@@ -62,6 +65,28 @@ function items(what: PickWhat): Item[] {
         </>
       ),
     }));
+  if (what === 'report')
+    return REPORTS.map((r) => {
+      const n = REPORT_LEVEL[r.classification] ?? 3;
+      return {
+        id: r.id,
+        text: `${r.id} ${r.title} ${personById(r.author)?.name ?? ''}`,
+        card: (
+          <>
+            <span className="pk-scp-top">
+              <strong>{r.id}</strong>
+              <span className="dim small">{new Date(r.date).toLocaleDateString('de-DE')}</span>
+            </span>
+            <span className="pk-scp-name">{r.title}</span>
+            <span className="pk-rep-foot">
+              <LevelPill n={n} of={5} label={`Level ${n}`} />
+              <span className="dim small">{r.status}</span>
+            </span>
+          </>
+        ),
+        chip: <>{r.id}</>,
+      };
+    });
   return SCP.map((s) => ({
     id: s.id,
     text: `${s.id} ${s.name}`,
@@ -79,7 +104,7 @@ function items(what: PickWhat): Item[] {
   }));
 }
 
-const TITLE: Record<PickWhat, string> = { person: 'Personal wählen', mtf: 'Mobile Task Force wählen', scp: 'Objekte wählen' };
+const TITLE: Record<PickWhat, string> = { person: 'Personal wählen', mtf: 'Mobile Task Force wählen', scp: 'Objekte wählen', report: 'Feldberichte wählen' };
 
 export default function EntityPicker({
   what,

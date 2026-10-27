@@ -10397,3 +10397,12 @@ div.rep-ref.broken-ref { cursor: default; border-style: dashed; }
 .acs-clear-text .acs-pips { display: flex; line-height: 0; }
 .acs-lvl-badge { align-content: center; gap: 0.1rem; padding: 0.2rem 0.55rem; min-width: 44px; font-size: 22px; line-height: 0.9; }
 .acs-lvl-badge small { font-size: 7px; line-height: 1; }
+
+/* report cards in the picker */
+.pk-report { grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); }
+.pk-report .pk-card { justify-items: stretch; text-align: left; }
+.pk-rep-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding-top: 0.4rem; border-top: 1px dashed var(--line); }
+.pk-rep-foot .level-pill { margin: 0; }
+/* a link to a deleted entry glitches in the text colour, not in red and blue */
+.broken-ref .corrupt { color: var(--fg); }
+.broken-ref .corrupt::before, .broken-ref .corrupt::after { color: inherit; opacity: 0.35; }
