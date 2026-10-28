@@ -51,10 +51,6 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
     use: 'Ein genehmigter, kontrollierter Versuch mit einem Objekt. Ein Bericht je Test.',
     example: 'Test 8050-07: Reaktion auf akustische Reize',
     facts: [
-      ['Testnummer', 'z. B. T-8050-07'],
-      ['Testobjekt', 'SCP-Nummer und ggf. Probe, z. B. SCP-8050-A'],
-      ['Proband', 'z. B. D-80312 (männlich, 34 Jahre) oder „keiner“'],
-      ['Testleitung', 'Verantwortliche Forschende, z. B. Dr. Kessler'],
       ['Genehmigt durch', 'Wer den Test freigegeben hat, z. B. Standortdirektion'],
       ['Schutzmaßnahmen', 'z. B. Sichtschutz, Amnestika bereit, MTF in Bereitschaft'],
     ],
@@ -70,7 +66,7 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
       summary: 'Ein bis zwei Sätze: was getestet wurde und das Ergebnis.',
       timeline: 'Optional: Zeitstempel des Testablaufs, z. B. „14:02 · Proband betritt die Kammer“.',
       assessment: 'Folgen für die Eindämmung: Muss das Sonderprotokoll angepasst werden? Weitere Tests?',
-      involved: 'Testleitung, Assistenz und Sicherheitspersonal.',
+      involved: 'Testleitung, Proband, Assistenz und Sicherheitspersonal.',
     },
   },
   vorfall: {
@@ -78,10 +74,7 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
     use: 'Ein Eindämmungsbruch, Unfall, Sicherheits- oder Personalvorfall, der aufgearbeitet werden muss.',
     example: 'Vorfall 8050-1: Eindämmungsbruch in Sektor B',
     facts: [
-      ['Vorfallnummer', 'z. B. V-8050-1'],
       ['Vorfallart', 'z. B. Eindämmungsbruch, Unfall, Fehlverhalten, Datenleck'],
-      ['Zeitpunkt', 'Datum und Uhrzeit des Vorfalls'],
-      ['Betroffener Bereich', 'z. B. Sektor B, Eindämmungszelle 12'],
       ['Verletzte', 'Anzahl, ggf. Kennungen'],
       ['Todesfälle', 'Anzahl, ggf. Kennungen'],
       ['Sachschaden', 'Was ist beschädigt oder verloren?'],
@@ -106,9 +99,7 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
     use: 'Die Entdeckung und Sicherstellung eines neuen Objekts, bis zur Übergabe in die Eindämmung.',
     example: 'Bergung von SCP-8050 in Kiel',
     facts: [
-      ['Fundort', 'Ort der Bergung, so genau wie nötig'],
       ['Entdeckt durch', 'Wie die Foundation aufmerksam wurde, z. B. Polizeifunk, Meldung eines Agenten'],
-      ['Bergungsteam', 'Einheit oder Agenten, z. B. MTF Eta-11'],
       ['Zivile Zeugen', 'Anzahl und Umgang, z. B. 4, Amnestika Klasse A verabreicht'],
       ['Tarngeschichte', 'Was der Öffentlichkeit erzählt wurde, z. B. Gasleck'],
       ['Übergabe an', 'Standort und Zelle, in die das Objekt gebracht wurde'],
@@ -121,6 +112,7 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
     ],
     std: {
       location: 'Fundort des Objekts',
+      involved: 'Bergungsteam (Agenten); eine Mobile Task Force unter Beteiligte Mobile Task Forces.',
       summary: 'Ein bis zwei Sätze: welches Objekt wo geborgen wurde und mit welchen Verlusten.',
       timeline: 'Optional: Ablauf der Bergung mit Uhrzeit.',
       assessment: 'Vorschlag für Objektklasse und vorläufige Eindämmungsmaßnahmen.',
@@ -159,9 +151,6 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
     use: 'Die Erkundung eines anomalen Ortes oder Raumes durch ein Team oder eine Drohne.',
     example: 'Erkundung 8050-III: unterer Korridor',
     facts: [
-      ['Erkundungsnummer', 'z. B. Erkundung 8050-III'],
-      ['Ziel', 'Was erkundet wurde, z. B. Raum hinter Tür 4'],
-      ['Erkundungsteam', 'Personal, Rufzeichen oder Drohne'],
       ['Ausrüstung', 'z. B. Helmkamera, Seil, Funk, Geigerzähler'],
       ['Dauer', 'Von Eintritt bis Rückkehr oder Kontaktverlust'],
       ['Ergebnis', 'z. B. zurückgekehrt, Kontakt verloren'],
@@ -173,6 +162,7 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
     ],
     std: {
       location: 'Zugang zum erkundeten Ort',
+      involved: 'Das Erkundungsteam.',
       summary: 'Ein bis zwei Sätze: wohin das Team kam und was es fand.',
       timeline: 'Wichtigster Teil: das Funkprotokoll mit Zeitstempel, je Meldung eine Zeile.',
       assessment: 'Gefahren, weitere Erkundungen ja oder nein, Änderungen an der Eindämmung.',
@@ -183,8 +173,6 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
     use: 'Ein Gespräch mit einem Zeugen, einem Mitarbeiter oder einem sprechenden Objekt.',
     example: 'Befragung von D-80312 nach Test 8050-07',
     facts: [
-      ['Befragte Person', 'Name, Kennung oder SCP-Nummer'],
-      ['Befragt durch', 'Wer das Gespräch geführt hat'],
       ['Anlass', 'Warum befragt wurde, z. B. nach Test 8050-07'],
       ['Aufzeichnung', 'z. B. Audio, Video, Mitschrift'],
     ],
@@ -195,6 +183,7 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
     ],
     std: {
       location: 'Ort des Gesprächs, z. B. Befragungsraum 2',
+      involved: 'Die befragte Person und wer das Gespräch geführt hat. Ein befragtes Objekt unter Betroffene Objekte.',
       summary: 'Ein bis zwei Sätze: wer befragt wurde und was dabei herauskam.',
       assessment: 'Glaubwürdigkeit der Aussagen und was daraus folgt.',
     },
@@ -205,7 +194,6 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
     example: 'Beobachtung: Häufung von Vermisstenfällen in Flensburg',
     facts: [
       ['Auftrag', 'Kurz: was ermittelt oder beobachtet werden sollte'],
-      ['Einsatzteam', 'Agenten oder Feldteam'],
       ['Zeitraum', 'Von wann bis wann vor Ort'],
       ['Tarnidentität', 'Unter welcher Identität aufgetreten wurde, z. B. Versicherungsprüfer'],
       ['Kontaktpersonen', 'Zivile Quellen und Ansprechpartner'],
@@ -217,6 +205,7 @@ export const TEMPLATES: Record<ReportTemplate, TemplateSpec> = {
     ],
     std: {
       summary: 'Ein bis zwei Sätze: wo ermittelt wurde und mit welchem Ergebnis.',
+      involved: 'Das Einsatzteam: Agenten oder Feldteam.',
       assessment: 'Weiteres Vorgehen: Einsatz beenden, beobachten, MTF anfordern?',
     },
   },
